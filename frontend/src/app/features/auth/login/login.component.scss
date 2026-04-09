@@ -1,0 +1,144 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+  background:
+    linear-gradient(105deg, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+    url('/assets/images/logo-login.webp') center / cover no-repeat;
+  position: relative;
+}
+
+.login-panel {
+  width: min(420px, 92vw);
+  margin: 2rem 4vw 2rem 6vw;
+  padding: 2.5rem 2.25rem 2rem;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.logo-img {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+}
+
+.uni-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0d3b66;
+  text-align: center;
+  line-height: 1.35;
+  margin: 0 0 0.35rem;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.subtitle {
+  text-align: center;
+  color: #444;
+  font-size: 0.95rem;
+  margin: 0 0 1.75rem;
+}
+
+.form-control-login {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  margin-bottom: 0.85rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:focus {
+    outline: none;
+    border-color: #1e6bb8;
+    box-shadow: 0 0 0 3px rgba(30, 107, 184, 0.15);
+  }
+
+  &::placeholder {
+    color: #98a2b3;
+  }
+}
+
+.links-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.25rem;
+  min-height: 1.25rem;
+}
+
+.link-portal {
+  font-size: 0.8rem;
+  color: #c62828;
+  font-style: italic;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.btn-login {
+  width: 100%;
+  padding: 0.85rem;
+  border: none;
+  border-radius: 10px;
+  background: #1e6bb8;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background 0.2s, transform 0.05s;
+
+  &:hover:not(:disabled) {
+    background: #185a9d;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.99);
+  }
+
+  &:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+  }
+}
+
+.alert-error {
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  background: #fde8e8;
+  color: #b42318;
+  border: 1px solid #fecdca;
+}
+
+.copyright {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #98a2b3;
+  margin: 1.75rem 0 0;
+}
+
+@media (max-width: 576px) {
+  .login-panel {
+    margin: 1.25rem auto;
+    padding: 1.75rem 1.5rem;
+  }
+}

@@ -1,0 +1,201 @@
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+export interface AuthResponse {
+  token: string;
+  tokenType: string;
+  userId: number;
+  email: string;
+  role: string;
+}
+
+export interface UserResponse {
+  id: number;
+  email: string;
+  role: string;
+  hoTen?: string;
+  hocVi?: string;
+  maSinhVien?: string;
+  lop?: string;
+  tenBoMon?: string;
+  boMonId?: number;
+}
+
+export interface DotDangKyResponse {
+  id: number;
+  tenDot: string;
+  namHoc: string;
+  hocKy: number;
+  ngayBatDau: string;
+  ngayKetThuc: string;
+  trangThai: string;
+  soLuongDangKy?: number;
+}
+
+export interface BoMonResponse {
+  id: number;
+  tenBoMon: string;
+  maBoMon: string;
+  khoaId?: number;
+  tenKhoa?: string;
+  soLuongGiangVien?: number;
+  soLuongSinhVien?: number;
+}
+
+export interface GiangVienResponse {
+  id: number;
+  hoTen: string;
+  hocVi?: string;
+  email: string;
+  boMonId?: number;
+  tenBoMon?: string;
+  laLanhDao?: boolean;
+}
+
+export interface SinhVienResponse {
+  id: number;
+  hoTen: string;
+  maSinhVien: string;
+  lop?: string;
+  email: string;
+  boMonId?: number;
+  tenBoMon?: string;
+  deTaiId?: number;
+  deTaiTen?: string;
+  deTaiTrangThai?: string;
+}
+
+export interface DeTaiResponse {
+  id: number;
+  tenDeTai: string;
+  noiDungDuKien?: string;
+  congNgheSuDung?: string;
+  trangThai: string;
+  ghiChu?: string;
+  dotDangKyId?: number;
+  tenDotDangKy?: string;
+  sinhVienId?: number;
+  hoTenSinhVien?: string;
+  maSinhVien?: string;
+  lopSinhVien?: string;
+  boMonId?: number;
+  tenBoMon?: string;
+  giangVienHuongDanId?: number;
+  hoTenGiangVienHuongDan?: string;
+  giangVienDuKienId?: number;
+  hoTenGiangVienDuKien?: string;
+  giangVienPhanBienId?: number;
+  hoTenGiangVienPhanBien?: string;
+  diemHuongDan?: number;
+  diemPhanBien?: number;
+  diemBaoVe?: number;
+  daChamDiemPB?: boolean;
+  daChamDiemHD?: boolean;
+  createdAt?: string;
+  hoTenGiangVienHoiDong?: string;
+  thanhVienHoiDongList?: ThanhVienInfo[];
+}
+
+export interface ThanhVienInfo {
+  hoTen?: string;
+  vaiTro?: string;
+}
+
+export interface PhanCongHuongDanResponse {
+  id: number;
+  deTaiId: number;
+  tenDeTai: string;
+  noiDungDuKien?: string;
+  congNgheSuDung?: string;
+  giangVienId: number;
+  hoTenGiangVien: string;
+  trangThai: string;
+  ngayPhanCong?: string;
+  sinhVienId?: number;
+  hoTenSinhVien?: string;
+  maSinhVien?: string;
+  lopSinhVien?: string;
+  tenBoMon?: string;
+  daChamDiem?: boolean;
+  diemCham?: number;
+  nhanXetCham?: string;
+}
+
+export interface PhanCongPhanBienResponse {
+  id: number;
+  deTaiId: number;
+  tenDeTai: string;
+  giangVienId: number;
+  hoTenGiangVien: string;
+}
+
+export interface BaoCaoResponse {
+  id: number;
+  deTaiId: number;
+  tenDeTai: string;
+  hoTenSinhVien?: string;
+  maSinhVien?: string;
+  fileBaoCao?: string;
+  fileSourceCode?: string;
+  ngayNop?: string;
+  trangThai: string;
+}
+
+export interface DiemHuongDanResponse {
+  id: number;
+  deTaiId: number;
+  tenDeTai: string;
+  diem?: number;
+  nhanXet?: string;
+  ngayCham?: string;
+  trangThai: string;
+}
+
+export interface DiemPhanBienResponse {
+  id: number;
+  deTaiId: number;
+  tenDeTai: string;
+  diem?: number;
+  nhanXet?: string;
+  ngayCham?: string;
+  trangThai: string;
+}
+
+export interface HoiDongBaoVeResponse {
+  id: number;
+  deTaiId: number;
+  tenDeTai: string;
+  sinhVienId?: number;
+  hoTenSinhVien?: string;
+  maSinhVien?: string;
+  lopSinhVien?: string;
+  ngayBaoVe?: string;
+  diaDiem?: string;
+  trangThai: string;
+  thanhViens?: ThanhVienResponse[];
+  daChamDiem?: boolean;
+  diemCham?: number;
+  nhanXetCham?: string;
+}
+
+export interface ThanhVienResponse {
+  id: number;
+  giangVienId: number;
+  hoTenGiangVien: string;
+  hocVi?: string;
+  vaiTro: string;
+}
+
+
+export interface DashboardResponse {
+  tongSoGiangVien: number;
+  tongSoSinhVien: number;
+  tongSoDeTai: number;
+  deTaiChoDuyet: number;
+  deTaiDangThucHien: number;
+  deTaiHoanThanh: number;
+  deTaiKhongDat: number;
+}
