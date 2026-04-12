@@ -12,7 +12,7 @@ import { ToastrService } from 'ngx-toastr';
   template: `
     <div class="page-header">
       <h2>Báo cáo sinh viên</h2>
-      <p class="text-muted mb-0">Xem báo cáo và source code của sinh viên</p>
+     
     </div>
 
     <div class="card">

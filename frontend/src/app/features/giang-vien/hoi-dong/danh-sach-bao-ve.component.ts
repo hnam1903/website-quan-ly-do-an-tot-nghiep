@@ -9,8 +9,8 @@ import { HoiDongBaoVeResponse } from '../../../core/models/models';
   imports: [CommonModule],
   template: `
     <div class="page-header">
-      <h2>Danh sách bảo vệ</h2>
-      <p class="text-muted mb-0">Thông tin hội đồng bảo vệ bạn tham gia</p>
+      <h2>Danh sách hội đồng bảo vệ</h2>
+     
     </div>
 
     <div class="card">
@@ -23,6 +23,8 @@ import { HoiDongBaoVeResponse } from '../../../core/models/models';
               <th>Họ tên SV</th>
               <th>Lớp</th>
               <th>Tên đề tài</th>
+              <th>Ngày bảo vệ</th>
+              <th>Phòng</th>
               <th>Thành viên hội đồng</th>
             </tr>
           </thead>
@@ -33,6 +35,8 @@ import { HoiDongBaoVeResponse } from '../../../core/models/models';
               <td>{{ hd.hoTenSinhVien || '-' }}</td>
               <td>{{ hd.lopSinhVien || '-' }}</td>
               <td>{{ hd.tenDeTai }}</td>
+              <td>{{ hd.ngayBaoVe | date:'dd/MM/yyyy' }}</td>
+              <td>{{ hd.diaDiem || '-' }}</td>
               <td>
                 <button class="btn btn-sm btn-outline-primary" (click)="xemThanhVien(hd)">
                   <i class="bi bi-people"></i> Xem ({{ hd.thanhViens?.length || 0 }})

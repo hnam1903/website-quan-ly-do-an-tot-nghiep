@@ -40,12 +40,25 @@ export const routes: Routes = [
       { path: 'sinh-vien', loadComponent: () => import('./features/bo-mon/sinh-vien/sinh-vien.component').then(m => m.SinhVienBoMonComponent) },
       { path: 'giang-vien', loadComponent: () => import('./features/bo-mon/giang-vien/giang-vien.component').then(m => m.GiangVienBoMonComponent) },
       { path: 'phan-cong', loadComponent: () => import('./features/bo-mon/phan-cong/phan-cong.component').then(m => m.PhanCongComponent) },
+      { path: 'danh-sach-gvhd', loadComponent: () => import('./features/bo-mon/danh-sach-gvhd/danh-sach-gvhd.component').then(m => m.DanhSachGvhdComponent) },
+      { path: 'danh-sach-gvpb', loadComponent: () => import('./features/bo-mon/danh-sach-gvpb/danh-sach-gvpb.component').then(m => m.DanhSachGvpbComponent) },
+      { path: 'hoi-dong', redirectTo: 'hoi-dong/thanh-lap', pathMatch: 'full' },
+      {
+        path: 'hoi-dong',
+        children: [
+          { path: 'thanh-lap', loadComponent: () => import('./features/bo-mon/hoi-dong/hoi-dong.component').then(m => m.HoiDongComponent) },
+          { path: 'danh-sach', loadComponent: () => import('./features/bo-mon/danh-sach-hoi-dong/danh-sach-hoi-dong.component').then(m => m.DanhSachHoiDongComponent) },
+          { path: 'cham-diem', loadComponent: () => import('./features/bo-mon/cham-diem-bao-ve/cham-diem-bao-ve.component').then(m => m.ChamDiemBaoVeComponent) },
+          { path: 'import-diem', loadComponent: () => import('./features/bo-mon/import-diem-bao-ve/import-diem-bao-ve.component').then(m => m.ImportDiemBaoVeComponent) }
+        ]
+      },
       { path: 'phan-cong-phan-bien', loadComponent: () => import('./features/bo-mon/phan-cong-phan-bien/phan-cong-phan-bien.component').then(m => m.PhanCongPhanBienBmComponent) },
       { path: 'hoi-dong', loadComponent: () => import('./features/bo-mon/hoi-dong/hoi-dong.component').then(m => m.HoiDongComponent) },
-      { path: 'gv-huong-dan', redirectTo: 'gv-huong-dan/cho-duyet', pathMatch: 'full' },
+      { path: 'gv-huong-dan', redirectTo: 'gv-huong-dan/duyet', pathMatch: 'full' },
       {
         path: 'gv-huong-dan',
         children: [
+          { path: 'duyet', loadComponent: () => import('./features/giang-vien/huong-dan/duyet-huong-dan.component').then(m => m.DuyetHuongDanComponent) },
           { path: 'danh-sach', loadComponent: () => import('./features/giang-vien/huong-dan/danh-sach-huong-dan.component').then(m => m.DanhSachHuongDanComponent) },
           { path: 'cham-diem', loadComponent: () => import('./features/giang-vien/huong-dan/cham-diem-huong-dan.component').then(m => m.ChamDiemHuongDanComponent) }
         ]
@@ -61,8 +74,7 @@ export const routes: Routes = [
       {
         path: 'gv-hoi-dong',
         children: [
-          { path: 'danh-sach', loadComponent: () => import('./features/giang-vien/hoi-dong/danh-sach-bao-ve.component').then(m => m.DanhSachBaoVeComponent) },
-          { path: 'cham-diem', loadComponent: () => import('./features/giang-vien/hoi-dong/cham-diem-bao-ve.component').then(m => m.ChamDiemBaoVeComponent) }
+          { path: 'danh-sach', loadComponent: () => import('./features/giang-vien/hoi-dong/danh-sach-bao-ve.component').then(m => m.DanhSachBaoVeComponent) }
         ]
       },
       { path: 'bao-cao', loadComponent: () => import('./features/giang-vien/bao-cao/bao-cao.component').then(m => m.BaoCaoGvComponent) }
@@ -74,11 +86,12 @@ export const routes: Routes = [
     data: { roles: ['GIANG_VIEN'] },
     loadComponent: () => import('./layouts/giang-vien-layout/giang-vien-layout.component').then(m => m.GiangVienLayoutComponent),
     children: [
-      { path: '', redirectTo: 'huong-dan/cho-duyet', pathMatch: 'full' },
+      { path: '', redirectTo: 'huong-dan/duyet', pathMatch: 'full' },
       {
         path: 'huong-dan',
         children: [
-          { path: '', redirectTo: 'danh-sach', pathMatch: 'full' },
+          { path: '', redirectTo: 'duyet', pathMatch: 'full' },
+          { path: 'duyet', loadComponent: () => import('./features/giang-vien/huong-dan/duyet-huong-dan.component').then(m => m.DuyetHuongDanComponent) },
           { path: 'danh-sach', loadComponent: () => import('./features/giang-vien/huong-dan/danh-sach-huong-dan.component').then(m => m.DanhSachHuongDanComponent) },
           { path: 'cham-diem', loadComponent: () => import('./features/giang-vien/huong-dan/cham-diem-huong-dan.component').then(m => m.ChamDiemHuongDanComponent) }
         ]
@@ -95,8 +108,7 @@ export const routes: Routes = [
       {
         path: 'hoi-dong',
         children: [
-          { path: 'danh-sach', loadComponent: () => import('./features/giang-vien/hoi-dong/danh-sach-bao-ve.component').then(m => m.DanhSachBaoVeComponent) },
-          { path: 'cham-diem', loadComponent: () => import('./features/giang-vien/hoi-dong/cham-diem-bao-ve.component').then(m => m.ChamDiemBaoVeComponent) }
+          { path: 'danh-sach', loadComponent: () => import('./features/giang-vien/hoi-dong/danh-sach-bao-ve.component').then(m => m.DanhSachBaoVeComponent) }
         ]
       },
       { path: 'bao-cao', loadComponent: () => import('./features/giang-vien/bao-cao/bao-cao.component').then(m => m.BaoCaoGvComponent) }
@@ -110,6 +122,7 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'de-tai', pathMatch: 'full' },
       { path: 'de-tai', loadComponent: () => import('./features/sinh-vien/de-tai/de-tai.component').then(m => m.DeTaiSvComponent) },
+      { path: 'lich-bao-ve', loadComponent: () => import('./features/sinh-vien/lich-bao-ve/lich-bao-ve.component').then(m => m.LichBaoVeComponent) },
       { path: 'nop-bao-cao', loadComponent: () => import('./features/sinh-vien/nop-bao-cao/nop-bao-cao.component').then(m => m.NopBaoCaoComponent) },
       { path: 'ket-qua', loadComponent: () => import('./features/sinh-vien/ket-qua/ket-qua.component').then(m => m.KetQuaComponent) }
     ]

@@ -13,9 +13,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
       <div>
         <h2>Quản lý đề tài</h2>
-        <p class="text-muted mb-0">
-          Gửi đề tài sinh viên lên Bộ môn duyệt. Xem và xóa đề tài bị từ chối.
-        </p>
+        
       </div>
       <div class="d-flex gap-2">
         <select class="form-select" style="width: 220px;" [(ngModel)]="selectedDotId" (change)="loadDeTai()">
@@ -43,10 +41,7 @@ import { ToastrService } from 'ngx-toastr';
 
     <!-- Tab 1: Chờ gửi Bộ môn -->
     <div *ngIf="activeTab === 'cho-gui'">
-      <div class="alert alert-info">
-        <i class="bi bi-info-circle me-2"></i>
-        <strong>Admin:</strong> Chọn đề tài rồi bấm <strong>Gửi lên Bộ môn</strong>. Bộ môn sẽ duyệt hoặc từ chối.
-      </div>
+      
 
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -111,10 +106,7 @@ import { ToastrService } from 'ngx-toastr';
 
     <!-- Tab 2: Bị từ chối -->
     <div *ngIf="activeTab === 'bi-tu-choi'">
-      <div class="alert alert-danger">
-        <i class="bi bi-exclamation-triangle me-2"></i>
-        <strong>Danh sách bị Bộ môn từ chối.</strong> Bấm <strong>Xóa</strong> để sinh viên đăng ký lại đề tài mới.
-      </div>
+      
 
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">

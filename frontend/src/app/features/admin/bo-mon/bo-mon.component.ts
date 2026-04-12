@@ -13,7 +13,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header d-flex justify-content-between align-items-center">
       <div>
         <h2>Quản lý Bộ môn</h2>
-        <p class="text-muted mb-0">Thông tin các bộ môn trong khoa</p>
+       
       </div>
       <button class="btn btn-primary" (click)="openModal()">
         <i class="bi bi-plus-circle me-2"></i>Thêm Bộ môn

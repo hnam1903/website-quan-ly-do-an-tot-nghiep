@@ -11,7 +11,7 @@ import { RouterModule } from '@angular/router';
   template: `
     <div class="page-header">
       <h2>Danh sách sinh viên phản biện</h2>
-      <p class="text-muted mb-0">Danh sách đề tài được phân công phản biện</p>
+ 
     </div>
 
     <div class="card">

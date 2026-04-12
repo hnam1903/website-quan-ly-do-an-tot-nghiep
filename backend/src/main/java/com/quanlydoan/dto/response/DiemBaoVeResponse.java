@@ -1,5 +1,6 @@
 package com.quanlydoan.dto.response;
 
+import com.quanlydoan.enums.TrangThaiDiem;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +17,9 @@ public class DiemBaoVeResponse {
     private Long hoiDongId;
     private Long giangVienId;
     private String hoTenGiangVien;
+    private String hocVi;
     private BigDecimal diem;
-    private String nhanXet;
+    private TrangThaiDiem trangThai;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

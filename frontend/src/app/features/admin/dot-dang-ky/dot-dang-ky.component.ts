@@ -13,7 +13,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header d-flex justify-content-between align-items-center">
       <div>
         <h2>Quản lý đợt đăng ký</h2>
-        <p class="text-muted mb-0">Tạo và quản lý các đợt đăng ký đồ án</p>
+      
       </div>
       <button class="btn btn-primary" (click)="showModal = true">
         <i class="bi bi-plus-circle me-2"></i>Tạo đợt mới

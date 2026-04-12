@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,10 +40,19 @@ public class DeTaiResponse {
     private BigDecimal diemBaoVe;
     private Boolean daChamDiemPB;
     private Boolean daChamDiemHD;
+    private String nhanXetPhanBien;
     private LocalDateTime createdAt;
     private String hoTenGiangVienHoiDong;
     private String vaiTroHoiDong;
     private List<ThanhVienInfo> thanhVienHoiDongList;
+
+    private LocalDate ngayBaoVe;
+    private String diaDiem;
+
+    private Boolean coBaoCao;
+    private String trangThaiBaoCao;
+    private LocalDateTime ngayNopBaoCao;
+    private String nhanXetCham;
 
     @Data
     @Builder
@@ -51,5 +61,6 @@ public class DeTaiResponse {
     public static class ThanhVienInfo {
         private String hoTen;
         private String vaiTro;
+        private BigDecimal diem;
     }
 }

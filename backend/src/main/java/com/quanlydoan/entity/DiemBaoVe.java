@@ -1,5 +1,6 @@
 package com.quanlydoan.entity;
 
+import com.quanlydoan.enums.TrangThaiDiem;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
@@ -19,18 +20,20 @@ public class DiemBaoVe {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hoi_dong_id")
+    @JoinColumn(name = "hoi_dong_id", nullable = false)
     private HoiDongBaoVe hoiDong;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "giang_vien_id")
+    @JoinColumn(name = "giang_vien_id", nullable = false)
     private GiangVien giangVien;
 
-    @Column(precision = 4, scale = 2)
+    @Column(name = "diem", precision = 4, scale = 2)
     private BigDecimal diem;
 
-    @Column(columnDefinition = "TEXT")
-    private String nhanXet;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "trang_thai", nullable = false)
+    @Builder.Default
+    private TrangThaiDiem trangThai = TrangThaiDiem.CHUA_CHAM;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

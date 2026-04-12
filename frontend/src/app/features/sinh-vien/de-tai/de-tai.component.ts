@@ -12,7 +12,7 @@ import { ToastrService } from 'ngx-toastr';
   template: `
     <div class="page-header">
       <h2>Đăng ký đề tài</h2>
-      <p class="text-muted mb-0">Đăng ký đề tài đồ án tốt nghiệp</p>
+     
     </div>
 
     <div *ngIf="!deTaiCuaToi" class="card">

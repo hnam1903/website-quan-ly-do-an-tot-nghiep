@@ -30,7 +30,7 @@ public class DeTai {
     private String congNgheSuDung;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 30)
     @Builder.Default
     private TrangThaiDeTai trangThai = TrangThaiDeTai.CHO_DUYET;
 

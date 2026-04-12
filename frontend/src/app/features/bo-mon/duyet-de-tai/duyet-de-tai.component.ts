@@ -11,17 +11,14 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
-      <h2>Duyệt đề tài từ Admin</h2>
-      <p class="text-muted mb-0">Xem xét và duyệt/từ chối đề tài sinh viên đã được Admin gửi lên</p>
+      <h2>Duyệt đề tài</h2>
+      
     </div>
 
   
     <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center bg-warning text-dark">
+      <div class="card-header bg-warning text-dark">
         <span><i class="bi bi-inbox me-2"></i>Đề tài chờ duyệt ({{ deTaiList.length }})</span>
-        <button class="btn btn-sm btn-primary" (click)="loadDeTai()">
-          <i class="bi bi-arrow-clockwise"></i> Làm mới
-        </button>
       </div>
       <div class="card-body">
         <div class="table-responsive">
@@ -197,7 +194,12 @@ export class DuyetDeTaiComponent implements OnInit {
           this.selectedDeTai = null;
           this.lyDoTuChoi = '';
           this.loadDeTai();
+        } else {
+          this.toastr.error(res.message || 'Không thể từ chối đề tài');
         }
+      },
+      error: (err) => {
+        this.toastr.error(err.error?.message || 'Không thể từ chối đề tài');
       }
     });
   }

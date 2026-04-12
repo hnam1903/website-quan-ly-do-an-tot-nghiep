@@ -32,12 +32,23 @@ public class GiangVienController {
         return ResponseEntity.ok(ApiResponse.success(giangVienService.getDeTaiHuongDan(gv.getId())));
     }
 
+    @GetMapping("/huong-dan/cho-duyet")
+    public ResponseEntity<ApiResponse<List<PhanCongHuongDanResponse>>> getDeTaiChoDuyet() {
+        UserResponse currentUser = authService.getCurrentUser();
+        GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
+        return ResponseEntity.ok(ApiResponse.success(giangVienService.getDeTaiChoDuyet(gv.getId())));
+    }
+
     @PutMapping("/huong-dan/{id}/duyet")
     public ResponseEntity<ApiResponse<PhanCongHuongDanResponse>> duyetSinhVien(
             @PathVariable Long id, @RequestParam boolean duyet) {
-        return ResponseEntity.ok(ApiResponse.success(
-                duyet ? "Duyệt thành công" : "Từ chối thành công",
-                giangVienService.duyetSinhVienHuongDan(id, duyet)));
+        PhanCongHuongDanResponse result = giangVienService.duyetSinhVienHuongDan(id, duyet);
+        if (duyet) {
+            return ResponseEntity.ok(ApiResponse.success("Duyệt thành công", result));
+        } else {
+            return ResponseEntity.ok(ApiResponse.success("Từ chối thành công. Bộ môn sẽ phân công GV khác.", null));
+        }
     }
 
     @PostMapping("/diem-huong-dan")
@@ -61,23 +72,13 @@ public class GiangVienController {
         return ResponseEntity.ok(ApiResponse.success("Chấm điểm thành công", giangVienService.chamDiemPhanBien(request)));
     }
 
-    // GV Hội đồng
+    // GV Hội đồng - chỉ xem danh sách, không chấm điểm bảo vệ
     @GetMapping("/hoi-dong")
     public ResponseEntity<ApiResponse<List<HoiDongBaoVeResponse>>> getHoiDongBaoVe() {
         UserResponse currentUser = authService.getCurrentUser();
         GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
         return ResponseEntity.ok(ApiResponse.success(giangVienService.getHoiDongBaoVe(gv.getId())));
-    }
-
-    @PostMapping("/diem-bao-ve")
-    public ResponseEntity<ApiResponse<DiemBaoVeResponse>> chamDiemBaoVe(
-            @Valid @RequestBody DiemBaoVeRequest request) {
-        UserResponse currentUser = authService.getCurrentUser();
-        GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
-        return ResponseEntity.ok(ApiResponse.success("Chấm điểm thành công",
-                giangVienService.chamDiemBaoVe(request, gv.getId())));
     }
 
     // Xem báo cáo sinh viên

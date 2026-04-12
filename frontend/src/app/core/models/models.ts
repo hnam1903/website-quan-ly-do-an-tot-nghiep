@@ -94,14 +94,24 @@ export interface DeTaiResponse {
   diemBaoVe?: number;
   daChamDiemPB?: boolean;
   daChamDiemHD?: boolean;
+  nhanXetPhanBien?: string;
   createdAt?: string;
   hoTenGiangVienHoiDong?: string;
   thanhVienHoiDongList?: ThanhVienInfo[];
+  // Thông tin lịch bảo vệ
+  ngayBaoVe?: string;
+  diaDiem?: string;
+  // Thông tin báo cáo
+  coBaoCao?: boolean;
+  trangThaiBaoCao?: string;
+  ngayNopBaoCao?: string;
+  nhanXetCham?: string;
 }
 
 export interface ThanhVienInfo {
   hoTen?: string;
   vaiTro?: string;
+  diem?: number;
 }
 
 export interface PhanCongHuongDanResponse {
@@ -119,9 +129,14 @@ export interface PhanCongHuongDanResponse {
   maSinhVien?: string;
   lopSinhVien?: string;
   tenBoMon?: string;
+  // Điểm hướng dẫn
   daChamDiem?: boolean;
   diemCham?: number;
   nhanXetCham?: string;
+  // Điểm phản biện
+  daChamDiemPB?: boolean;
+  diemPhanBien?: number;
+  nhanXetPhanBien?: string;
 }
 
 export interface PhanCongPhanBienResponse {
@@ -177,7 +192,7 @@ export interface HoiDongBaoVeResponse {
   trangThai: string;
   thanhViens?: ThanhVienResponse[];
   daChamDiem?: boolean;
-  diemCham?: number;
+  diemBaoVe?: number;
   nhanXetCham?: string;
 }
 
@@ -187,6 +202,8 @@ export interface ThanhVienResponse {
   hoTenGiangVien: string;
   hocVi?: string;
   vaiTro: string;
+  diem?: number;
+  nhanXet?: string;
 }
 
 

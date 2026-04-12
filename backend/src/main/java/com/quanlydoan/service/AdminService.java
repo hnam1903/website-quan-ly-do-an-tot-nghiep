@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -29,6 +30,7 @@ public class AdminService {
     private final SinhVienRepository sinhVienRepository;
     private final KhoaRepository khoaRepository;
     private final TaiKhoanRepository taiKhoanRepository;
+    private final DiemBaoVeRepository diemBaoVeRepository;
 
     private final AuthService authService;
 
@@ -461,10 +463,13 @@ public class AdminService {
             builder.diemPhanBien(dt.getDiemPhanBien().getDiem());
         }
 
-        // Điểm bảo vệ (từ hội đồng)
-        if (dt.getHoiDongBaoVe() != null && dt.getHoiDongBaoVe().getDiemBaoVes() != null &&
-            !dt.getHoiDongBaoVe().getDiemBaoVes().isEmpty()) {
-            builder.diemBaoVe(dt.getHoiDongBaoVe().getDiemBaoVes().get(0).getDiem());
+        // Điểm bảo vệ (từ hội đồng - trung bình từ bảng diem_bao_ve)
+        if (dt.getHoiDongBaoVe() != null) {
+            BigDecimal avgDiemBV = diemBaoVeRepository.calculateAverageDiemByHoiDongId(dt.getHoiDongBaoVe().getId());
+            if (avgDiemBV != null) {
+                avgDiemBV = avgDiemBV.setScale(2, RoundingMode.HALF_UP);
+            }
+            builder.diemBaoVe(avgDiemBV);
         }
 
         return builder.build();

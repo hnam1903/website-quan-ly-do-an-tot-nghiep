@@ -50,4 +50,8 @@ export class SinhVienService {
   getKetQuaBaoVe(): Observable<ApiResponse<DeTaiResponse>> {
     return this.http.get<ApiResponse<DeTaiResponse>>(`${this.apiUrl}/ket-qua/bao-ve`);
   }
+
+  getLichBaoVe(): Observable<ApiResponse<DeTaiResponse>> {
+    return this.http.get<ApiResponse<DeTaiResponse>>(`${this.apiUrl}/lich-bao-ve`);
+  }
 }

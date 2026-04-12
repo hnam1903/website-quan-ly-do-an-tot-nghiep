@@ -13,13 +13,11 @@ import { ToastrService } from 'ngx-toastr';
   template: `
     <div class="page-header">
       <h2>Thành lập hội đồng bảo vệ</h2>
-      <p class="text-muted mb-0">Tạo hội đồng cho sinh viên đủ điều kiện bảo vệ</p>
+
     </div>
 
     <div class="card mb-4">
-      <div class="card-header bg-info text-white">
-        <h5 class="mb-0">Sinh viên đủ điều kiện bảo vệ</h5>
-      </div>
+     
       <div class="card-body">
         <div class="table-responsive">
           <table class="table">
@@ -70,7 +68,7 @@ import { ToastrService } from 'ngx-toastr';
             <div class="row mb-3">
               <div class="col-md-6">
                 <label class="form-label">Ngày bảo vệ</label>
-                <input type="datetime-local" class="form-control" [(ngModel)]="formData.ngayBaoVe">
+                <input type="date" class="form-control" [(ngModel)]="formData.ngayBaoVe">
               </div>
               <div class="col-md-6">
                 <label class="form-label">Địa điểm</label>
@@ -169,9 +167,19 @@ export class HoiDongComponent implements OnInit {
       return;
     }
 
+    // Format ngày bảo vệ theo dd/MM/yyyy
+    let ngayBaoVeFormatted = '';
+    if (this.formData.ngayBaoVe) {
+      const date = new Date(this.formData.ngayBaoVe);
+      const day = ('0' + date.getDate()).slice(-2);
+      const month = ('0' + (date.getMonth() + 1)).slice(-2);
+      const year = date.getFullYear();
+      ngayBaoVeFormatted = `${day}/${month}/${year}`;
+    }
+
     const data = {
       deTaiId: this.selectedDeTai.id,
-      ngayBaoVe: this.formData.ngayBaoVe,
+      ngayBaoVe: ngayBaoVeFormatted,
       diaDiem: this.formData.diaDiem,
       thanhViens: this.thanhVien
     };

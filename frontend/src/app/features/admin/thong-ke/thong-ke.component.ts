@@ -14,7 +14,7 @@ import * as XLSX from 'xlsx';
     <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
       <div>
         <h2>Thống kê tổng hợp</h2>
-        <p class="text-muted mb-0">Xem danh sách sinh viên, đề tài và điểm số</p>
+       
       </div>
       <div class="d-flex gap-2">
         <select class="form-select" style="width: 200px;" [(ngModel)]="selectedDotId" (change)="loadThongKe()">

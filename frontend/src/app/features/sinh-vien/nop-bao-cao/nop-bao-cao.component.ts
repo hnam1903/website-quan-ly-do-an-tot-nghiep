@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SinhVienService } from '../../../core/services/sinh-vien.service';
 import { DeTaiResponse, BaoCaoResponse } from '../../../core/models/models';
 import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-nop-bao-cao',
@@ -12,7 +13,7 @@ import { ToastrService } from 'ngx-toastr';
   template: `
     <div class="page-header">
       <h2>Nộp báo cáo</h2>
-      <p class="text-muted mb-0">Nộp báo cáo và source code đồ án</p>
+    
     </div>
 
     <div *ngIf="!deTaiCuaToi" class="alert alert-warning">
@@ -21,12 +22,7 @@ import { ToastrService } from 'ngx-toastr';
 
     <div *ngIf="deTaiCuaToi" class="card">
       <div class="card-body">
-        <div *ngIf="deTaiCuaToi.trangThai !== 'DANG_THUC_HIEN'" class="alert alert-info">
-          Đề tài chưa trong giai đoạn thực hiện. Trạng thái hiện tại:
-          <strong>{{ deTaiCuaToi.trangThai }}</strong>
-        </div>
-
-        <div *ngIf="deTaiCuaToi.trangThai === 'DANG_THUC_HIEN'">
+        <div *ngIf="deTaiCuaToi && deTaiCuaToi.trangThai === 'DANG_THUC_HIEN'">
           <div *ngIf="!baoCao" class="alert alert-warning">
             <strong>Lưu ý:</strong> Bạn chỉ được nộp báo cáo <strong>1 lần duy nhất</strong>. Vui lòng kiểm tra kỹ trước khi nộp.
           </div>
@@ -65,9 +61,20 @@ import { ToastrService } from 'ngx-toastr';
               <td>{{ baoCao.tenDeTai }}</td>
             </tr>
           </table>
-          <div class="alert alert-info mt-3">
-            <i class="fas fa-info-circle"></i> Báo cáo đã được gửi cho giảng viên hướng dẫn xem xét.
+
+          <div class="mt-3">
+            <h6>Tài liệu đã nộp:</h6>
+            <div class="d-flex gap-2 flex-wrap">
+              <button *ngIf="baoCao.fileBaoCao" (click)="downloadFile(baoCao.fileBaoCao, 'bao-cao')" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-download me-1"></i> Tải báo cáo
+              </button>
+              <button *ngIf="baoCao.fileSourceCode" (click)="downloadFile(baoCao.fileSourceCode, 'source-code')" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-download me-1"></i> Tải source code
+              </button>
+            </div>
           </div>
+
+          
         </div>
       </div>
     </div>
@@ -82,8 +89,44 @@ export class NopBaoCaoComponent implements OnInit {
 
   constructor(
     private svService: SinhVienService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private authService: AuthService
   ) {}
+
+  getDownloadUrl(filePath: string): string {
+    return `http://localhost:8080/api/files/download?path=${encodeURIComponent(filePath)}`;
+  }
+
+  downloadFile(filePath: string, type: string): void {
+    const token = this.authService.getToken();
+    const user = this.authService.getCurrentUser();
+    const hoTen = user?.hoTen?.replace(/\s+/g, '-').toLowerCase() || 'user';
+    const maSV = user?.maSinhVien || '';
+    const fileName = type === 'bao-cao'
+      ? `${type}-${hoTen}-${maSV}.docx`
+      : `${type}-${hoTen}-${maSV}.zip`;
+
+    fetch(this.getDownloadUrl(filePath), {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Không thể tải file');
+      return res.blob();
+    })
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    })
+    .catch(err => {
+      this.toastr.error('Không thể tải file');
+    });
+  }
 
   ngOnInit(): void {
     this.loadData();

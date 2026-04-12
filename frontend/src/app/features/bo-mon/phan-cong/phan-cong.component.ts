@@ -12,14 +12,12 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
-      <h2>Phân công GVHD</h2>
-      <p class="text-muted mb-0">Phân công Giảng viên hướng dẫn cho sinh viên</p>
+      <h2>Phân công Giảng viên hướng dẫn</h2>
+    
     </div>
 
     <div class="card">
-      <div class="card-header bg-warning text-dark">
-        <h5 class="mb-0">SV đủ điều kiện - Chờ phân công GVHD</h5>
-      </div>
+      
       <div class="card-body">
         <div *ngIf="svDuDieuKien.length === 0" class="alert alert-info">
           Không có sinh viên cần phân công GVHD.
@@ -87,13 +85,22 @@ export class PhanCongComponent implements OnInit {
     const currentUser = this.authService.getCurrentUser();
     const boMonId = currentUser?.boMonId;
 
+    // Lấy đề tài DU_DIEU_KIEN - SV đủ điều kiện, cần phân công GVHD
     this.boMonService.getDeTai('DU_DIEU_KIEN', boMonId).subscribe({
       next: (res) => {
         if (res.success) this.svDuDieuKien = res.data;
       }
     });
 
-    this.boMonService.getDeTai('DAT_GVHD', boMonId).subscribe({
+    // Lấy đề tài DANG_THUC_HIEN - đã duyệt nhưng chưa phân công GVHD
+    this.boMonService.getDeTai('DANG_THUC_HIEN', boMonId).subscribe({
+      next: (res) => {
+        if (res.success) this.svDuDieuKien = [...this.svDuDieuKien, ...res.data];
+      }
+    });
+
+    // Lấy đề tài đang chờ GV duyệt (Bộ môn đã phân công, GV chưa xác nhận)
+    this.boMonService.getDeTai('CHO_GV_DUYET', boMonId).subscribe({
       next: (res) => {
         if (res.success) this.svDatGVHD = res.data;
       }

@@ -11,7 +11,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,7 +31,9 @@ public class BoMonService {
     private final SinhVienRepository sinhVienRepository;
     private final BoMonRepository boMonRepository;
     private final BaoCaoRepository baoCaoRepository;
+    private final DiemBaoVeRepository diemBaoVeRepository;
     private final AuthService authService;
+    private final DiemBaoVeService diemBaoVeService;
 
     public List<BoMonResponse> getAllBoMon() {
         return boMonRepository.findAll().stream().map(this::mapToBoMonResponse).collect(Collectors.toList());
@@ -62,6 +67,32 @@ public class BoMonService {
         return responses;
     }
 
+    public BaoCaoResponse getBaoCaoByDeTaiId(Long deTaiId) {
+        DeTai deTai = deTaiRepository.findById(deTaiId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đề tài"));
+
+        if (deTai.getBaoCao() == null) {
+            return null;
+        }
+
+        BaoCao bc = deTai.getBaoCao();
+        BaoCaoResponse.BaoCaoResponseBuilder builder = BaoCaoResponse.builder()
+                .id(bc.getId())
+                .deTaiId(deTai.getId())
+                .tenDeTai(deTai.getTenDeTai())
+                .fileBaoCao(bc.getFileBaoCao())
+                .fileSourceCode(bc.getFileSourceCode())
+                .ngayNop(bc.getNgayNop())
+                .trangThai(bc.getTrangThai());
+
+        if (deTai.getSinhVien() != null) {
+            builder.hoTenSinhVien(deTai.getSinhVien().getHoTen())
+                   .maSinhVien(deTai.getSinhVien().getMaSinhVien());
+        }
+
+        return builder.build();
+    }
+
     public List<DeTaiResponse> getDeTaiByBoMon(Long boMonId) {
         List<DeTai> deTais = deTaiRepository.findAllByBoMonId(boMonId);
         return deTais.stream().map(this::mapToDeTaiResponse).collect(Collectors.toList());
@@ -74,6 +105,11 @@ public class BoMonService {
 
     public List<DeTaiResponse> getDeTaiDuDieuKien(Long boMonId) {
         List<DeTai> deTais = deTaiRepository.findByBoMonIdAndTrangThai(boMonId, TrangThaiDeTai.DU_DIEU_KIEN);
+        return deTais.stream().map(this::mapToDeTaiResponse).collect(Collectors.toList());
+    }
+
+    public List<DeTaiResponse> getDeTaiDangThucHien(Long boMonId) {
+        List<DeTai> deTais = deTaiRepository.findByBoMonIdAndTrangThai(boMonId, TrangThaiDeTai.DANG_THUC_HIEN);
         return deTais.stream().map(this::mapToDeTaiResponse).collect(Collectors.toList());
     }
 
@@ -97,7 +133,7 @@ public class BoMonService {
             throw new BadRequestException("Đề tài chưa được gửi từ Khoa hoặc đã được duyệt");
         }
 
-        // Duyệt → Đưa vào danh sách đang thực hiện
+        // Duyệt → Đưa vào danh sách đang thực hiện (chờ phân công GVHD)
         deTai.setTrangThai(TrangThaiDeTai.DANG_THUC_HIEN);
         deTai = deTaiRepository.save(deTai);
 
@@ -198,6 +234,40 @@ public class BoMonService {
         return mapToPhanCongHuongDanResponse(phanCong);
     }
 
+    public List<PhanCongHuongDanResponse> getDeTaiChoGVDuyet(Long boMonId) {
+        List<PhanCongHuongDanResponse> responses = new ArrayList<>();
+
+        // Lấy các đề tài trong bộ môn có giangVienDuKien và chờ GV duyệt
+        List<DeTai> deTais = deTaiRepository.findAll().stream()
+                .filter(dt -> dt.getSinhVien() != null &&
+                             dt.getSinhVien().getBoMon() != null &&
+                             dt.getSinhVien().getBoMon().getId().equals(boMonId) &&
+                             dt.getGiangVienDuKien() != null &&
+                             dt.getTrangThai() == TrangThaiDeTai.CHO_GV_DUYET)
+                .collect(Collectors.toList());
+
+        for (DeTai dt : deTais) {
+            PhanCongHuongDanResponse response = PhanCongHuongDanResponse.builder()
+                    .id(dt.getId())
+                    .deTaiId(dt.getId())
+                    .tenDeTai(dt.getTenDeTai())
+                    .noiDungDuKien(dt.getNoiDungDuKien())
+                    .congNgheSuDung(dt.getCongNgheSuDung())
+                    .giangVienId(dt.getGiangVienDuKien().getId())
+                    .hoTenGiangVien(dt.getGiangVienDuKien().getHoTen())
+                    .trangThai(TrangThaiPhanCong.CHO_DUYET)
+                    .sinhVienId(dt.getSinhVien().getId())
+                    .hoTenSinhVien(dt.getSinhVien().getHoTen())
+                    .maSinhVien(dt.getSinhVien().getMaSinhVien())
+                    .lopSinhVien(dt.getSinhVien().getLop())
+                    .tenBoMon(dt.getSinhVien().getBoMon().getTenBoMon())
+                    .build();
+            responses.add(response);
+        }
+
+        return responses;
+    }
+
     @Transactional
     public PhanCongPhanBienResponse phanCongPhanBien(PhanCongPhanBienRequest request) {
         DeTai deTai = deTaiRepository.findById(request.getDeTaiId())
@@ -225,9 +295,20 @@ public class BoMonService {
         DeTai deTai = deTaiRepository.findById(request.getDeTaiId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đề tài"));
 
+        // Parse ngày bảo vệ với format cụ thể
+        LocalDate ngayBaoVe = null;
+        if (request.getNgayBaoVe() != null && !request.getNgayBaoVe().isEmpty()) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                ngayBaoVe = LocalDate.parse(request.getNgayBaoVe(), formatter);
+            } catch (Exception e) {
+                throw new BadRequestException("Ngày bảo vệ không đúng định dạng: " + request.getNgayBaoVe());
+            }
+        }
+
         HoiDongBaoVe hoiDong = HoiDongBaoVe.builder()
                 .deTai(deTai)
-                .ngayBaoVe(request.getNgayBaoVe() != null ? LocalDateTime.parse(request.getNgayBaoVe()) : null)
+                .ngayBaoVe(ngayBaoVe)
                 .diaDiem(request.getDiaDiem())
                 .trangThai(TrangThaiHoiDong.CHO_BAO_VE)
                 .build();
@@ -304,18 +385,40 @@ public class BoMonService {
                         .collect(Collectors.joining(", "));
                 builder.hoTenGiangVienHoiDong(allTen);
 
-                // Danh sách chi tiết từng thành viên
+                // Danh sách chi tiết từng thành viên + điểm
                 List<DeTaiResponse.ThanhVienInfo> tvList = hd.getThanhViens().stream()
-                        .map(tv -> DeTaiResponse.ThanhVienInfo.builder()
-                                .hoTen(tv.getGiangVien().getHoTen())
-                                .vaiTro(tv.getVaiTro() != null ? tv.getVaiTro().name() : null)
-                                .build())
+                        .map(tv -> {
+                            BigDecimal diem = diemBaoVeRepository
+                                    .findByHoiDongIdAndGiangVienId(hd.getId(), tv.getGiangVien().getId())
+                                    .map(DiemBaoVe::getDiem)
+                                    .orElse(null);
+                            if (diem != null) {
+                                diem = diem.setScale(2, RoundingMode.HALF_UP);
+                            }
+                            return DeTaiResponse.ThanhVienInfo.builder()
+                                    .hoTen(tv.getGiangVien().getHoTen())
+                                    .vaiTro(tv.getVaiTro() != null ? tv.getVaiTro().name() : null)
+                                    .diem(diem)
+                                    .build();
+                        })
                         .collect(Collectors.toList());
                 builder.thanhVienHoiDongList(tvList);
             }
-            if (hd.getDiemBaoVes() != null && !hd.getDiemBaoVes().isEmpty()) {
-                builder.diemBaoVe(hd.getDiemBaoVes().get(0).getDiem());
+            BigDecimal avgDiemBV = diemBaoVeRepository.calculateAverageDiemByHoiDongId(hd.getId());
+            if (avgDiemBV != null) {
+                avgDiemBV = avgDiemBV.setScale(2, RoundingMode.HALF_UP);
             }
+            builder.diemBaoVe(avgDiemBV);
+        }
+
+        // Thông tin báo cáo
+        if (dt.getBaoCao() != null) {
+            builder.coBaoCao(true)
+                   .trangThaiBaoCao(dt.getBaoCao().getTrangThai().name())
+                   .ngayNopBaoCao(dt.getBaoCao().getNgayNop());
+        } else {
+            builder.coBaoCao(false)
+                   .trangThaiBaoCao("CHUA_NOP");
         }
 
         return builder.build();
@@ -383,25 +486,68 @@ public class BoMonService {
                 .build();
     }
 
+    public List<HoiDongBaoVeResponse> getHoiDongByBoMon(Long boMonId) {
+        List<DeTai> deTais = deTaiRepository.findAllByBoMonId(boMonId);
+        return deTais.stream()
+                .filter(dt -> dt.getHoiDongBaoVe() != null)
+                .map(dt -> {
+                    HoiDongBaoVe hd = dt.getHoiDongBaoVe();
+                    HoiDongBaoVeResponse response = mapToHoiDongBaoVeResponse(hd);
+                    response.setSinhVien(dt.getSinhVien().getHoTen());
+                    response.setMaSinhVien(dt.getSinhVien().getMaSinhVien());
+                    response.setDeTai(dt.getTenDeTai());
+                    return response;
+                })
+                .collect(Collectors.toList());
+    }
+
     private HoiDongBaoVeResponse mapToHoiDongBaoVeResponse(HoiDongBaoVe hd) {
         List<ThanhVienResponse> thanhViens = hd.getThanhViens() != null ?
-            hd.getThanhViens().stream().map(tv -> ThanhVienResponse.builder()
-                .id(tv.getId())
-                .giangVienId(tv.getGiangVien().getId())
-                .hoTenGiangVien(tv.getGiangVien().getHoTen())
-                .hocVi(tv.getGiangVien().getHocVi())
-                .vaiTro(tv.getVaiTro())
-                .build()
-            ).collect(Collectors.toList()) : new ArrayList<>();
+            hd.getThanhViens().stream().map(tv -> {
+                ThanhVienResponse.ThanhVienResponseBuilder builder = ThanhVienResponse.builder()
+                    .id(tv.getId())
+                    .giangVienId(tv.getGiangVien().getId())
+                    .hoTenGiangVien(tv.getGiangVien().getHoTen())
+                    .hocVi(tv.getGiangVien().getHocVi())
+                    .vaiTro(tv.getVaiTro());
+
+                // Lấy điểm từ bảng DiemBaoVe
+                diemBaoVeRepository.findByHoiDongIdAndGiangVienId(hd.getId(), tv.getGiangVien().getId())
+                    .ifPresent(dbv -> {
+                        builder.diem(dbv.getDiem());
+                    });
+
+                return builder.build();
+            }).collect(Collectors.toList()) : new ArrayList<>();
+
+        // Lấy thông tin sinh viên từ đề tài
+        String hoTenSinhVien = null;
+        String maSinhVien = null;
+        Long sinhVienId = null;
+        if (hd.getDeTai() != null && hd.getDeTai().getSinhVien() != null) {
+            hoTenSinhVien = hd.getDeTai().getSinhVien().getHoTen();
+            maSinhVien = hd.getDeTai().getSinhVien().getMaSinhVien();
+            sinhVienId = hd.getDeTai().getSinhVien().getId();
+        }
+
+        BigDecimal avgDiem = diemBaoVeRepository.calculateAverageDiemByHoiDongId(hd.getId());
+        if (avgDiem != null) {
+            avgDiem = avgDiem.setScale(2, RoundingMode.HALF_UP);
+        }
 
         return HoiDongBaoVeResponse.builder()
                 .id(hd.getId())
                 .deTaiId(hd.getDeTai().getId())
                 .tenDeTai(hd.getDeTai().getTenDeTai())
+                .sinhVienId(sinhVienId)
+                .hoTenSinhVien(hoTenSinhVien)
+                .maSinhVien(maSinhVien)
                 .ngayBaoVe(hd.getNgayBaoVe())
                 .diaDiem(hd.getDiaDiem())
                 .trangThai(hd.getTrangThai())
                 .thanhViens(thanhViens)
+                .diemBaoVe(avgDiem)
+                .nhanXetCham(hd.getNhanXetBaoVe())
                 .build();
     }
 
@@ -415,5 +561,73 @@ public class BoMonService {
                 .soLuongGiangVien(boMon.getGiangViens() != null ? boMon.getGiangViens().size() : 0)
                 .soLuongSinhVien(boMon.getSinhViens() != null ? boMon.getSinhViens().size() : 0)
                 .build();
+    }
+
+@Transactional
+    public HoiDongBaoVeResponse importDiemBaoVe(DiemBaoVeRequest request) {
+        // Sử dụng DiemBaoVeService để lưu điểm của từng giảng viên
+        List<DiemBaoVeResponse> diemBaoVes = diemBaoVeService.importDiemBaoVe(request);
+
+        // Lấy hội đồng đã cập nhật
+        HoiDongBaoVe hoiDong = hoiDongBaoVeRepository.findById(request.getHoiDongId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hội đồng"));
+
+        // Cập nhật nhận xét vào hội đồng
+        hoiDong.setNhanXetBaoVe(request.getNhanXet());
+        hoiDong = hoiDongBaoVeRepository.save(hoiDong);
+
+        // Cập nhật trạng thái đề tài
+        DeTai deTai = hoiDong.getDeTai();
+        deTai.setTrangThai(TrangThaiDeTai.HOAN_THANH);
+        deTaiRepository.save(deTai);
+
+        return mapToHoiDongBaoVeResponse(hoiDong);
+    }
+
+    public List<DiemBaoVeResponse> getDiemBaoVeByHoiDong(Long hoiDongId) {
+        return diemBaoVeService.getDiemBaoVeByHoiDong(hoiDongId);
+    }
+
+    public List<DiemBaoVeResponse> getDiemBaoVeByDeTai(Long deTaiId) {
+        DeTai deTai = deTaiRepository.findById(deTaiId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đề tài"));
+        if (deTai.getHoiDongBaoVe() == null) {
+            return new java.util.ArrayList<>();
+        }
+        return diemBaoVeService.getDiemBaoVeByHoiDong(deTai.getHoiDongBaoVe().getId());
+    }
+
+
+    @Transactional
+    public HoiDongBaoVeResponse updateDiemBaoVe(Long hoiDongId, DiemBaoVeRequest request) {
+        HoiDongBaoVe hoiDong = hoiDongBaoVeRepository.findById(hoiDongId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hội đồng"));
+
+        // Cập nhật nhận xét
+        hoiDong.setNhanXetBaoVe(request.getNhanXet());
+
+        // Cập nhật điểm từng thành viên
+        if (request.getDiemThanhViens() != null) {
+            for (DiemBaoVeRequest.DiemThanhVien diemTV : request.getDiemThanhViens()) {
+                diemBaoVeService.updateDiemByGiangVien(hoiDongId, diemTV.getGiangVienId(), diemTV.getDiem());
+            }
+        }
+
+        // Kiểm tra đã chấm đủ điểm thì cập nhật trạng thái
+        List<DiemBaoVe> diemBaoVes = diemBaoVeRepository.findByHoiDongId(hoiDongId);
+        long countWithDiem = diemBaoVes.stream().filter(d -> d.getDiem() != null).count();
+
+        if (countWithDiem > 0) {
+            hoiDong.setTrangThai(TrangThaiHoiDong.DA_BAO_VE);
+
+            // Cập nhật trạng thái đề tài thành HOAN_THANH
+            if (hoiDong.getDeTai() != null) {
+                hoiDong.getDeTai().setTrangThai(TrangThaiDeTai.HOAN_THANH);
+                deTaiRepository.save(hoiDong.getDeTai());
+            }
+        }
+
+        hoiDong = hoiDongBaoVeRepository.save(hoiDong);
+        return mapToHoiDongBaoVeResponse(hoiDong);
     }
 }

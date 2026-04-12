@@ -16,6 +16,10 @@ export class GiangVienService {
     return this.http.get<ApiResponse<PhanCongHuongDanResponse[]>>(`${this.apiUrl}/huong-dan`);
   }
 
+  getDeTaiChoDuyet(): Observable<ApiResponse<PhanCongHuongDanResponse[]>> {
+    return this.http.get<ApiResponse<PhanCongHuongDanResponse[]>>(`${this.apiUrl}/huong-dan/cho-duyet`);
+  }
+
   duyetSinhVien(id: number, duyet: boolean): Observable<ApiResponse<PhanCongHuongDanResponse>> {
     return this.http.put<ApiResponse<PhanCongHuongDanResponse>>(`${this.apiUrl}/huong-dan/${id}/duyet?duyet=${duyet}`, {});
   }
@@ -33,13 +37,9 @@ export class GiangVienService {
     return this.http.post<ApiResponse<DiemPhanBienResponse>>(`${this.apiUrl}/diem-phan-bien`, data);
   }
 
-  // GV Hội đồng
+  // GV Hội đồng - chỉ xem danh sách
   getHoiDongBaoVe(): Observable<ApiResponse<HoiDongBaoVeResponse[]>> {
     return this.http.get<ApiResponse<HoiDongBaoVeResponse[]>>(`${this.apiUrl}/hoi-dong`);
-  }
-
-  chamDiemBaoVe(data: any): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/diem-bao-ve`, data);
   }
 
   // Xem báo cáo sinh viên

@@ -12,7 +12,7 @@ import { ToastrService } from 'ngx-toastr';
   template: `
     <div class="page-header">
       <h2>Chấm điểm hướng dẫn</h2>
-      <p class="text-muted mb-0">Chấm điểm sinh viên được hướng dẫn</p>
+      
     </div>
 
     <div class="card">
@@ -36,21 +36,15 @@ import { ToastrService } from 'ngx-toastr';
                 <td>{{ pc.hoTenSinhVien || '-' }}</td>
                 <td>{{ pc.maSinhVien || '-' }}</td>
                 <td>{{ pc.tenDeTai }}</td>
-                <td>
-                  <span *ngIf="pc.daChamDiem" class="badge bg-success">{{ pc.diemCham }}</span>
-                  <span *ngIf="!pc.daChamDiem" class="badge bg-secondary">-</span>
-                </td>
+                <td>{{ pc.diemCham || '-' }}</td>
                 <td>
                   <span *ngIf="pc.daChamDiem" class="badge bg-success">Đã chấm</span>
                   <span *ngIf="!pc.daChamDiem" class="badge bg-warning text-dark">Chưa chấm</span>
                 </td>
                 <td>
-                  <button *ngIf="!pc.daChamDiem" class="btn btn-sm btn-primary" (click)="showForm(pc.id)">
-                    <i class="bi bi-pencil"></i> Chấm điểm
+                  <button class="btn btn-sm btn-primary" (click)="showForm(pc)">
+                    <i class="bi bi-pencil"></i> {{ pc.daChamDiem ? 'Sửa điểm' : 'Chấm điểm' }}
                   </button>
-                  <span *ngIf="pc.daChamDiem" class="text-muted">
-                    {{ pc.nhanXetCham || 'Không có nhận xét' }}
-                  </span>
                 </td>
               </tr>
               <!-- Form chấm điểm -->
@@ -118,8 +112,16 @@ export class ChamDiemHuongDanComponent implements OnInit {
     });
   }
 
-  showForm(id: number): void {
-    this.activeFormId = id;
+  showForm(pc: PhanCongHuongDanResponse): void {
+    this.activeFormId = pc.id;
+    // Pre-fill dữ liệu nếu đã chấm
+    if (pc.daChamDiem) {
+      this.diemMap[pc.id] = pc.diemCham;
+      this.nhanXetMap[pc.id] = pc.nhanXetCham;
+    } else {
+      this.diemMap[pc.id] = null;
+      this.nhanXetMap[pc.id] = null;
+    }
   }
 
   cancelForm(): void {

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { BoMonService } from '../../../core/services/bo-mon.service';
-import { ApiResponse, DeTaiResponse } from '../../../core/models/models';
+import { ApiResponse, DeTaiResponse, BaoCaoResponse } from '../../../core/models/models';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -13,8 +13,8 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
-      <h2>Quản lý đề tài</h2>
-      <p class="text-muted mb-0">Danh sách đề tài của bộ môn</p>
+      <h2>Danh sách đề tài</h2>
+  
     </div>
 
     <!-- Tab Navigation -->
@@ -50,6 +50,7 @@ import { ToastrService } from 'ngx-toastr';
                 <th>Sinh viên</th>
                 <th>Tên đề tài</th>
                 <th>Trạng thái</th>
+                <th>Báo cáo</th>
                 <th>Chi tiết</th>
               </tr>
             </thead>
@@ -67,13 +68,21 @@ import { ToastrService } from 'ngx-toastr';
                   </span>
                 </td>
                 <td>
+                  <button *ngIf="dt.coBaoCao" class="btn btn-sm btn-success" (click)="openBaoCao(dt.id)">
+                    <i class="bi bi-file-earmark-text"></i> Xem
+                  </button>
+                  <span *ngIf="!dt.coBaoCao" class="badge bg-secondary">
+                    <i class="bi bi-hourglass-split"></i> Chưa nộp
+                  </span>
+                </td>
+                <td>
                   <button class="btn btn-sm btn-outline-primary" (click)="openChiTiet(dt)">
                     <i class="bi bi-eye"></i> Xem
                   </button>
                 </td>
               </tr>
               <tr *ngIf="deTaiDangThucHien.length === 0">
-                <td colspan="5" class="text-center text-muted py-4">Không có đề tài nào</td>
+                <td colspan="6" class="text-center text-muted py-4">Không có đề tài nào</td>
               </tr>
             </tbody>
           </table>
@@ -95,6 +104,7 @@ import { ToastrService } from 'ngx-toastr';
                 <th>Sinh viên</th>
                 <th>Tên đề tài</th>
                 <th>Trạng thái</th>
+                <th>Báo cáo</th>
                 <th>Chi tiết</th>
               </tr>
             </thead>
@@ -110,13 +120,21 @@ import { ToastrService } from 'ngx-toastr';
                   <span class="badge bg-success">Hoàn thành</span>
                 </td>
                 <td>
+                  <button *ngIf="dt.coBaoCao" class="btn btn-sm btn-success" (click)="openBaoCao(dt.id)">
+                    <i class="bi bi-file-earmark-text"></i> Xem
+                  </button>
+                  <span *ngIf="!dt.coBaoCao" class="badge bg-secondary">
+                    <i class="bi bi-hourglass-split"></i> Chưa nộp
+                  </span>
+                </td>
+                <td>
                   <button class="btn btn-sm btn-outline-success" (click)="openChiTiet(dt)">
                     <i class="bi bi-eye"></i> Xem
                   </button>
                 </td>
               </tr>
               <tr *ngIf="deTaiHoanThanh.length === 0">
-                <td colspan="5" class="text-center text-muted py-4">Không có đề tài nào</td>
+                <td colspan="6" class="text-center text-muted py-4">Không có đề tài nào</td>
               </tr>
             </tbody>
           </table>
@@ -138,6 +156,7 @@ import { ToastrService } from 'ngx-toastr';
                 <th>Sinh viên</th>
                 <th>Tên đề tài</th>
                 <th>Trạng thái</th>
+                <th>Báo cáo</th>
                 <th>Chi tiết</th>
               </tr>
             </thead>
@@ -155,13 +174,21 @@ import { ToastrService } from 'ngx-toastr';
                   </span>
                 </td>
                 <td>
+                  <button *ngIf="dt.coBaoCao" class="btn btn-sm btn-success" (click)="openBaoCao(dt.id)">
+                    <i class="bi bi-file-earmark-text"></i> Xem
+                  </button>
+                  <span *ngIf="!dt.coBaoCao" class="badge bg-secondary">
+                    <i class="bi bi-hourglass-split"></i> Chưa nộp
+                  </span>
+                </td>
+                <td>
                   <button class="btn btn-sm btn-outline-danger" (click)="openChiTiet(dt)">
                     <i class="bi bi-eye"></i> Xem
                   </button>
                 </td>
               </tr>
               <tr *ngIf="deTaiKhongDat.length === 0">
-                <td colspan="5" class="text-center text-muted py-4">Không có sinh viên nào không đạt</td>
+                <td colspan="6" class="text-center text-muted py-4">Không có sinh viên nào không đạt</td>
               </tr>
             </tbody>
           </table>
@@ -274,13 +301,16 @@ import { ToastrService } from 'ngx-toastr';
                       <li *ngFor="let tv of chiTietDeTai.thanhVienHoiDongList" class="mb-1">
                         <i class="bi bi-person-fill me-1"></i>{{ tv.hoTen }}
                         <span class="badge bg-success ms-1" style="font-size: 0.7rem;">{{ tv.vaiTro }}</span>
+                        <span *ngIf="tv.diem != null" class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">
+                          {{ tv.diem }}/10
+                        </span>
                       </li>
                     </ul>
                     <p class="card-text text-muted" *ngIf="!chiTietDeTai.thanhVienHoiDongList?.length">
                       Chưa có hội đồng
                     </p>
                     <div class="mt-2">
-                      <span class="fw-bold">Điểm:</span>
+                      <span class="fw-bold">TB:</span>
                       <span *ngIf="chiTietDeTai.diemBaoVe != null" class="badge bg-success ms-1">
                         {{ chiTietDeTai.diemBaoVe }}/10
                       </span>
@@ -288,6 +318,87 @@ import { ToastrService } from 'ngx-toastr';
                         Chưa chấm
                       </span>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Chi tiết Báo cáo -->
+    <div class="modal fade" id="baoCaoModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" *ngIf="chiTietBaoCao">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title">
+              <i class="bi bi-file-earmark-text me-2"></i>Báo cáo đề tài
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <label class="fw-bold text-primary">Tên đề tài</label>
+                <p class="mb-2">{{ chiTietBaoCao.tenDeTai }}</p>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="fw-bold text-primary">Sinh viên</label>
+                <p class="mb-1">{{ chiTietBaoCao.hoTenSinhVien }}</p>
+                <small class="text-muted">{{ chiTietBaoCao.maSinhVien }}</small>
+              </div>
+              <div class="col-md-6">
+                <label class="fw-bold text-primary">Ngày nộp</label>
+                <p class="mb-0">{{ chiTietBaoCao.ngayNop | date:'dd/MM/yyyy HH:mm' }}</p>
+              </div>
+            </div>
+
+            <hr>
+
+            <div class="row">
+              <!-- File Báo cáo -->
+              <div class="col-md-6 mb-3">
+                <div class="card h-100 border-start border-4 border-primary">
+                  <div class="card-body text-center">
+                    <h6 class="card-title text-primary">
+                      <i class="bi bi-file-earmark-pdf me-1"></i>Báo cáo
+                    </h6>
+                    <div class="mb-3">
+                      <i class="bi bi-file-earmark-text" style="font-size: 3rem; color: #dc3545;"></i>
+                    </div>
+                    <button *ngIf="chiTietBaoCao.fileBaoCao" 
+                            class="btn btn-primary" 
+                            (click)="downloadFile(chiTietBaoCao.fileBaoCao)">
+                      <i class="bi bi-download me-1"></i>Tải xuống
+                    </button>
+                    <p *ngIf="!chiTietBaoCao.fileBaoCao" class="text-muted mb-0">Chưa có file</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- File Source Code -->
+              <div class="col-md-6 mb-3">
+                <div class="card h-100 border-start border-4 border-warning">
+                  <div class="card-body text-center">
+                    <h6 class="card-title text-warning">
+                      <i class="bi bi-code-slash me-1"></i>Source Code
+                    </h6>
+                    <div class="mb-3">
+                      <i class="bi bi-folder2-open" style="font-size: 3rem; color: #ffc107;"></i>
+                    </div>
+                    <button *ngIf="chiTietBaoCao.fileSourceCode" 
+                            class="btn btn-warning" 
+                            (click)="downloadFile(chiTietBaoCao.fileSourceCode)">
+                      <i class="bi bi-download me-1"></i>Tải xuống
+                    </button>
+                    <p *ngIf="!chiTietBaoCao.fileSourceCode" class="text-muted mb-0">Chưa có file</p>
                   </div>
                 </div>
               </div>
@@ -307,6 +418,7 @@ export class DeTaiBoMonComponent implements OnInit {
   deTaiHoanThanh: DeTaiResponse[] = [];
   deTaiKhongDat: DeTaiResponse[] = [];
   chiTietDeTai: DeTaiResponse | null = null;
+  chiTietBaoCao: BaoCaoResponse | null = null;
 
   constructor(
     private boMonService: BoMonService,
@@ -473,5 +585,37 @@ export class DeTaiBoMonComponent implements OnInit {
       const bsModal = (window as any).bootstrap?.Modal.getOrCreateInstance(modalEl);
       bsModal?.show();
     }
+  }
+
+  /** Mở modal xem báo cáo */
+  openBaoCao(deTaiId: number): void {
+    this.boMonService.getBaoCaoByDeTaiId(deTaiId).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.chiTietBaoCao = res.data;
+          const modalEl = document.getElementById('baoCaoModal');
+          if (modalEl) {
+            const bsModal = (window as any).bootstrap?.Modal.getOrCreateInstance(modalEl);
+            bsModal?.show();
+          }
+        } else {
+          this.toastr.warning('Chưa có báo cáo cho đề tài này');
+        }
+      },
+      error: (err) => {
+        console.error('Lỗi load báo cáo:', err);
+        this.toastr.error('Không thể tải báo cáo');
+      }
+    });
+  }
+
+  /** Tải file báo cáo/source code */
+  downloadFile(filePath: string): void {
+    if (!filePath) {
+      this.toastr.warning('Không có file để tải');
+      return;
+    }
+    const encodedPath = encodeURIComponent(filePath);
+    window.open(`http://localhost:8080/api/files/download?path=${encodedPath}`, '_blank');
   }
 }

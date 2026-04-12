@@ -14,13 +14,11 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header d-flex justify-content-between align-items-center">
       <div>
         <h2>Quản lý Sinh viên</h2>
-        <p class="text-muted mb-0">Danh sách sinh viên {{ isAdmin ? 'toàn trường' : 'thuộc bộ môn' }}</p>
+        
       </div>
       <div class="d-flex align-items-center">
         <span class="badge bg-primary me-3">{{ filteredSinhVienList.length }} sinh viên</span>
-        <button class="btn btn-sm btn-outline-primary" (click)="loadSinhVien()">
-          <i class="bi bi-arrow-clockwise"></i> Làm mới
-        </button>
+        
       </div>
     </div>
 

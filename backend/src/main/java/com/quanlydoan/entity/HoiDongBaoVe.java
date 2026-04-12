@@ -3,6 +3,8 @@ package com.quanlydoan.entity;
 import com.quanlydoan.enums.TrangThaiHoiDong;
 import jakarta.persistence.*;
 import lombok.*;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,7 +26,7 @@ public class HoiDongBaoVe {
     private DeTai deTai;
 
     @Column(name = "ngay_bao_ve")
-    private LocalDateTime ngayBaoVe;
+    private LocalDate ngayBaoVe;
 
     @Column(length = 100)
     private String diaDiem;
@@ -40,11 +42,11 @@ public class HoiDongBaoVe {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "hoiDong", cascade = CascadeType.ALL)
-    private List<ThanhVienHoiDong> thanhViens;
+    @Column(name = "nhan_xet_bao_ve")
+    private String nhanXetBaoVe;
 
     @OneToMany(mappedBy = "hoiDong", cascade = CascadeType.ALL)
-    private List<DiemBaoVe> diemBaoVes;
+    private List<ThanhVienHoiDong> thanhViens;
 
     @PrePersist
     protected void onCreate() {

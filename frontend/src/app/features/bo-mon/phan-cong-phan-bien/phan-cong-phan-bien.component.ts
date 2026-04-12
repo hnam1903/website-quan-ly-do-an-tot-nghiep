@@ -12,14 +12,12 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
-      <h2>Phân công phản biện</h2>
-      <p class="text-muted mb-0">Phân công giảng viên phản biện cho sinh viên đạt GVHD</p>
+      <h2>Phân công Giảng viên phản biện</h2>
+    
     </div>
 
     <div class="card">
-      <div class="card-header bg-warning text-dark">
-        <h5 class="mb-0">Sinh viên đạt GVHD - Chờ phân công GVPB</h5>
-      </div>
+    
       <div class="card-body">
         <div *ngIf="svDatGVHD.length === 0" class="alert alert-info">
           Không có sinh viên nào cần phân công phản biện.

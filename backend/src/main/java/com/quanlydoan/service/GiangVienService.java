@@ -26,106 +26,87 @@ public class GiangVienService {
     private final DiemHuongDanRepository diemHuongDanRepository;
     private final DiemPhanBienRepository diemPhanBienRepository;
     private final HoiDongBaoVeRepository hoiDongBaoVeRepository;
-    private final DiemBaoVeRepository diemBaoVeRepository;
     private final ThanhVienHoiDongRepository thanhVienHoiDongRepository;
     private final BaoCaoRepository baoCaoRepository;
+    private final DiemBaoVeRepository diemBaoVeRepository;
 
-    // GV Hướng dẫn
+    // GV Hướng dẫn - Chỉ hiển thị sinh viên đã được duyệt hướng dẫn
     public List<PhanCongHuongDanResponse> getDeTaiHuongDan(Long giangVienId) {
         List<PhanCongHuongDanResponse> responses = new ArrayList<>();
-        Set<Long> addedDeTaiIds = new HashSet<>();
 
-        // 1. Lấy các đề tài có giangVienDuKien là GV hiện tại và chưa được phân công (SV tự chọn GV - chờ duyệt)
-        List<DeTai> deTaiDuKien = deTaiRepository.findAll().stream()
-                .filter(dt -> dt.getGiangVienDuKien() != null && 
-                             dt.getGiangVienDuKien().getId().equals(giangVienId) &&
-                             dt.getPhanCongHuongDan() == null)
+        // Lấy các phân công có trạng thái DUYET của GV này
+        List<PhanCongHuongDan> phanCongs = phanCongHuongDanRepository.findAll().stream()
+                .filter(pc -> pc.getGiangVien() != null &&
+                             pc.getGiangVien().getId().equals(giangVienId) &&
+                             pc.getTrangThai() == TrangThaiPhanCong.DUYET)
                 .collect(Collectors.toList());
 
-        for (DeTai dt : deTaiDuKien) {
-            responses.add(mapDeTaiToPhanCongResponse(dt, giangVienId));
-            addedDeTaiIds.add(dt.getId());
+        for (PhanCongHuongDan pc : phanCongs) {
+            responses.add(mapToPhanCongHuongDanResponse(pc, giangVienId));
         }
 
-        // 2. Lấy các đề tài đã được phân công cho GV này (bộ môn phân công HOẶC đã duyệt)
-        List<PhanCongHuongDan> phanCongs = phanCongHuongDanRepository.findByGiangVienId(giangVienId);
-        for (PhanCongHuongDan pc : phanCongs) {
-            if (!addedDeTaiIds.contains(pc.getDeTai().getId())) {
-                responses.add(mapToPhanCongHuongDanResponse(pc, giangVienId));
-                addedDeTaiIds.add(pc.getDeTai().getId());
-            }
+        return responses;
+    }
+
+    // Lấy đề tài chờ GV duyệt (từ bảng phanCongHuongDan có trạng thái CHO_DUYET)
+    public List<PhanCongHuongDanResponse> getDeTaiChoDuyet(Long giangVienId) {
+        List<PhanCongHuongDanResponse> responses = new ArrayList<>();
+
+        // Lấy các phân công có trạng thái CHO_DUYET của GV này
+        List<PhanCongHuongDan> phanCons = phanCongHuongDanRepository.findAll().stream()
+                .filter(pc -> pc.getGiangVien() != null &&
+                             pc.getGiangVien().getId().equals(giangVienId) &&
+                             pc.getTrangThai() == TrangThaiPhanCong.CHO_DUYET)
+                .collect(Collectors.toList());
+
+        for (PhanCongHuongDan pc : phanCons) {
+            DeTai dt = pc.getDeTai();
+            PhanCongHuongDanResponse response = PhanCongHuongDanResponse.builder()
+                    .id(pc.getId())
+                    .deTaiId(dt.getId())
+                    .tenDeTai(dt.getTenDeTai())
+                    .noiDungDuKien(dt.getNoiDungDuKien())
+                    .congNgheSuDung(dt.getCongNgheSuDung())
+                    .giangVienId(pc.getGiangVien().getId())
+                    .hoTenGiangVien(pc.getGiangVien().getHoTen())
+                    .trangThai(pc.getTrangThai())
+                    .sinhVienId(dt.getSinhVien() != null ? dt.getSinhVien().getId() : null)
+                    .hoTenSinhVien(dt.getSinhVien() != null ? dt.getSinhVien().getHoTen() : null)
+                    .maSinhVien(dt.getSinhVien() != null ? dt.getSinhVien().getMaSinhVien() : null)
+                    .lopSinhVien(dt.getSinhVien() != null ? dt.getSinhVien().getLop() : null)
+                    .tenBoMon(dt.getSinhVien() != null && dt.getSinhVien().getBoMon() != null ? dt.getSinhVien().getBoMon().getTenBoMon() : null)
+                    .build();
+            responses.add(response);
         }
 
         return responses;
     }
 
     @Transactional
-    public PhanCongHuongDanResponse duyetSinhVienHuongDan(Long id, boolean duyet) {
-        // Kiểm tra xem id là PhanCongHuongDan.id (bộ môn phân công) hay deTai.id (SV tự chọn GV)
-        Optional<PhanCongHuongDan> existingPchd = phanCongHuongDanRepository.findById(id);
+    public PhanCongHuongDanResponse duyetSinhVienHuongDan(Long phanCongId, boolean duyet) {
+        // id là phanCong.id (phân công hướng dẫn)
+        PhanCongHuongDan phanCong = phanCongHuongDanRepository.findById(phanCongId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy phân công hướng dẫn"));
+        DeTai deTai = phanCong.getDeTai();
 
-        if (existingPchd.isPresent()) {
-            // Trường hợp 1: id là PhanCongHuongDan.id (bộ môn phân công)
-            PhanCongHuongDan phanCong = existingPchd.get();
-            DeTai deTai = phanCong.getDeTai();
-
-            if (duyet) {
-                phanCong.setTrangThai(TrangThaiPhanCong.DUYET);
-                deTai.setTrangThai(TrangThaiDeTai.DANG_THUC_HIEN);
-                phanCong = phanCongHuongDanRepository.save(phanCong);
-                deTai.setPhanCongHuongDan(phanCong);
-                deTaiRepository.save(deTai);
-                return mapToPhanCongHuongDanResponse(phanCong, phanCong.getGiangVien().getId());
-            } else {
-                // Từ chối: xóa bản ghi phân công để bộ môn có thể phân công lại
-                deTai.setPhanCongHuongDan(null);
-                deTai.setTrangThai(TrangThaiDeTai.DU_DIEU_KIEN);
-                deTaiRepository.save(deTai);
-                phanCongHuongDanRepository.delete(phanCong);
-                return PhanCongHuongDanResponse.builder()
-                        .id(phanCong.getId())
-                        .deTaiId(deTai.getId())
-                        .tenDeTai(deTai.getTenDeTai())
-                        .giangVienId(phanCong.getGiangVien().getId())
-                        .hoTenGiangVien(phanCong.getGiangVien().getHoTen())
-                        .trangThai(TrangThaiPhanCong.TU_CHOI)
-                        .sinhVienId(deTai.getSinhVien() != null ? deTai.getSinhVien().getId() : null)
-                        .hoTenSinhVien(deTai.getSinhVien() != null ? deTai.getSinhVien().getHoTen() : null)
-                        .maSinhVien(deTai.getSinhVien() != null ? deTai.getSinhVien().getMaSinhVien() : null)
-                        .lopSinhVien(deTai.getSinhVien() != null ? deTai.getSinhVien().getLop() : null)
-                        .build();
-            }
+        if (duyet) {
+            // GV đồng ý
+            phanCong.setTrangThai(TrangThaiPhanCong.DUYET);
+            phanCong.setNgayPhanCong(LocalDateTime.now());
+            deTai.setTrangThai(TrangThaiDeTai.DANG_THUC_HIEN);
+            phanCongHuongDanRepository.save(phanCong);
         } else {
-            // Trường hợp 2: id là deTai.id (SV tự chọn GV dự kiến)
-            DeTai deTai = deTaiRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đề tài"));
-            GiangVien giangVien = deTai.getGiangVienDuKien();
-
-            PhanCongHuongDan phanCong;
-            if (duyet) {
-                phanCong = PhanCongHuongDan.builder()
-                        .deTai(deTai)
-                        .giangVien(giangVien)
-                        .trangThai(TrangThaiPhanCong.DUYET)
-                        .ngayPhanCong(LocalDateTime.now())
-                        .build();
-                deTai.setTrangThai(TrangThaiDeTai.DANG_THUC_HIEN);
-            } else {
-                phanCong = PhanCongHuongDan.builder()
-                        .deTai(deTai)
-                        .giangVien(giangVien)
-                        .trangThai(TrangThaiPhanCong.TU_CHOI)
-                        .ngayPhanCong(LocalDateTime.now())
-                        .build();
-                deTai.setGiangVienDuKien(null);
-                deTai.setTrangThai(TrangThaiDeTai.CHO_DUYET);
-            }
-
-            phanCong = phanCongHuongDanRepository.save(phanCong);
-            deTai.setPhanCongHuongDan(phanCong);
+            // GV từ chối - xóa phân công cũ để phân công lại
+            deTai.setPhanCongHuongDan(null);
+            deTai.setGiangVienDuKien(null);
+            deTai.setTrangThai(TrangThaiDeTai.DU_DIEU_KIEN);
             deTaiRepository.save(deTai);
-            return mapToPhanCongHuongDanResponse(phanCong, giangVien.getId());
+            phanCongHuongDanRepository.delete(phanCong);
+            return null; // Trả về null vì đã xóa
         }
+
+        deTaiRepository.save(deTai);
+        return mapToPhanCongHuongDanResponse(phanCong, phanCong.getGiangVien().getId());
     }
 
     @Transactional
@@ -191,58 +172,45 @@ public class GiangVienService {
         return mapToDiemPhanBienResponse(diem);
     }
 
-    // GV Hội đồng
+    // GV Hội đồng - chỉ xem danh sách, không chấm điểm
     public List<HoiDongBaoVeResponse> getHoiDongBaoVe(Long giangVienId) {
         List<HoiDongBaoVe> hoiDongs = hoiDongBaoVeRepository.findAllByGiangVienId(giangVienId);
-        return hoiDongs.stream().map(hd -> mapToHoiDongBaoVeResponse(hd, giangVienId)).collect(Collectors.toList());
+        return hoiDongs.stream().map(hd -> mapToHoiDongBaoVeResponseSimple(hd)).collect(Collectors.toList());
     }
 
-    @Transactional
-    public DiemBaoVeResponse chamDiemBaoVe(DiemBaoVeRequest request, Long giangVienId) {
-        HoiDongBaoVe hoiDong = hoiDongBaoVeRepository.findById(request.getHoiDongId())
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hội đồng"));
+    private HoiDongBaoVeResponse mapToHoiDongBaoVeResponseSimple(HoiDongBaoVe hd) {
+        List<ThanhVienResponse> thanhViens = hd.getThanhViens() != null ?
+            hd.getThanhViens().stream().map(tv -> ThanhVienResponse.builder()
+                .id(tv.getId())
+                .giangVienId(tv.getGiangVien().getId())
+                .hoTenGiangVien(tv.getGiangVien().getHoTen())
+                .hocVi(tv.getGiangVien().getHocVi())
+                .vaiTro(tv.getVaiTro())
+                .build()
+            ).collect(Collectors.toList()) : new ArrayList<>();
 
-        GiangVien giangVien = giangVienRepository.findById(giangVienId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên"));
+        DeTai deTai = hd.getDeTai();
+        SinhVien sv = deTai.getSinhVien();
 
-        DiemBaoVe diem = diemBaoVeRepository.findByHoiDongIdAndGiangVienId(hoiDong.getId(), giangVienId)
-                .orElse(DiemBaoVe.builder().hoiDong(hoiDong).giangVien(giangVien).build());
-
-        diem.setDiem(request.getDiem());
-        diem.setNhanXet(request.getNhanXet());
-        diem = diemBaoVeRepository.save(diem);
-
-        // Cập nhật trạng thái hội đồng nếu tất cả đã chấm
-        List<DiemBaoVe> allDiems = diemBaoVeRepository.findByHoiDongId(hoiDong.getId());
-        List<ThanhVienHoiDong> thanhViens = thanhVienHoiDongRepository.findByHoiDongId(hoiDong.getId());
-        if (thanhViens.size() > 0 && allDiems.size() == thanhViens.size()) {
-            hoiDong.setTrangThai(TrangThaiHoiDong.DA_BAO_VE);
+        BigDecimal avgDiem = diemBaoVeRepository.calculateAverageDiemByHoiDongId(hd.getId());
+        if (avgDiem != null) {
+            avgDiem = avgDiem.setScale(2, java.math.RoundingMode.HALF_UP);
         }
-        hoiDongBaoVeRepository.save(hoiDong);
 
-        return mapToDiemBaoVeResponse(diem);
-    }
-
-    private PhanCongHuongDanResponse mapDeTaiToPhanCongResponse(DeTai dt, Long giangVienId) {
-        Boolean daChamDiem = diemHuongDanRepository.findByDeTaiId(dt.getId())
-                .map(d -> d.getDiem() != null)
-                .orElse(false);
-        return PhanCongHuongDanResponse.builder()
-                .id(dt.getId())
-                .deTaiId(dt.getId())
-                .tenDeTai(dt.getTenDeTai())
-                .noiDungDuKien(dt.getNoiDungDuKien())
-                .congNgheSuDung(dt.getCongNgheSuDung())
-                .giangVienId(dt.getGiangVienDuKien().getId())
-                .hoTenGiangVien(dt.getGiangVienDuKien().getHoTen())
-                .trangThai(TrangThaiPhanCong.CHO_DUYET)
-                .ngayPhanCong(LocalDateTime.now())
-                .sinhVienId(dt.getSinhVien().getId())
-                .hoTenSinhVien(dt.getSinhVien().getHoTen())
-                .maSinhVien(dt.getSinhVien().getMaSinhVien())
-                .lopSinhVien(dt.getSinhVien().getLop())
-                .tenBoMon(dt.getSinhVien().getBoMon() != null ? dt.getSinhVien().getBoMon().getTenBoMon() : null)
-                .daChamDiem(daChamDiem)
+        return HoiDongBaoVeResponse.builder()
+                .id(hd.getId())
+                .deTaiId(deTai.getId())
+                .tenDeTai(deTai.getTenDeTai())
+                .sinhVienId(sv != null ? sv.getId() : null)
+                .hoTenSinhVien(sv != null ? sv.getHoTen() : null)
+                .maSinhVien(sv != null ? sv.getMaSinhVien() : null)
+                .lopSinhVien(sv != null ? sv.getLop() : null)
+                .ngayBaoVe(hd.getNgayBaoVe())
+                .diaDiem(hd.getDiaDiem())
+                .trangThai(hd.getTrangThai())
+                .thanhViens(thanhViens)
+                .diemBaoVe(avgDiem)
+                .nhanXetCham(hd.getNhanXetBaoVe())
                 .build();
     }
 
@@ -293,13 +261,14 @@ public class GiangVienService {
                 .hoTenSinhVien(dt.getSinhVien() != null ? dt.getSinhVien().getHoTen() : null)
                 .maSinhVien(dt.getSinhVien() != null ? dt.getSinhVien().getMaSinhVien() : null)
                 .lopSinhVien(dt.getSinhVien() != null ? dt.getSinhVien().getLop() : null)
-                .tenBoMon(dt.getPhanCongHuongDan() != null && dt.getPhanCongHuongDan().getGiangVien() != null ? 
-                          dt.getPhanCongHuongDan().getGiangVien().getBoMon() != null ? 
+                .tenBoMon(dt.getPhanCongHuongDan() != null && dt.getPhanCongHuongDan().getGiangVien() != null ?
+                          dt.getPhanCongHuongDan().getGiangVien().getBoMon() != null ?
                           dt.getPhanCongHuongDan().getGiangVien().getBoMon().getTenBoMon() : null : null)
                 .giangVienHuongDanId(dt.getPhanCongHuongDan() != null ? dt.getPhanCongHuongDan().getGiangVien().getId() : null)
                 .hoTenGiangVienHuongDan(dt.getPhanCongHuongDan() != null ? dt.getPhanCongHuongDan().getGiangVien().getHoTen() : null)
                 .daChamDiemPB(daChamPB)
                 .diemPhanBien(diemPB != null ? diemPB.getDiem() : null)
+                .nhanXetPhanBien(diemPB != null ? diemPB.getNhanXet() : null)
                 .build();
     }
 
@@ -324,53 +293,6 @@ public class GiangVienService {
                 .nhanXet(diem.getNhanXet())
                 .ngayCham(diem.getNgayCham())
                 .trangThai(diem.getTrangThai())
-                .build();
-    }
-
-    private HoiDongBaoVeResponse mapToHoiDongBaoVeResponse(HoiDongBaoVe hd, Long giangVienId) {
-        List<ThanhVienResponse> thanhViens = hd.getThanhViens() != null ?
-            hd.getThanhViens().stream().map(tv -> ThanhVienResponse.builder()
-                .id(tv.getId())
-                .giangVienId(tv.getGiangVien().getId())
-                .hoTenGiangVien(tv.getGiangVien().getHoTen())
-                .hocVi(tv.getGiangVien().getHocVi())
-                .vaiTro(tv.getVaiTro())
-                .build()
-            ).collect(Collectors.toList()) : new ArrayList<>();
-
-        DeTai deTai = hd.getDeTai();
-        SinhVien sv = deTai.getSinhVien();
-
-        DiemBaoVe diemCuaToi = diemBaoVeRepository.findByHoiDongIdAndGiangVienId(hd.getId(), giangVienId).orElse(null);
-        boolean daChamDiem = diemCuaToi != null && diemCuaToi.getDiem() != null;
-
-        return HoiDongBaoVeResponse.builder()
-                .id(hd.getId())
-                .deTaiId(deTai.getId())
-                .tenDeTai(deTai.getTenDeTai())
-                .sinhVienId(sv != null ? sv.getId() : null)
-                .hoTenSinhVien(sv != null ? sv.getHoTen() : null)
-                .maSinhVien(sv != null ? sv.getMaSinhVien() : null)
-                .lopSinhVien(sv != null ? sv.getLop() : null)
-                .ngayBaoVe(hd.getNgayBaoVe())
-                .diaDiem(hd.getDiaDiem())
-                .trangThai(hd.getTrangThai())
-                .thanhViens(thanhViens)
-                .daChamDiem(daChamDiem)
-                .diemCham(diemCuaToi != null ? diemCuaToi.getDiem() : null)
-                .nhanXetCham(diemCuaToi != null ? diemCuaToi.getNhanXet() : null)
-                .build();
-    }
-
-    private DiemBaoVeResponse mapToDiemBaoVeResponse(DiemBaoVe diem) {
-        return DiemBaoVeResponse.builder()
-                .id(diem.getId())
-                .hoiDongId(diem.getHoiDong().getId())
-                .giangVienId(diem.getGiangVien().getId())
-                .hoTenGiangVien(diem.getGiangVien().getHoTen())
-                .diem(diem.getDiem())
-                .nhanXet(diem.getNhanXet())
-                .createdAt(diem.getCreatedAt())
                 .build();
     }
 

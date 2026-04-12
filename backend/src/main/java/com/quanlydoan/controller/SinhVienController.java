@@ -102,4 +102,14 @@ public class SinhVienController {
         return ResponseEntity.ok(ApiResponse.success(ketQua));
     }
 
+    @GetMapping("/lich-bao-ve")
+    public ResponseEntity<ApiResponse<DeTaiResponse>> getLichBaoVe() {
+        UserResponse currentUser = authService.getCurrentUser();
+        DeTaiResponse lichBaoVe = sinhVienService.getLichBaoVe(currentUser.getEmail());
+        if (lichBaoVe == null) {
+            return ResponseEntity.ok(ApiResponse.success("Chưa có lịch bảo vệ", null));
+        }
+        return ResponseEntity.ok(ApiResponse.success(lichBaoVe));
+    }
+
 }

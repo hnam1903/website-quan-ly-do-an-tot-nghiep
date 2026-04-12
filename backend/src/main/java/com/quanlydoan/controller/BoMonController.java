@@ -4,6 +4,7 @@ import com.quanlydoan.dto.request.*;
 import com.quanlydoan.dto.response.*;
 import com.quanlydoan.service.BoMonService;
 import com.quanlydoan.service.AuthService;
+import com.quanlydoan.service.ImportExcelService;
 import com.quanlydoan.enums.TrangThaiDeTai;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
@@ -20,6 +22,7 @@ public class BoMonController {
 
     private final BoMonService boMonService;
     private final AuthService authService;
+    private final ImportExcelService importExcelService;
 
     @GetMapping("/bo-mon")
     public ResponseEntity<ApiResponse<List<BoMonResponse>>> getAllBoMon() {
@@ -105,6 +108,13 @@ public class BoMonController {
         return ResponseEntity.ok(ApiResponse.success("Phân công thành công", boMonService.phanCongHuongDan(request)));
     }
 
+    @GetMapping("/de-tai/cho-gv-duyet")
+    public ResponseEntity<ApiResponse<List<PhanCongHuongDanResponse>>> getDeTaiChoGVDuyet() {
+        UserResponse currentUser = authService.getCurrentUser();
+        Long boMonId = currentUser.getBoMonId();
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getDeTaiChoGVDuyet(boMonId)));
+    }
+
     @PostMapping("/phan-cong-phan-bien")
     public ResponseEntity<ApiResponse<PhanCongPhanBienResponse>> phanCongPhanBien(
             @Valid @RequestBody PhanCongPhanBienRequest request) {
@@ -117,10 +127,77 @@ public class BoMonController {
         return ResponseEntity.ok(ApiResponse.success("Tạo hội đồng thành công", boMonService.taoHoiDong(request)));
     }
 
+    @GetMapping("/hoi-dong")
+    public ResponseEntity<ApiResponse<List<HoiDongBaoVeResponse>>> getHoiDongBaoVe() {
+        UserResponse currentUser = authService.getCurrentUser();
+        Long boMonId = currentUser.getBoMonId();
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getHoiDongByBoMon(boMonId)));
+    }
+
     @GetMapping("/bao-cao")
     public ResponseEntity<ApiResponse<List<BaoCaoResponse>>> getBaoCao() {
         UserResponse currentUser = authService.getCurrentUser();
         Long targetBoMonId = currentUser.getBoMonId();
         return ResponseEntity.ok(ApiResponse.success(boMonService.getBaoCaoByBoMon(targetBoMonId)));
+    }
+
+    @GetMapping("/bao-cao/{deTaiId}")
+    public ResponseEntity<ApiResponse<BaoCaoResponse>> getBaoCaoChiTiet(@PathVariable Long deTaiId) {
+        BaoCaoResponse baoCao = boMonService.getBaoCaoByDeTaiId(deTaiId);
+        if (baoCao == null) {
+            return ResponseEntity.ok(ApiResponse.success("Chưa có báo cáo", null));
+        }
+        return ResponseEntity.ok(ApiResponse.success(baoCao));
+    }
+
+    @PostMapping("/diem-bao-ve")
+    public ResponseEntity<ApiResponse<HoiDongBaoVeResponse>> importDiemBaoVe(
+            @Valid @RequestBody DiemBaoVeRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Nhập điểm bảo vệ thành công",
+                boMonService.importDiemBaoVe(request)));
+    }
+
+    @PutMapping("/diem-bao-ve/{id}")
+    public ResponseEntity<ApiResponse<HoiDongBaoVeResponse>> updateDiemBaoVe(
+            @PathVariable Long id,
+            @Valid @RequestBody DiemBaoVeRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Cập nhật điểm thành công",
+                boMonService.updateDiemBaoVe(id, request)));
+    }
+
+    @GetMapping("/diem-bao-ve/hoi-dong/{hoiDongId}")
+    public ResponseEntity<ApiResponse<List<DiemBaoVeResponse>>> getDiemBaoVeByHoiDong(
+            @PathVariable Long hoiDongId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                boMonService.getDiemBaoVeByHoiDong(hoiDongId)));
+    }
+
+    @GetMapping("/diem-bao-ve/de-tai/{deTaiId}")
+    public ResponseEntity<ApiResponse<List<DiemBaoVeResponse>>> getDiemBaoVeByDeTai(
+            @PathVariable Long deTaiId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                boMonService.getDiemBaoVeByDeTai(deTaiId)));
+    }
+
+    @PostMapping("/diem-bao-ve/import-excel")
+    public ResponseEntity<ApiResponse<ImportDiemResult>> importDiemExcel(
+            @RequestParam("file") MultipartFile file) {
+        UserResponse currentUser = authService.getCurrentUser();
+        Long boMonId = currentUser.getBoMonId();
+        return ResponseEntity.ok(ApiResponse.success("Import Excel thành công",
+                importExcelService.importDiemBaoVe(file, boMonId)));
+    }
+
+    @GetMapping("/diem-bao-ve/excel-template")
+    public ResponseEntity<byte[]> downloadExcelTemplate() {
+        try {
+            byte[] template = importExcelService.generateExcelTemplate();
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=template_diem_bao_ve.xlsx")
+                    .header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+                    .body(template);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

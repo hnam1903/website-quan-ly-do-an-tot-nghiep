@@ -10,7 +10,7 @@ import { PhanCongHuongDanResponse } from '../../../core/models/models';
   template: `
     <div class="page-header">
       <h2>Danh sách hướng dẫn</h2>
-      <p class="text-muted mb-0">Thông tin sinh viên và đề tài được hướng dẫn</p>
+    
     </div>
 
     <div class="card">

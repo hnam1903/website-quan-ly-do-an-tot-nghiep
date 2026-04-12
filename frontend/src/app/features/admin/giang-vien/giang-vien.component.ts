@@ -14,7 +14,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header d-flex justify-content-between align-items-center">
       <div>
         <h2>Quản lý Giảng viên</h2>
-        <p class="text-muted mb-0">Thông tin giảng viên trong khoa</p>
+       
       </div>
       <div class="d-flex align-items-center">
         <select class="form-select me-3" [(ngModel)]="selectedBoMonId" (change)="loadGiangVien()" style="width: 200px;">
