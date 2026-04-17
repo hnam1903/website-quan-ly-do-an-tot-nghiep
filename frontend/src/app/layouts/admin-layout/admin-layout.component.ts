@@ -25,10 +25,23 @@ import { Router } from '@angular/router';
             <i class="bi bi-speedometer2 me-2"></i>Dashboard
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/admin/dot-dang-ky" routerLinkActive="active">
-            <i class="bi bi-calendar-event me-2"></i>Đợt đăng ký
+        <li class="nav-item nav-dropdown" [class.open]="isDotDangKyOpen">
+          <a class="nav-link" (click)="toggleDotDangKy()">
+            <i class="bi bi-calendar-event me-2"></i>Quản lý đợt đăng ký
+            <i class="bi bi-chevron-right ms-auto" [class.bi-chevron-down]="isDotDangKyOpen"></i>
           </a>
+          <ul class="nav flex-column sub-menu">
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/admin/dot-dang-ky" routerLinkActive="active">
+                <i class="bi bi-plus-circle me-2"></i>Tạo đợt đăng ký
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/admin/dot-dang-ky/danh-sach" routerLinkActive="active">
+                <i class="bi bi-list-ul me-2"></i>Danh sách đợt đăng ký
+              </a>
+            </li>
+          </ul>
         </li>
         <li class="nav-item">
           <a class="nav-link" routerLink="/admin/de-tai" routerLinkActive="active">
@@ -154,16 +167,53 @@ import { Router } from '@angular/router';
       background-color: #f5f5f5;
       min-height: calc(100vh - 56px);
     }
+    /* Submenu styles */
+    .nav-dropdown {
+      position: relative;
+    }
+    .nav-dropdown > a {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+    }
+    .sub-menu {
+      display: none;
+      padding-left: 20px;
+    }
+    .nav-dropdown.open > .sub-menu {
+      display: block;
+    }
+    .nav-dropdown.open > a i.bi-chevron-right {
+      transform: rotate(90deg);
+    }
+    .sub-menu .nav-link {
+      padding: 8px 15px;
+      font-size: 0.9rem;
+    }
   `]
 })
 export class AdminLayoutComponent {
   currentUser: any;
+  isDotDangKyOpen = false;
 
   constructor(
     private authService: AuthService,
     private router: Router
   ) {
     this.currentUser = this.authService.getCurrentUser();
+    // Auto-expand submenu if on dot-dang-ky pages
+    this.checkDotDangKyRoute();
+  }
+
+  checkDotDangKyRoute(): void {
+    const currentUrl = this.router.url;
+    if (currentUrl.includes('/dot-dang-ky')) {
+      this.isDotDangKyOpen = true;
+    }
+  }
+
+  toggleDotDangKy(): void {
+    this.isDotDangKyOpen = !this.isDotDangKyOpen;
   }
 
   logout(): void {

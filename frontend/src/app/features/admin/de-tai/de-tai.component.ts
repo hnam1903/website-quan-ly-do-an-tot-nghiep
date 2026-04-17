@@ -153,7 +153,7 @@ import { ToastrService } from 'ngx-toastr';
                   <td>{{ dt.tenDeTai }}</td>
                   <td>{{ dt.tenBoMon }}</td>
                   <td>
-                    <span class="text-danger">{{ dt.ghiChu || 'Không có lý do' }}</span>
+                    <span class="text-danger">{{ dt.ghiChu?.replace('Bộ môn từ chối: ', '') || 'Không có lý do' }}</span>
                   </td>
                   <td class="text-center">
                     <button class="btn btn-outline-danger btn-sm" (click)="xoaMotBiTuChoi(dt.id)">

@@ -36,6 +36,7 @@ import { ToastrService } from 'ngx-toastr';
                 <th>STT</th>
                 <th>Họ tên</th>
                 <th>Học vị</th>
+                <th>Bộ môn</th>
                 <th>Email</th>
                 <th>Vai trò</th>
               </tr>
@@ -47,6 +48,7 @@ import { ToastrService } from 'ngx-toastr';
                   <strong>{{ gv.hoTen }}</strong>
                 </td>
                 <td>{{ gv.hocVi || '-' }}</td>
+                <td>{{ gv.tenBoMon || '-' }}</td>
                 <td>{{ gv.email }}</td>
                 <td>
                   <span *ngIf="gv.laLanhDao" class="badge bg-danger">Lãnh đạo BM</span>
@@ -54,7 +56,7 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
               </tr>
               <tr *ngIf="filteredGiangVienList.length === 0">
-                <td colspan="5" class="text-center text-muted py-4">
+                <td colspan="6" class="text-center text-muted py-4">
                   <i class="bi bi-person-badge fs-1 d-block mb-2"></i>
                   Không có giảng viên nào
                 </td>

@@ -28,6 +28,7 @@ public class HoiDongBaoVeResponse {
     private LocalDate ngayBaoVe;
     private String diaDiem;
     private TrangThaiHoiDong trangThai;
+    private String trangThaiDeTai;
     private List<ThanhVienResponse> thanhViens;
     private Boolean daChamDiem;
     private BigDecimal diemBaoVe;

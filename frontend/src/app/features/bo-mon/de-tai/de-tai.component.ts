@@ -470,7 +470,7 @@ export class DeTaiBoMonComponent implements OnInit {
         }
       }
     });
-    this.boMonService.getDeTai('CHO_GV_PB_DUYET').subscribe({
+    this.boMonService.getDeTai('CHO_PHAN_BIEN').subscribe({
       next: (res) => {
         if (res.success) {
           this.deTaiDangThucHien = [...this.deTaiDangThucHien, ...res.data];
@@ -491,7 +491,7 @@ export class DeTaiBoMonComponent implements OnInit {
         }
       }
     });
-    this.boMonService.getDeTai('DA_GAP_HOI_DONG').subscribe({
+    this.boMonService.getDeTai('DANG_BAO_VE').subscribe({
       next: (res) => {
         if (res.success) {
           this.deTaiDangThucHien = [...this.deTaiDangThucHien, ...res.data];
@@ -500,7 +500,7 @@ export class DeTaiBoMonComponent implements OnInit {
     });
 
     // Load đề tài hoàn thành (HOAN_THANH)
-    this.boMonService.getDeTai('HOAN_THANH').subscribe({
+    this.boMonService.getDeTaiHoanThanh().subscribe({
       next: (res) => {
         if (res.success) {
           this.deTaiHoanThanh = res.data;
@@ -520,7 +520,7 @@ export class DeTaiBoMonComponent implements OnInit {
     forkJoin({
       gvhd: safe(this.boMonService.getDeTai('KHONG_DAT_GVHD')),
       phanBien: safe(this.boMonService.getDeTai('KHONG_DAT_PHAN_BIEN')),
-      baoVe: safe(this.boMonService.getDeTai('KHONG_DAT'))
+      baoVe: safe(this.boMonService.getDeTai('KHONG_DAT_BAO_VE'))
     }).subscribe({
       next: ({ gvhd, phanBien, baoVe }) => {
         const merged: DeTaiResponse[] = [];
@@ -544,17 +544,17 @@ export class DeTaiBoMonComponent implements OnInit {
   getStatusClass(status: string): string {
     const map: any = {
       'CHO_GV_DUYET': 'bg-warning',
+      'CHO_GV_DUYET_LAI': 'bg-warning',
       'DANG_THUC_HIEN': 'bg-info',
       'DA_NOP_BAO_CAO': 'bg-primary',
       'DAT_GVHD': 'bg-success',
       'KHONG_DAT_GVHD': 'bg-danger',
-      'CHO_PHAN_BIEN': 'bg-secondary',
-      'CHO_GV_PB_DUYET': 'bg-warning',
+      'CHO_PHAN_BIEN': 'bg-warning',
       'DAT_PHAN_BIEN': 'bg-success',
       'KHONG_DAT_PHAN_BIEN': 'bg-danger',
       'CHO_HOI_DONG': 'bg-secondary',
-      'DA_GAP_HOI_DONG': 'bg-primary',
-      'KHONG_DAT': 'bg-danger'
+      'DANG_BAO_VE': 'bg-primary',
+      'KHONG_DAT_BAO_VE': 'bg-danger'
     };
     return map[status] || 'bg-secondary';
   }
@@ -562,17 +562,18 @@ export class DeTaiBoMonComponent implements OnInit {
   getStatusText(status: string): string {
     const map: any = {
       'CHO_GV_DUYET': 'Chờ GV duyệt',
+      'CHO_GV_DUYET_LAI': 'Chờ GV duyệt lại',
       'DANG_THUC_HIEN': 'Đang thực hiện',
       'DA_NOP_BAO_CAO': 'Đã nộp báo cáo',
       'DAT_GVHD': 'Đạt GVHD',
       'KHONG_DAT_GVHD': 'Không đạt GVHD',
       'CHO_PHAN_BIEN': 'Chờ phản biện',
-      'CHO_GV_PB_DUYET': 'Chờ GV PB duyệt',
       'DAT_PHAN_BIEN': 'Đạt phản biện',
       'KHONG_DAT_PHAN_BIEN': 'Không đạt phản biện',
       'CHO_HOI_DONG': 'Chờ hội đồng',
-      'DA_GAP_HOI_DONG': 'Đã gặp hội đồng',
-      'KHONG_DAT': 'Không đạt bảo vệ'
+      'DANG_BAO_VE': 'Đã gặp hội đồng',
+      'KHONG_DAT': 'Không đạt bảo vệ',
+      'KHONG_DAT_BAO_VE': 'Không đạt bảo vệ'
     };
     return map[status] || status;
   }

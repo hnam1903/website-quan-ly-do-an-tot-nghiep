@@ -1,6 +1,6 @@
 package com.quanlydoan.enums;
 
 public enum TrangThaiDot {
-    CHUONG_TRINH,
+    DANG_MO,
     KET_THUC
 }

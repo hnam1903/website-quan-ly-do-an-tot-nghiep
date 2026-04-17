@@ -30,9 +30,10 @@ public class SinhVienService {
     private final GiangVienRepository giangVienRepository;
     private final BaoCaoRepository baoCaoRepository;
     private final DiemBaoVeRepository diemBaoVeRepository;
+    private final DiemHuongDanRepository diemHuongDanRepository;
 
     public List<DotDangKyResponse> getDotDangKyDangMo() {
-        List<DotDangKy> dots = dotDangKyRepository.findByTrangThai(TrangThaiDot.CHUONG_TRINH);
+        List<DotDangKy> dots = dotDangKyRepository.findByTrangThai(TrangThaiDot.DANG_MO);
         return dots.stream().map(this::mapToDotDangKyResponse).collect(Collectors.toList());
     }
 
@@ -74,15 +75,16 @@ public class SinhVienService {
         DotDangKy dotDangKy = dotDangKyRepository.findById(request.getDotDangKyId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đợt đăng ký"));
 
-        if (dotDangKy.getTrangThai() != TrangThaiDot.CHUONG_TRINH) {
+        if (dotDangKy.getTrangThai() != TrangThaiDot.DANG_MO) {
             throw new BadRequestException("Đợt đăng ký đã kết thúc");
         }
 
-        // Kiểm tra sinh viên đã đăng ký đề tài chưa (bỏ qua các đề tài bị từ chối)
+        // Kiểm tra sinh viên đã đăng ký đề tài chưa (bỏ qua các đề tài bị từ chối hoặc không đạt)
         List<DeTai> existing = deTaiRepository.findBySinhVienId(sinhVien.getId());
         existing = existing.stream()
                 .filter(dt -> dt.getTrangThai() != TrangThaiDeTai.BI_TU_CHOI &&
-                              dt.getTrangThai() != TrangThaiDeTai.KHONG_DU_DIEU_KIEN)
+                             dt.getTrangThai() != TrangThaiDeTai.KHONG_DU_DIEU_KIEN &&
+                             dt.getTrangThai() != TrangThaiDeTai.KHONG_DAT_BAO_VE)
                 .collect(Collectors.toList());
         if (!existing.isEmpty()) {
             throw new BadRequestException("Sinh viên đã đăng ký đề tài rồi");
@@ -126,7 +128,7 @@ public class SinhVienService {
         DotDangKy dotDangKy = dotDangKyRepository.findById(request.getDotDangKyId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đợt đăng ký"));
 
-        if (dotDangKy.getTrangThai() != TrangThaiDot.CHUONG_TRINH) {
+        if (dotDangKy.getTrangThai() != TrangThaiDot.DANG_MO) {
             throw new BadRequestException("Đợt đăng ký đã kết thúc");
         }
 
@@ -170,42 +172,35 @@ public class SinhVienService {
 
         DeTai deTai = deTais.get(0);
 
-        // Kiểm tra đề tài đang trong giai đoạn thực hiện
-        if (deTai.getTrangThai() != TrangThaiDeTai.DANG_THUC_HIEN) {
-            throw new BadRequestException("Đề tài không trong giai đoạn nộp báo cáo");
+        // Kiểm tra đề tài đang trong giai đoạn nộp báo cáo
+        if (deTai.getTrangThai() != TrangThaiDeTai.DANG_THUC_HIEN && deTai.getTrangThai() != TrangThaiDeTai.DA_NOP_BAO_CAO) {
+            throw new BadRequestException("Đề tài không trong giai đoạn nộp báo cáo hoặc đã được chấm điểm");
         }
 
-        // Kiểm tra đã nộp báo cáo chưa (chỉ nộp 1 lần)
-        if (baoCaoRepository.existsByDeTaiId(deTai.getId())) {
+        // Chỉ cho nộp 1 lần - nếu đã nộp thì không cho nộp lại
+        if (baoCaoRepository.findByDeTaiId(deTai.getId()).isPresent()) {
             throw new BadRequestException("Bạn đã nộp báo cáo rồi, không thể nộp lại");
         }
 
-        // Lưu file
-        String fileBaoCao = null;
-        String fileSourceCode = null;
+        BaoCao baoCao = BaoCao.builder().deTai(deTai).build();
 
+        // Lưu file
         try {
             if (request.getFileBaoCao() != null) {
-                fileBaoCao = saveFile(request.getFileBaoCao(), "bao_cao", deTai.getId());
+                baoCao.setFileBaoCao(saveFile(request.getFileBaoCao(), "bao_cao", deTai.getId()));
             }
             if (request.getFileSourceCode() != null) {
-                fileSourceCode = saveFile(request.getFileSourceCode(), "source_code", deTai.getId());
+                baoCao.setFileSourceCode(saveFile(request.getFileSourceCode(), "source_code", deTai.getId()));
             }
         } catch (Exception e) {
             throw new BadRequestException("Lỗi khi lưu file: " + e.getMessage());
         }
 
-        BaoCao baoCao = BaoCao.builder()
-                .deTai(deTai)
-                .fileBaoCao(fileBaoCao)
-                .fileSourceCode(fileSourceCode)
-                .trangThai(TrangThaiBaoCao.DA_NOP)
-                .ngayNop(LocalDateTime.now())
-                .build();
-
+        baoCao.setTrangThai(TrangThaiBaoCao.DA_NOP);
+        baoCao.setNgayNop(LocalDateTime.now());
         baoCao = baoCaoRepository.save(baoCao);
 
-        // Cập nhật trạng thái đề tài
+        // Cập nhật trạng thái đề tài -> SV có thể sửa lại trước khi GVHD chấm
         deTai.setTrangThai(TrangThaiDeTai.DA_NOP_BAO_CAO);
         deTai.setBaoCao(baoCao);
         deTaiRepository.save(deTai);

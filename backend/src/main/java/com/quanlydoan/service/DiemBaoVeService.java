@@ -113,10 +113,12 @@ public class DiemBaoVeService {
                     return DiemBaoVe.builder()
                             .hoiDong(hoiDong)
                             .giangVien(giangVien)
+                            .trangThai(TrangThaiDiem.CHUA_CHAM)
                             .build();
                 });
 
         diemBaoVe.setDiem(diem);
+        diemBaoVe.setTrangThai(diem != null ? TrangThaiDiem.DU_DIEU_KIEN : TrangThaiDiem.CHUA_CHAM);
         diemBaoVe.setUpdatedAt(LocalDateTime.now());
         diemBaoVeRepository.save(diemBaoVe);
     }

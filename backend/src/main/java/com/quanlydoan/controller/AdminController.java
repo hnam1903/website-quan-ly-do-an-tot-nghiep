@@ -47,6 +47,22 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success("Xóa thành công", null));
     }
 
+    @PutMapping("/dot-dang-ky/{id}/dong")
+    public ResponseEntity<ApiResponse<DotDangKyResponse>> dongDotDangKy(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success("Đã đóng đợt đăng ký", adminService.dongDotDangKy(id)));
+    }
+
+    @PutMapping("/dot-dang-ky/{id}/mo-lai")
+    public ResponseEntity<ApiResponse<DotDangKyResponse>> moLaiDotDangKy(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success("Đã mở lại đợt đăng ký", adminService.moLaiDotDangKy(id)));
+    }
+
+    // Danh sách sinh viên theo đợt đăng ký
+    @GetMapping("/dot-dang-ky/{id}/sinh-vien")
+    public ResponseEntity<ApiResponse<DanhSachSinhVienDotDangKyResponse>> getSinhVienByDotDangKy(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(adminService.getDanhSachSinhVienByDotDangKy(id)));
+    }
+
     // Gửi lên Bộ môn
     @GetMapping("/de-tai")
     public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiDangKy(

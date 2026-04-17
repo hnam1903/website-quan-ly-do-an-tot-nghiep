@@ -226,11 +226,14 @@ import { filter } from 'rxjs/operators';
     }
     .sidebar {
       width: 250px;
-      min-height: 100vh;
+      height: 100vh;
       position: fixed;
       left: 0;
       top: 0;
       z-index: 100;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
     }
     .main-wrapper {
       margin-left: 250px;

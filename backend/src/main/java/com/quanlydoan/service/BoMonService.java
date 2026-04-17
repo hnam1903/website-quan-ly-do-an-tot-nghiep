@@ -152,7 +152,7 @@ public class BoMonService {
 
         // Reset về trạng thái bị từ chối để sinh viên đăng ký lại
         deTai.setTrangThai(TrangThaiDeTai.BI_TU_CHOI);
-        deTai.setGhiChu("Bộ môn từ chối: " + (ghiChu != null ? ghiChu : ""));
+        deTai.setGhiChu(ghiChu != null ? ghiChu.trim() : "");
         deTai = deTaiRepository.save(deTai);
 
         return mapToDeTaiResponse(deTai);
@@ -168,6 +168,11 @@ public class BoMonService {
         return deTais.stream().map(this::mapToDeTaiResponse).collect(Collectors.toList());
     }
 
+    public List<DeTaiResponse> getDeTaiHoanThanh(Long boMonId) {
+        List<DeTai> deTais = deTaiRepository.findByBoMonIdAndTrangThai(boMonId, TrangThaiDeTai.HOAN_THANH);
+        return deTais.stream().map(this::mapToDeTaiResponse).collect(Collectors.toList());
+    }
+
     public List<DeTaiResponse> getDeTaiKhongDat(Long boMonId, String loai) {
         List<TrangThaiDeTai> trangThais = new ArrayList<>();
         if ("HUONG_DAN".equals(loai)) {
@@ -175,7 +180,7 @@ public class BoMonService {
         } else if ("PHAN_BIEN".equals(loai)) {
             trangThais.add(TrangThaiDeTai.KHONG_DAT_PHAN_BIEN);
         } else {
-            trangThais.add(TrangThaiDeTai.KHONG_DAT);
+            trangThais.add(TrangThaiDeTai.KHONG_DAT_BAO_VE);
         }
         List<DeTai> deTais = deTaiRepository.findByBoMonIdAndTrangThaiIn(boMonId, trangThais);
         return deTais.stream().map(this::mapToDeTaiResponse).collect(Collectors.toList());
@@ -237,32 +242,38 @@ public class BoMonService {
     public List<PhanCongHuongDanResponse> getDeTaiChoGVDuyet(Long boMonId) {
         List<PhanCongHuongDanResponse> responses = new ArrayList<>();
 
-        // Lấy các đề tài trong bộ môn có giangVienDuKien và chờ GV duyệt
+        // Lấy các đề tài trong bộ môn chờ GV duyệt (bao gồm cả bị từ chối cần phân công lại)
         List<DeTai> deTais = deTaiRepository.findAll().stream()
                 .filter(dt -> dt.getSinhVien() != null &&
                              dt.getSinhVien().getBoMon() != null &&
                              dt.getSinhVien().getBoMon().getId().equals(boMonId) &&
-                             dt.getGiangVienDuKien() != null &&
-                             dt.getTrangThai() == TrangThaiDeTai.CHO_GV_DUYET)
+                             (dt.getTrangThai() == TrangThaiDeTai.CHO_GV_DUYET ||
+                              dt.getTrangThai() == TrangThaiDeTai.CHO_GV_DUYET_LAI))
                 .collect(Collectors.toList());
 
         for (DeTai dt : deTais) {
-            PhanCongHuongDanResponse response = PhanCongHuongDanResponse.builder()
+            PhanCongHuongDanResponse.PhanCongHuongDanResponseBuilder builder = PhanCongHuongDanResponse.builder()
                     .id(dt.getId())
                     .deTaiId(dt.getId())
                     .tenDeTai(dt.getTenDeTai())
                     .noiDungDuKien(dt.getNoiDungDuKien())
                     .congNgheSuDung(dt.getCongNgheSuDung())
-                    .giangVienId(dt.getGiangVienDuKien().getId())
-                    .hoTenGiangVien(dt.getGiangVienDuKien().getHoTen())
-                    .trangThai(TrangThaiPhanCong.CHO_DUYET)
+                    .trangThai(dt.getTrangThai() == TrangThaiDeTai.CHO_GV_DUYET_LAI 
+                               ? TrangThaiPhanCong.TU_CHOI 
+                               : TrangThaiPhanCong.CHO_DUYET)
                     .sinhVienId(dt.getSinhVien().getId())
                     .hoTenSinhVien(dt.getSinhVien().getHoTen())
                     .maSinhVien(dt.getSinhVien().getMaSinhVien())
                     .lopSinhVien(dt.getSinhVien().getLop())
-                    .tenBoMon(dt.getSinhVien().getBoMon().getTenBoMon())
-                    .build();
-            responses.add(response);
+                    .tenBoMon(dt.getSinhVien().getBoMon().getTenBoMon());
+
+            // Nếu có giangVienDuKien (trường hợp CHO_GV_DUYET), lấy thông tin GV
+            if (dt.getGiangVienDuKien() != null) {
+                builder.giangVienId(dt.getGiangVienDuKien().getId())
+                       .hoTenGiangVien(dt.getGiangVienDuKien().getHoTen());
+            }
+
+            responses.add(builder.build());
         }
 
         return responses;
@@ -283,7 +294,7 @@ public class BoMonService {
         phanCong = phanCongPhanBienRepository.save(phanCong);
 
         // Cập nhật trạng thái đề tài
-        deTai.setTrangThai(TrangThaiDeTai.CHO_GV_PB_DUYET);
+        deTai.setTrangThai(TrangThaiDeTai.CHO_PHAN_BIEN);
         deTai.setPhanCongPhanBien(phanCong);
         deTaiRepository.save(deTai);
 
@@ -329,7 +340,7 @@ public class BoMonService {
         }
 
         // Cập nhật trạng thái đề tài
-        deTai.setTrangThai(TrangThaiDeTai.DA_GAP_HOI_DONG);
+        deTai.setTrangThai(TrangThaiDeTai.DANG_BAO_VE);
         deTai.setHoiDongBaoVe(hoiDong);
         deTaiRepository.save(deTai);
 
@@ -371,6 +382,11 @@ public class BoMonService {
         if (dt.getPhanCongPhanBien() != null && dt.getPhanCongPhanBien().getGiangVien() != null) {
             builder.giangVienPhanBienId(dt.getPhanCongPhanBien().getGiangVien().getId())
                    .hoTenGiangVienPhanBien(dt.getPhanCongPhanBien().getGiangVien().getHoTen());
+        }
+
+        if (dt.getGiangVienDuKien() != null) {
+            builder.giangVienDuKienId(dt.getGiangVienDuKien().getId())
+                   .hoTenGiangVienDuKien(dt.getGiangVienDuKien().getHoTen());
         }
 
         if (dt.getDiemHuongDan() != null) builder.diemHuongDan(dt.getDiemHuongDan().getDiem());
@@ -545,6 +561,7 @@ public class BoMonService {
                 .ngayBaoVe(hd.getNgayBaoVe())
                 .diaDiem(hd.getDiaDiem())
                 .trangThai(hd.getTrangThai())
+                .trangThaiDeTai(hd.getDeTai().getTrangThai().name())
                 .thanhViens(thanhViens)
                 .diemBaoVe(avgDiem)
                 .nhanXetCham(hd.getNhanXetBaoVe())
@@ -576,9 +593,16 @@ public class BoMonService {
         hoiDong.setNhanXetBaoVe(request.getNhanXet());
         hoiDong = hoiDongBaoVeRepository.save(hoiDong);
 
-        // Cập nhật trạng thái đề tài
+        // Tính điểm trung bình của hội đồng
+        java.math.BigDecimal avgDiem = diemBaoVeRepository.calculateAverageDiemByHoiDongId(hoiDong.getId());
+
+        // Cập nhật trạng thái đề tài dựa trên điểm trung bình
         DeTai deTai = hoiDong.getDeTai();
-        deTai.setTrangThai(TrangThaiDeTai.HOAN_THANH);
+        if (avgDiem != null && avgDiem.compareTo(java.math.BigDecimal.valueOf(5)) >= 0) {
+            deTai.setTrangThai(TrangThaiDeTai.HOAN_THANH);
+        } else {
+            deTai.setTrangThai(TrangThaiDeTai.KHONG_DAT_BAO_VE);
+        }
         deTaiRepository.save(deTai);
 
         return mapToHoiDongBaoVeResponse(hoiDong);
@@ -620,9 +644,16 @@ public class BoMonService {
         if (countWithDiem > 0) {
             hoiDong.setTrangThai(TrangThaiHoiDong.DA_BAO_VE);
 
-            // Cập nhật trạng thái đề tài thành HOAN_THANH
+            // Tính điểm trung bình của hội đồng
+            java.math.BigDecimal avgDiem = diemBaoVeRepository.calculateAverageDiemByHoiDongId(hoiDongId);
+
+            // Cập nhật trạng thái đề tài dựa trên điểm trung bình
             if (hoiDong.getDeTai() != null) {
-                hoiDong.getDeTai().setTrangThai(TrangThaiDeTai.HOAN_THANH);
+                if (avgDiem != null && avgDiem.compareTo(java.math.BigDecimal.valueOf(5)) >= 0) {
+                    hoiDong.getDeTai().setTrangThai(TrangThaiDeTai.HOAN_THANH);
+                } else {
+                    hoiDong.getDeTai().setTrangThai(TrangThaiDeTai.KHONG_DAT_BAO_VE);
+                }
                 deTaiRepository.save(hoiDong.getDeTai());
             }
         }

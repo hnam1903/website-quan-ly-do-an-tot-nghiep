@@ -44,6 +44,10 @@ export class BoMonService {
     return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/de-tai/khong-dat`, { params });
   }
 
+  getDeTaiHoanThanh(): Observable<ApiResponse<DeTaiResponse[]>> {
+    return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/de-tai/hoan-thanh`);
+  }
+
   getGiangVien(boMonId?: number): Observable<ApiResponse<GiangVienResponse[]>> {
     let params = new HttpParams();
     if (boMonId) {

@@ -46,8 +46,6 @@ import { ToastrService } from 'ngx-toastr';
                 <th>Lớp</th>
                 <th>Bộ môn</th>
                 <th>Email</th>
-                <th>Đề tài</th>
-                <th>Trạng thái đề tài</th>
               </tr>
             </thead>
             <tbody>
@@ -58,19 +56,9 @@ import { ToastrService } from 'ngx-toastr';
                 <td>{{ sv.lop || '-' }}</td>
                 <td>{{ sv.tenBoMon || '-' }}</td>
                 <td>{{ sv.email }}</td>
-                <td>
-                  <span *ngIf="sv.deTaiId" class="text-primary">{{ sv.deTaiTen || 'Có đề tài' }}</span>
-                  <span *ngIf="!sv.deTaiId" class="text-muted">Chưa đăng ký</span>
-                </td>
-                <td>
-                  <span *ngIf="sv.deTaiTrangThai" [class]="getStatusClass(sv.deTaiTrangThai)" class="badge">
-                    {{ getStatusText(sv.deTaiTrangThai) }}
-                  </span>
-                  <span *ngIf="!sv.deTaiTrangThai" class="text-muted">-</span>
-                </td>
               </tr>
               <tr *ngIf="filteredSinhVienList.length === 0">
-                <td colspan="8" class="text-center text-muted py-4">
+                <td colspan="6" class="text-center text-muted py-4">
                   <i class="bi bi-people fs-1 d-block mb-2"></i>
                   Không có sinh viên nào
                 </td>
@@ -150,7 +138,7 @@ export class SinhVienBoMonComponent implements OnInit {
       'DAT_GVHD': 'bg-success',
       'DAT_PHAN_BIEN': 'bg-success',
       'HOAN_THANH': 'bg-success',
-      'KHONG_DAT': 'bg-danger'
+      'KHONG_DAT_BAO_VE': 'bg-danger'
     };
     return map[status] || 'bg-secondary';
   }
@@ -165,7 +153,7 @@ export class SinhVienBoMonComponent implements OnInit {
       'DAT_GVHD': 'Đạt HD',
       'DAT_PHAN_BIEN': 'Đạt PB',
       'HOAN_THANH': 'Hoàn thành',
-      'KHONG_DAT': 'Không đạt'
+      'KHONG_DAT_BAO_VE': 'Không đạt bảo vệ'
     };
     return map[status] || status;
   }

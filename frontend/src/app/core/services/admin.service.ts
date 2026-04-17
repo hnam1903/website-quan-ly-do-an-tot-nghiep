@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiResponse, DotDangKyResponse, BoMonResponse, GiangVienResponse, SinhVienResponse, DeTaiResponse, DashboardResponse } from '../models/models';
+import { ApiResponse, DotDangKyResponse, BoMonResponse, GiangVienResponse, SinhVienResponse, DeTaiResponse, DashboardResponse, DanhSachSinhVienDotDangKyResponse } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +26,14 @@ export class AdminService {
 
   deleteDotDangKy(id: number): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/dot-dang-ky/${id}`);
+  }
+
+  dongDotDangKy(id: number): Observable<ApiResponse<DotDangKyResponse>> {
+    return this.http.put<ApiResponse<DotDangKyResponse>>(`${this.apiUrl}/dot-dang-ky/${id}/dong`, {});
+  }
+
+  moLaiDotDangKy(id: number): Observable<ApiResponse<DotDangKyResponse>> {
+    return this.http.put<ApiResponse<DotDangKyResponse>>(`${this.apiUrl}/dot-dang-ky/${id}/mo-lai`, {});
   }
 
   // Gửi lên Bộ môn
@@ -143,5 +151,12 @@ export class AdminService {
       params = params.set('boMonId', boMonId.toString());
     }
     return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/thong-ke`, { params });
+  }
+
+  // Sinh viên theo đợt đăng ký
+  getDanhSachSinhVienByDotDangKy(dotDangKyId: number): Observable<ApiResponse<DanhSachSinhVienDotDangKyResponse>> {
+    return this.http.get<ApiResponse<DanhSachSinhVienDotDangKyResponse>>(
+      `${this.apiUrl}/dot-dang-ky/${dotDangKyId}/sinh-vien`
+    );
   }
 }

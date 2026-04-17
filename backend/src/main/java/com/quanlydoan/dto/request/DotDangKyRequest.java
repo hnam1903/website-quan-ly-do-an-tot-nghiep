@@ -17,4 +17,7 @@ public class DotDangKyRequest {
     
     @NotNull(message = "Ngày bắt đầu không được để trống")
     private String ngayBatDau;
+    
+    @NotNull(message = "Ngày kết thúc không được để trống")
+    private String ngayKetThuc;
 }

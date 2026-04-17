@@ -22,9 +22,9 @@ import { AuthService } from '../../../core/services/auth.service';
 
     <div *ngIf="deTaiCuaToi" class="card">
       <div class="card-body">
-        <div *ngIf="deTaiCuaToi && deTaiCuaToi.trangThai === 'DANG_THUC_HIEN'">
-          <div *ngIf="!baoCao" class="alert alert-warning">
-            <strong>Lưu ý:</strong> Bạn chỉ được nộp báo cáo <strong>1 lần duy nhất</strong>. Vui lòng kiểm tra kỹ trước khi nộp.
+        <div *ngIf="deTaiCuaToi && deTaiCuaToi.trangThai === 'DANG_THUC_HIEN' && !baoCao">
+          <div class="alert alert-warning">
+            <strong>Lưu ý:</strong> Bạn chỉ được nộp báo cáo một lần duy nhất. Vui lòng kiểm tra kỹ trước khi nộp.
           </div>
 
           <form (ngSubmit)="nopBaoCao()">
@@ -43,6 +43,10 @@ import { AuthService } from '../../../core/services/auth.service';
               <span *ngIf="!isSubmitting">Nộp báo cáo</span>
             </button>
           </form>
+        </div>
+
+        <div *ngIf="deTaiCuaToi && deTaiCuaToi.trangThai === 'DA_NOP_BAO_CAO' && baoCao" class="alert alert-success">
+          <strong>Đã nộp báo cáo!</strong> File của bạn đã được nộp thành công. Vui lòng chờ GVHD chấm điểm.
         </div>
 
         <div *ngIf="baoCao" class="mt-4">

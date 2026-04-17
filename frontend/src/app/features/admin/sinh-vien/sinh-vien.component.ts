@@ -199,7 +199,14 @@ export class SinhVienComponent implements OnInit {
 
   editSinhVien(sv: SinhVienResponse): void {
     this.isEditing = true;
-    this.formData = { hoTen: sv.hoTen, maSinhVien: sv.maSinhVien, lop: sv.lop, boMonId: sv.boMonId, email: sv.email };
+    this.formData = { 
+      id: sv.id,
+      hoTen: sv.hoTen, 
+      maSinhVien: sv.maSinhVien, 
+      lop: sv.lop, 
+      boMonId: sv.boMonId, 
+      email: sv.email 
+    };
     this.showModal = true;
   }
 
@@ -210,9 +217,18 @@ export class SinhVienComponent implements OnInit {
 
   saveSinhVien(): void {
     if (this.isEditing) {
-      this.toastr.success('Cập nhật thành công!');
-      this.loadSinhVien();
-      this.closeModal();
+      this.adminService.updateSinhVien(this.formData.id, this.formData).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.toastr.success('Cập nhật thành công!');
+            this.loadSinhVien();
+            this.closeModal();
+          }
+        },
+        error: (err) => {
+          this.toastr.error(err.error?.message || 'Có lỗi xảy ra');
+        }
+      });
     } else {
       this.adminService.createSinhVien(this.formData).subscribe({
         next: (res) => {
@@ -253,10 +269,14 @@ export class SinhVienComponent implements OnInit {
     this.http.post<any>('http://localhost:8080/api/admin/import/sinh-vien', formData).subscribe({
       next: (res) => {
         this.importing = false;
+        this.importResult = res.data;
         if (res.success) {
-          this.importResult = res.data;
-          this.toastr.success('Import thành công ' + res.data.successCount + ' sinh viên');
-          this.loadSinhVien();
+          if (res.data.errorCount > 0) {
+            this.toastr.warning('Import có lỗi: ' + res.data.errorCount + ' dòng không hợp lệ');
+          } else {
+            this.toastr.success('Import thành công ' + res.data.successCount + ' sinh viên');
+            this.loadSinhVien();
+          }
         } else {
           this.toastr.error(res.message);
         }

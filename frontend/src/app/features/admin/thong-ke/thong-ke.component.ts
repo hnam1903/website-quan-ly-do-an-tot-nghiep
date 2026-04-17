@@ -265,8 +265,9 @@ export class ThongKeComponent implements OnInit {
       case 'HOAN_THANH': return 'bg-success';
       case 'DANG_THUC_HIEN': return 'bg-primary';
       case 'DA_NOP_BAO_CAO': return 'bg-info';
-      case 'KHONG_DAT': return 'bg-danger';
+      case 'KHONG_DAT_BAO_VE': return 'bg-danger';
       case 'CHO_DUYET': return 'bg-warning';
+      case 'CHO_GV_DUYET_LAI': return 'bg-warning';
       default: return 'bg-secondary';
     }
   }
@@ -279,18 +280,18 @@ export class ThongKeComponent implements OnInit {
       'BI_TU_CHOI': 'Bị từ chối',
       'CHO_BO_MON_DUYET': 'Chờ BM duyệt',
       'CHO_GV_DUYET': 'Chờ GV duyệt',
+      'CHO_GV_DUYET_LAI': 'Chờ GV duyệt lại',
       'DANG_THUC_HIEN': 'Đang thực hiện',
       'DA_NOP_BAO_CAO': 'Đã nộp báo cáo',
       'DAT_GVHD': 'Đạt HD',
       'KHONG_DAT_GVHD': 'K đạt HD',
       'CHO_PHAN_BIEN': 'Chờ PB',
-      'CHO_GV_PB_DUYET': 'Chờ GV PB duyệt',
       'DAT_PHAN_BIEN': 'Đạt PB',
       'KHONG_DAT_PHAN_BIEN': 'K đạt PB',
       'CHO_HOI_DONG': 'Chờ hội đồng',
-      'DA_GAP_HOI_DONG': 'Đã gặp hội đồng',
+      'DANG_BAO_VE': 'Đã gặp hội đồng',
       'HOAN_THANH': 'Hoàn thành',
-      'KHONG_DAT': 'Không đạt',
+      'KHONG_DAT_BAO_VE': 'Không đạt bảo vệ',
       'DU_DIEU_KIEN': 'Đủ điều kiện',
       'KHONG_DU_DIEU_KIEN': 'K đủ điều kiện'
     };

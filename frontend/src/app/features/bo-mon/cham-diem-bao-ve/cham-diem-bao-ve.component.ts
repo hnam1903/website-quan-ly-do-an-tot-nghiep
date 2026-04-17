@@ -243,7 +243,6 @@ export class ChamDiemBaoVeComponent implements OnInit {
   getBadgeClass(trangThai: string): string {
     switch (trangThai) {
       case 'CHO_BAO_VE': return 'bg-warning';
-      case 'DANG_BAO_VE': return 'bg-info';
       case 'DA_BAO_VE': return 'bg-success';
       default: return 'bg-secondary';
     }
@@ -252,7 +251,6 @@ export class ChamDiemBaoVeComponent implements OnInit {
   getTrangThaiText(trangThai: string): string {
     switch (trangThai) {
       case 'CHO_BAO_VE': return 'Chờ bảo vệ';
-      case 'DANG_BAO_VE': return 'Đang bảo vệ';
       case 'DA_BAO_VE': return 'Đã bảo vệ';
       default: return trangThai;
     }

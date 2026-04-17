@@ -60,8 +60,8 @@ public class BoMonController {
 
     @PutMapping("/de-tai/{id}/tu-choi")
     public ResponseEntity<ApiResponse<DeTaiResponse>> tuChoiDeTai(
-            @PathVariable Long id, @RequestBody(required = false) String ghiChu) {
-        return ResponseEntity.ok(ApiResponse.success("Đã từ chối. Sinh viên sẽ đăng ký lại.", boMonService.tuChoiDeTaiBoMon(id, ghiChu)));
+            @PathVariable Long id, @RequestBody TuChoiRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Đã từ chối. Sinh viên sẽ đăng ký lại.", boMonService.tuChoiDeTaiBoMon(id, request.getGhiChu())));
     }
 
     @GetMapping("/de-tai/khong-dat")
@@ -73,6 +73,13 @@ public class BoMonController {
         Long targetBoMonId = boMonId != null ? boMonId : currentUser.getBoMonId();
         
         return ResponseEntity.ok(ApiResponse.success(boMonService.getDeTaiKhongDat(targetBoMonId, loai)));
+    }
+
+    @GetMapping("/de-tai/hoan-thanh")
+    public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiHoanThanh() {
+        UserResponse currentUser = authService.getCurrentUser();
+        Long boMonId = currentUser.getBoMonId();
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getDeTaiHoanThanh(boMonId)));
     }
 
     @GetMapping("/giang-vien")

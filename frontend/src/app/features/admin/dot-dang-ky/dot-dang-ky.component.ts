@@ -47,11 +47,23 @@ import { ToastrService } from 'ngx-toastr';
                 <td>{{ dot.ngayKetThuc | date:'dd/MM/yyyy' }}</td>
                 <td>
                   <span [class]="getStatusClass(dot.trangThai)" class="badge">
-                    {{ dot.trangThai === 'CHUONG_TRINH' ? 'Đang mở' : 'Đã kết thúc' }}
+                    {{ dot.trangThai === 'DANG_MO' ? 'Đang mở' : 'Đã kết thúc' }}
                   </span>
                 </td>
                 <td>{{ dot.soLuongDangKy || 0 }}</td>
                 <td>
+                  <button *ngIf="dot.trangThai === 'DANG_MO'" 
+                          class="btn btn-sm btn-outline-warning me-1" 
+                          (click)="dongDot(dot)"
+                          title="Đóng đợt đăng ký">
+                    <i class="bi bi-lock"></i>
+                  </button>
+                  <button *ngIf="dot.trangThai === 'KET_THUC'" 
+                          class="btn btn-sm btn-outline-success me-1" 
+                          (click)="moLaiDot(dot)"
+                          title="Mở lại đợt đăng ký">
+                    <i class="bi bi-unlock"></i>
+                  </button>
                   <button class="btn btn-sm btn-outline-primary me-1" (click)="editDot(dot)">
                     <i class="bi bi-pencil"></i>
                   </button>
@@ -93,10 +105,15 @@ import { ToastrService } from 'ngx-toastr';
                 </select>
               </div>
             </div>
-            <div class="mb-3">
-              <label class="form-label">Ngày bắt đầu</label>
-              <input type="date" class="form-control" [(ngModel)]="formData.ngayBatDau">
-              <small class="text-muted">Đợt đăng ký sẽ tự động kết thúc sau 7 ngày</small>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Ngày bắt đầu</label>
+                <input type="date" class="form-control" [(ngModel)]="formData.ngayBatDau" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Ngày kết thúc</label>
+                <input type="date" class="form-control" [(ngModel)]="formData.ngayKetThuc" required>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -139,7 +156,7 @@ export class DotDangKyComponent implements OnInit {
   }
 
   getStatusClass(status: string): string {
-    return status === 'CHUONG_TRINH' ? 'bg-success' : 'bg-secondary';
+    return status === 'DANG_MO' ? 'bg-success' : 'bg-secondary';
   }
 
   editDot(dot: DotDangKyResponse): void {
@@ -149,7 +166,8 @@ export class DotDangKyComponent implements OnInit {
       tenDot: dot.tenDot,
       namHoc: dot.namHoc,
       hocKy: dot.hocKy,
-      ngayBatDau: dot.ngayBatDau.split('T')[0]
+      ngayBatDau: dot.ngayBatDau.split('T')[0],
+      ngayKetThuc: dot.ngayKetThuc.split('T')[0]
     };
     this.showModal = true;
   }
@@ -191,6 +209,32 @@ export class DotDangKyComponent implements OnInit {
         next: (res) => {
           if (res.success) {
             this.toastr.success('Xóa thành công!');
+            this.loadDotList();
+          }
+        }
+      });
+    }
+  }
+
+  dongDot(dot: DotDangKyResponse): void {
+    if (confirm('Bạn có chắc muốn đóng đợt "' + dot.tenDot + '" không?')) {
+      this.adminService.dongDotDangKy(dot.id).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.toastr.success('Đã đóng đợt đăng ký!');
+            this.loadDotList();
+          }
+        }
+      });
+    }
+  }
+
+  moLaiDot(dot: DotDangKyResponse): void {
+    if (confirm('Bạn có chắc muốn mở lại đợt "' + dot.tenDot + '" không?')) {
+      this.adminService.moLaiDotDangKy(dot.id).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.toastr.success('Đã mở lại đợt đăng ký!');
             this.loadDotList();
           }
         }

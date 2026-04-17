@@ -190,6 +190,7 @@ export interface HoiDongBaoVeResponse {
   ngayBaoVe?: string;
   diaDiem?: string;
   trangThai: string;
+  trangThaiDeTai: string;
   thanhViens?: ThanhVienResponse[];
   daChamDiem?: boolean;
   diemBaoVe?: number;
@@ -215,4 +216,12 @@ export interface DashboardResponse {
   deTaiDangThucHien: number;
   deTaiHoanThanh: number;
   deTaiKhongDat: number;
+}
+
+export interface DanhSachSinhVienDotDangKyResponse {
+  sinhVienDaDangKy: SinhVienResponse[];
+  sinhVienChuaDangKy: SinhVienResponse[];
+  tongSoSinhVien: number;
+  soLuongDaDangKy: number;
+  soLuongChuaDangKy: number;
 }

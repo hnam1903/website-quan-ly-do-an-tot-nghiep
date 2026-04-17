@@ -2,11 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GiangVienService } from '../../../core/services/giang-vien.service';
 import { PhanCongHuongDanResponse } from '../../../core/models/models';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-duyet-huong-dan',
   standalone: true,
   imports: [CommonModule],
+  providers: [],
   template: `
     <div class="page-header">
       <h2>Duyệt Giảng viên hướng dẫn</h2>
@@ -77,7 +79,7 @@ import { PhanCongHuongDanResponse } from '../../../core/models/models';
                 <li><strong>Tên:</strong> {{ selected.hoTenSinhVien }}</li>
                 <li><strong>Đề tài:</strong> {{ selected.tenDeTai }}</li>
               </ul>
-              <p class="text-muted">Sau khi từ chối, Bộ môn sẽ được thông báo ��ể phân công giảng viên khác.</p>
+              <p class="text-muted">Sau khi từ chối, Bộ môn sẽ phân công giảng viên khác.</p>
             </div>
           </div>
           <div class="modal-footer">
@@ -96,7 +98,7 @@ export class DuyetHuongDanComponent implements OnInit {
   selected: PhanCongHuongDanResponse | null = null;
   actionType: 'duyet' | 'tuchoi' = 'duyet';
 
-  constructor(private gvService: GiangVienService) {}
+  constructor(private gvService: GiangVienService, private toastr: ToastrService) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -136,7 +138,10 @@ export class DuyetHuongDanComponent implements OnInit {
           this.loadData();
         }
       },
-      error: (err) => console.error('Lỗi:', err)
+      error: (err) => {
+        console.error('Lỗi:', err);
+        this.toastr.error(err.error?.message || 'Có lỗi xảy ra');
+      }
     });
   }
 

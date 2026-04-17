@@ -37,7 +37,7 @@ public class DotDangKy {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private TrangThaiDot trangThai = TrangThaiDot.CHUONG_TRINH;
+    private TrangThaiDot trangThai = TrangThaiDot.DANG_MO;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

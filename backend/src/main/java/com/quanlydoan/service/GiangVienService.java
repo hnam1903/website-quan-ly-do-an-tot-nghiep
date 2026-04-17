@@ -96,10 +96,9 @@ public class GiangVienService {
             deTai.setTrangThai(TrangThaiDeTai.DANG_THUC_HIEN);
             phanCongHuongDanRepository.save(phanCong);
         } else {
-            // GV từ chối - xóa phân công cũ để phân công lại
+            // GV từ chối - chỉ xóa phân công cũ, giữ lại giangVienDuKien để hiển thị ai từ chối
             deTai.setPhanCongHuongDan(null);
-            deTai.setGiangVienDuKien(null);
-            deTai.setTrangThai(TrangThaiDeTai.DU_DIEU_KIEN);
+            deTai.setTrangThai(TrangThaiDeTai.CHO_GV_DUYET_LAI);
             deTaiRepository.save(deTai);
             phanCongHuongDanRepository.delete(phanCong);
             return null; // Trả về null vì đã xóa

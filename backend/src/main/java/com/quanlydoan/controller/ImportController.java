@@ -153,51 +153,58 @@ public class ImportController {
                     Row row = sheet.getRow(i);
                     if (row == null) continue;
 
-                    try {
-                        String maSV = getCellValue(row, colIndex.get("masinhvien"), formatter);
-                        String hoTen = getCellValue(row, colIndex.get("hoten"), formatter);
-                        String email = getCellValue(row, colIndex.get("email"), formatter);
-                        String lop = getCellValue(row, colIndex.get("lop"), formatter);
-                        String boMonTen = getCellValue(row, colIndex.get("bomon"), formatter);
-
-                        if (maSV.isEmpty() || hoTen.isEmpty() || email.isEmpty()) {
-                            errors.add("Dòng " + rowNum + ": Mã SV, Họ tên hoặc Email trống");
-                            continue;
+                    // Kiểm tra dòng có trống hoàn toàn không
+                    boolean isEmptyRow = true;
+                    for (int j = 0; j < headerRow.getLastCellNum(); j++) {
+                        Cell cell = row.getCell(j);
+                        if (cell != null && !formatter.formatCellValue(cell).trim().isEmpty()) {
+                            isEmptyRow = false;
+                            break;
                         }
-
-                        if (sinhVienRepository.findByMaSinhVien(maSV).isPresent()) {
-                            errors.add("Dòng " + rowNum + ": Mã SV '" + maSV + "' đã tồn tại");
-                            continue;
-                        }
-
-                        if (taiKhoanRepository.findByEmail(email).isPresent()) {
-                            errors.add("Dòng " + rowNum + ": Email '" + email + "' đã tồn tại");
-                            continue;
-                        }
-
-                        TaiKhoan taiKhoan = TaiKhoan.builder()
-                                .email(email)
-                                .password(passwordEncoder.encode("123456"))
-                                .role(Role.SINH_VIEN)
-                                .trangThai(true)
-                                .build();
-                        taiKhoan = taiKhoanRepository.save(taiKhoan);
-
-                        SinhVien sv = SinhVien.builder()
-                                .taiKhoan(taiKhoan)
-                                .maSinhVien(maSV)
-                                .hoTen(hoTen)
-                                .lop(lop)
-                                .build();
-
-                        if (!boMonTen.isEmpty()) {
-                            boMonRepository.findByTenBoMonIgnoreCase(boMonTen).ifPresent(sv::setBoMon);
-                        }
-
-                        createdList.add(sinhVienRepository.save(sv));
-                    } catch (Exception e) {
-                        errors.add("Dòng " + rowNum + ": " + e.getMessage());
                     }
+                    if (isEmptyRow) continue;
+
+                    String maSV = getCellValue(row, colIndex.get("masinhvien"), formatter);
+                    String hoTen = getCellValue(row, colIndex.get("hoten"), formatter);
+                    String email = getCellValue(row, colIndex.get("email"), formatter);
+                    String lop = getCellValue(row, colIndex.get("lop"), formatter);
+                    String boMonTen = getCellValue(row, colIndex.get("bomon"), formatter);
+
+                    if (maSV.isEmpty() || hoTen.isEmpty() || email.isEmpty()) {
+                        errors.add("Dòng " + rowNum + ": Mã SV, Họ tên hoặc Email trống");
+                        continue;
+                    }
+
+                    if (sinhVienRepository.findByMaSinhVien(maSV).isPresent()) {
+                        errors.add("Dòng " + rowNum + ": Mã SV '" + maSV + "' đã tồn tại");
+                        continue;
+                    }
+
+                    if (taiKhoanRepository.findByEmail(email).isPresent()) {
+                        errors.add("Dòng " + rowNum + ": Email '" + email + "' đã tồn tại");
+                        continue;
+                    }
+
+                    TaiKhoan taiKhoan = TaiKhoan.builder()
+                            .email(email)
+                            .password(passwordEncoder.encode("123456"))
+                            .role(Role.SINH_VIEN)
+                            .trangThai(true)
+                            .build();
+                    taiKhoan = taiKhoanRepository.save(taiKhoan);
+
+                    SinhVien sv = SinhVien.builder()
+                            .taiKhoan(taiKhoan)
+                            .maSinhVien(maSV)
+                            .hoTen(hoTen)
+                            .lop(lop)
+                            .build();
+
+                    if (!boMonTen.isEmpty()) {
+                        boMonRepository.findByTenBoMonIgnoreCase(boMonTen).ifPresent(sv::setBoMon);
+                    }
+
+                    createdList.add(sinhVienRepository.save(sv));
                 }
             }
 
@@ -206,7 +213,11 @@ public class ImportController {
             result.put("errorCount", errors.size());
             result.put("errors", errors);
 
-            return ResponseEntity.ok(ApiResponse.success("Đã import " + createdList.size() + " sinh viên", result));
+            String message = errors.isEmpty() 
+                    ? "Đã import " + createdList.size() + " sinh viên"
+                    : "Import hoàn tất: " + createdList.size() + " thành công, " + errors.size() + " lỗi";
+
+            return ResponseEntity.ok(ApiResponse.success(message, result));
 
         } catch (Exception e) {
             e.printStackTrace();

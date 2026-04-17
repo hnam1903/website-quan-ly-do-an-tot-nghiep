@@ -61,8 +61,14 @@ import { ToastrService } from 'ngx-toastr';
     </div>
 
     <div *ngIf="deTaiCuaToi" class="card">
-      <div class="card-header" [class]="deTaiCuaToi.trangThai === 'KHONG_DU_DIEU_KIEN' ? 'bg-danger text-white' : 'bg-success text-white'">
-        <h5 class="mb-0">{{ deTaiCuaToi.trangThai === 'KHONG_DU_DIEU_KIEN' ? 'Đề tài bị từ chối' : 'Đề tài của bạn' }}</h5>
+      <div class="card-header" [ngClass]="{
+        'bg-danger text-white': laTrangThaiThatBai(deTaiCuaToi.trangThai),
+        'bg-warning text-dark': deTaiCuaToi.trangThai === 'CHO_GV_DUYET_LAI',
+        'bg-success text-white': !laTrangThaiThatBai(deTaiCuaToi.trangThai) && deTaiCuaToi.trangThai !== 'CHO_GV_DUYET_LAI'
+      }">
+        <h5 class="mb-0" *ngIf="laTrangThaiThatBai(deTaiCuaToi.trangThai)">Đề tài bị từ chối</h5>
+        <h5 class="mb-0" *ngIf="deTaiCuaToi.trangThai === 'CHO_GV_DUYET_LAI'">Đề tài đang chờ GVHD khác duyệt</h5>
+        <h5 class="mb-0" *ngIf="!laTrangThaiThatBai(deTaiCuaToi.trangThai) && deTaiCuaToi.trangThai !== 'CHO_GV_DUYET_LAI'">Đề tài của bạn</h5>
       </div>
       <div class="card-body">
         <p><strong>Tên đề tài:</strong> {{ deTaiCuaToi.tenDeTai }}</p>
@@ -76,12 +82,12 @@ import { ToastrService } from 'ngx-toastr';
         </p>
 
         <!-- Hiển thị lý do từ chối -->
-        <div *ngIf="deTaiCuaToi.ghiChu && deTaiCuaToi.trangThai === 'KHONG_DU_DIEU_KIEN'" class="alert alert-danger mt-3">
+        <div *ngIf="deTaiCuaToi.ghiChu && (laTrangThaiThatBai(deTaiCuaToi.trangThai) || deTaiCuaToi.trangThai === 'CHO_GV_DUYET_LAI')" class="alert alert-danger mt-3">
           <i class="bi bi-exclamation-triangle"></i> <strong>Lý do từ chối:</strong> {{ deTaiCuaToi.ghiChu }}
         </div>
 
-        <!-- Nút đăng ký lại khi bị từ chối -->
-        <div *ngIf="deTaiCuaToi.trangThai === 'KHONG_DU_DIEU_KIEN'" class="mt-3">
+        <!-- Nút đăng ký lại khi bị từ chối hoặc trượt -->
+        <div *ngIf="laTrangThaiThatBai(deTaiCuaToi.trangThai)" class="mt-3">
           <button class="btn btn-danger" (click)="hienThiFormDangKyLai()">
             <i class="bi bi-arrow-repeat"></i> Đăng ký lại đề tài khác
           </button>
@@ -231,9 +237,18 @@ export class DeTaiSvComponent implements OnInit {
     });
   }
 
+  laTrangThaiThatBai(trangThai: string): boolean {
+    const trangThaiThatBai = [
+      'KHONG_DU_DIEU_KIEN',
+      'KHONG_DAT_BAO_VE'
+    ];
+    return trangThaiThatBai.includes(trangThai);
+  }
+
   getStatusClass(status: string): string {
     const map: any = {
       'CHO_DUYET': 'bg-warning',
+      'CHO_GV_DUYET_LAI': 'bg-warning',
       'DU_DIEU_KIEN': 'bg-success',
       'KHONG_DU_DIEU_KIEN': 'bg-danger',
       'DANG_THUC_HIEN': 'bg-info',
@@ -248,6 +263,7 @@ export class DeTaiSvComponent implements OnInit {
   getStatusText(status: string): string {
     const map: any = {
       'CHO_DUYET': 'Chờ duyệt',
+      'CHO_GV_DUYET_LAI': 'Chờ GV duyệt lại',
       'DU_DIEU_KIEN': 'Đủ điều kiện',
       'KHONG_DU_DIEU_KIEN': 'Không đủ ĐK',
       'DANG_THUC_HIEN': 'Đang thực hiện',

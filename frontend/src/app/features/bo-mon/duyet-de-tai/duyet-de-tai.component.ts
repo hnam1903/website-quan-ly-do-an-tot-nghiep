@@ -28,8 +28,8 @@ import { ToastrService } from 'ngx-toastr';
                 <th width="50">STT</th>
                 <th>Sinh viên</th>
                 <th>Tên đề tài</th>
-                <th>Công nghệ</th>
                 <th>GV dự kiến</th>
+                <th width="120">Chi tiết</th>
                 <th width="200">Thao tác</th>
               </tr>
             </thead>
@@ -44,8 +44,12 @@ import { ToastrService } from 'ngx-toastr';
                   <strong>{{ dt.tenDeTai }}</strong><br>
                   <small class="text-muted" *ngIf="dt.noiDungDuKien">{{ dt.noiDungDuKien | slice:0:100 }}...</small>
                 </td>
-                <td>{{ dt.congNgheSuDung || '-' }}</td>
                 <td>{{ dt.hoTenGiangVienDuKien || '-' }}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary" (click)="xemChiTiet(dt)">
+                    <i class="bi bi-eye"></i> Xem
+                  </button>
+                </td>
                 <td>
                   <button class="btn btn-sm btn-success me-1" (click)="duyetDeTai(dt)">
                     <i class="bi bi-check-circle"></i> Duyệt
@@ -56,7 +60,7 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
               </tr>
               <tr *ngIf="deTaiList.length === 0">
-                <td colspan="6" class="text-center text-muted py-5">
+                <td colspan="5" class="text-center text-muted py-5">
                   <i class="bi bi-check-circle fs-1 d-block text-success mb-2"></i>
                   Không có đề tài nào cần duyệt
                 </td>
@@ -99,6 +103,45 @@ import { ToastrService } from 'ngx-toastr';
       </div>
     </div>
 
+    <!-- Modal Xem Chi tiết -->
+    <div class="modal fade show d-block" *ngIf="showChiTietModal" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-info text-white">
+            <h5 class="modal-title"><i class="bi bi-eye me-2"></i>Chi tiết đề tài</h5>
+            <button type="button" class="btn-close btn-close-white" (click)="showChiTietModal = false"></button>
+          </div>
+          <div class="modal-body" *ngIf="selectedDeTai">
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>Mã sinh viên:</strong> {{ selectedDeTai.maSinhVien }}</p>
+                <p><strong>Họ tên:</strong> {{ selectedDeTai.hoTenSinhVien }}</p>
+                <p><strong>Lớp:</strong> {{ selectedDeTai.lopSinhVien }}</p>
+                <p><strong>GV Dự kiến:</strong> {{ selectedDeTai.hoTenGiangVienDuKien || 'Chưa có' }}</p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Công nghệ sử dụng:</strong> {{ selectedDeTai.congNgheSuDung || 'Chưa có' }}</p>
+              </div>
+            </div>
+            <hr>
+            <div class="mb-3">
+              <h6>Tên đề tài</h6>
+              <p class="fs-5">{{ selectedDeTai.tenDeTai }}</p>
+            </div>
+            <div class="mb-3">
+              <h6>Nội dung dự kiến</h6>
+              <p>{{ selectedDeTai.noiDungDuKien || 'Chưa có nội dung' }}</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="showChiTietModal = false">
+              <i class="bi bi-x-lg me-1"></i>Đóng
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Modal Xác nhận Duyệt -->
     <div class="modal fade show d-block" *ngIf="showDuyetModal" tabindex="-1" style="background: rgba(0,0,0,0.5);">
       <div class="modal-dialog modal-dialog-centered">
@@ -133,6 +176,7 @@ export class DuyetDeTaiComponent implements OnInit {
   selectedDeTai: DeTaiResponse | null = null;
   showTuChoiModal = false;
   showDuyetModal = false;
+  showChiTietModal = false;
   lyDoTuChoi = '';
 
   constructor(
@@ -202,5 +246,10 @@ export class DuyetDeTaiComponent implements OnInit {
         this.toastr.error(err.error?.message || 'Không thể từ chối đề tài');
       }
     });
+  }
+
+  xemChiTiet(dt: DeTaiResponse): void {
+    this.selectedDeTai = dt;
+    this.showChiTietModal = true;
   }
 }

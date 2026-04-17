@@ -14,7 +14,7 @@ import { DashboardResponse } from '../../../core/models/models';
     </div>
 
     <div *ngIf="dashboard" class="row">
-      <div class="col-md-3 mb-4">
+      <div class="col-md-4 mb-4">
         <div class="card">
           <div class="card-body text-center">
             <h1 class="text-primary">{{ dashboard.tongSoGiangVien }}</h1>
@@ -23,7 +23,7 @@ import { DashboardResponse } from '../../../core/models/models';
         </div>
       </div>
       
-      <div class="col-md-3 mb-4">
+      <div class="col-md-4 mb-4">
         <div class="card">
           <div class="card-body text-center">
             <h1 class="text-success">{{ dashboard.tongSoSinhVien }}</h1>
@@ -32,7 +32,7 @@ import { DashboardResponse } from '../../../core/models/models';
         </div>
       </div>
       
-      <div class="col-md-3 mb-4">
+      <div class="col-md-4 mb-4">
         <div class="card">
           <div class="card-body text-center">
             <h1 class="text-info">{{ dashboard.tongSoDeTai }}</h1>
@@ -41,14 +41,7 @@ import { DashboardResponse } from '../../../core/models/models';
         </div>
       </div>
       
-      <div class="col-md-3 mb-4">
-        <div class="card">
-          <div class="card-body text-center">
-            <h1 class="text-warning">{{ dashboard.deTaiChoDuyet }}</h1>
-            <p class="text-muted mb-0">Chờ duyệt</p>
-          </div>
-        </div>
-      </div>
+
 
       <div class="col-md-4 mb-4">
         <div class="card">

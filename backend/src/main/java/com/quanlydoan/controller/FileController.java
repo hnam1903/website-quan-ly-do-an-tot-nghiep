@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 @RestController
 @RequestMapping("/api/files")
 @CrossOrigin(origins = "http://localhost:4200")
-@PreAuthorize("isAuthenticated()")
 public class FileController {
 
     @GetMapping("/download")

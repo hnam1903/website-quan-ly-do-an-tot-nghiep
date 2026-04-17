@@ -39,7 +39,7 @@ public class AdminService {
     @Transactional
     public DotDangKyResponse createDotDangKy(DotDangKyRequest request) {
         LocalDateTime ngayBatDau = LocalDate.parse(request.getNgayBatDau()).atStartOfDay();
-        LocalDateTime ngayKetThuc = ngayBatDau.plusDays(7);
+        LocalDateTime ngayKetThuc = LocalDate.parse(request.getNgayKetThuc()).atTime(23, 59, 59);
 
         DotDangKy dotDangKy = DotDangKy.builder()
                 .tenDot(request.getTenDot())
@@ -47,7 +47,7 @@ public class AdminService {
                 .hocKy(request.getHocKy())
                 .ngayBatDau(ngayBatDau)
                 .ngayKetThuc(ngayKetThuc)
-                .trangThai(TrangThaiDot.CHUONG_TRINH)
+                .trangThai(TrangThaiDot.DANG_MO)
                 .build();
 
         dotDangKy = dotDangKyRepository.save(dotDangKy);
@@ -76,9 +76,10 @@ public class AdminService {
         dotDangKy.setNamHoc(request.getNamHoc());
         dotDangKy.setHocKy(request.getHocKy());
         if (request.getNgayBatDau() != null) {
-            LocalDateTime ngayBatDau = LocalDate.parse(request.getNgayBatDau()).atStartOfDay();
-            dotDangKy.setNgayBatDau(ngayBatDau);
-            dotDangKy.setNgayKetThuc(ngayBatDau.plusDays(7));
+            dotDangKy.setNgayBatDau(LocalDate.parse(request.getNgayBatDau()).atStartOfDay());
+        }
+        if (request.getNgayKetThuc() != null) {
+            dotDangKy.setNgayKetThuc(LocalDate.parse(request.getNgayKetThuc()).atTime(23, 59, 59));
         }
 
         dotDangKy = dotDangKyRepository.save(dotDangKy);
@@ -95,6 +96,102 @@ public class AdminService {
         }
         
         dotDangKyRepository.delete(dotDangKy);
+    }
+
+    @Transactional
+    public DotDangKyResponse dongDotDangKy(Long id) {
+        DotDangKy dotDangKy = dotDangKyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đợt đăng ký"));
+        
+        if (dotDangKy.getTrangThai() == TrangThaiDot.KET_THUC) {
+            throw new BadRequestException("Đợt đăng ký đã kết thúc rồi");
+        }
+        
+        dotDangKy.setTrangThai(TrangThaiDot.KET_THUC);
+        dotDangKy = dotDangKyRepository.save(dotDangKy);
+        return mapToDotDangKyResponse(dotDangKy);
+    }
+
+    @Transactional
+    public DotDangKyResponse moLaiDotDangKy(Long id) {
+        DotDangKy dotDangKy = dotDangKyRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đợt đăng ký"));
+        
+        if (dotDangKy.getTrangThai() == TrangThaiDot.DANG_MO) {
+            throw new BadRequestException("Đợt đăng ký đang mở rồi");
+        }
+        
+        dotDangKy.setTrangThai(TrangThaiDot.DANG_MO);
+        dotDangKy = dotDangKyRepository.save(dotDangKy);
+        return mapToDotDangKyResponse(dotDangKy);
+    }
+
+    public List<SinhVienResponse> getSinhVienByDotDangKy(Long dotDangKyId) {
+        DotDangKy dotDangKy = dotDangKyRepository.findById(dotDangKyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đợt đăng ký"));
+        
+        // Lấy danh sách sinh viên đã đăng ký đề tài trong đợt này
+        List<DeTai> deTais = deTaiRepository.findByDotDangKyId(dotDangKyId);
+        
+        List<SinhVienResponse> allSinhVien = sinhVienRepository.findAll().stream()
+                .map(this::mapToSinhVienResponse)
+                .collect(Collectors.toList());
+        
+        // Sinh viên đã đăng ký
+        List<SinhVienResponse> daDangKy = deTais.stream()
+                .filter(dt -> dt.getSinhVien() != null)
+                .map(dt -> mapToSinhVienResponse(dt.getSinhVien()))
+                .distinct()
+                .collect(Collectors.toList());
+        
+        // Sinh viên chưa đăng ký (loại bỏ những SV đã đăng ký)
+        List<SinhVienResponse> chuaDangKy = allSinhVien.stream()
+                .filter(sv -> daDangKy.stream().noneMatch(dadk -> dadk.getId().equals(sv.getId())))
+                .collect(Collectors.toList());
+        
+        // Trả về danh sách kết hợp: [đã đăng ký, chưa đăng ký]
+        List<SinhVienResponse> result = new ArrayList<>();
+        result.addAll(daDangKy);
+        result.addAll(chuaDangKy);
+        return result;
+    }
+
+    public DanhSachSinhVienDotDangKyResponse getDanhSachSinhVienByDotDangKy(Long dotDangKyId) {
+        DotDangKy dotDangKy = dotDangKyRepository.findById(dotDangKyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đợt đăng ký"));
+
+        List<DeTai> deTaisCuaDot = deTaiRepository.findByDotDangKyId(dotDangKyId);
+        List<SinhVienResponse> allSinhVien = sinhVienRepository.findAll().stream()
+                .map(this::mapToSinhVienResponse)
+                .collect(Collectors.toList());
+
+        List<SinhVienResponse> daDangKy = deTaisCuaDot.stream()
+                .filter(dt -> dt.getSinhVien() != null)
+                .map(dt -> mapToSinhVienResponse(dt.getSinhVien()))
+                .distinct()
+                .collect(Collectors.toList());
+
+        // Lấy ID sinh viên đã hoàn thành (chỉ hoàn thành mới không cần đăng ký nữa)
+        List<Long> svHoanThanhIds = deTaiRepository.findAll().stream()
+                .filter(dt -> dt.getSinhVien() != null)
+                .filter(dt -> dt.getTrangThai() == TrangThaiDeTai.HOAN_THANH)
+                .map(dt -> dt.getSinhVien().getId())
+                .distinct()
+                .collect(Collectors.toList());
+
+        // Sinh viên chưa đăng ký đợt này VÀ chưa hoàn thành (không đạt vẫn đăng ký lại được)
+        List<SinhVienResponse> chuaDangKy = allSinhVien.stream()
+                .filter(sv -> daDangKy.stream().noneMatch(dadk -> dadk.getId().equals(sv.getId())))
+                .filter(sv -> !svHoanThanhIds.contains(sv.getId()))
+                .collect(Collectors.toList());
+
+        return DanhSachSinhVienDotDangKyResponse.builder()
+                .sinhVienDaDangKy(daDangKy)
+                .sinhVienChuaDangKy(chuaDangKy)
+                .tongSoSinhVien(allSinhVien.size())
+                .soLuongDaDangKy(daDangKy.size())
+                .soLuongChuaDangKy(chuaDangKy.size())
+                .build();
     }
 
     // ==================== Gửi lên Bộ môn ====================
@@ -202,8 +299,15 @@ public class AdminService {
             throw new BadRequestException("Mã bộ môn đã tồn tại");
         }
 
-        Khoa khoa = khoaRepository.findById(request.getKhoaId())
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khoa"));
+        // Tìm hoặc tạo khoa mặc định "Công nghệ Thông tin"
+        Khoa khoa = khoaRepository.findByMaKhoa("CNTT")
+                .orElseGet(() -> {
+                    Khoa newKhoa = Khoa.builder()
+                            .tenKhoa("Công nghệ Thông tin")
+                            .maKhoa("CNTT")
+                            .build();
+                    return khoaRepository.save(newKhoa);
+                });
 
         BoMon boMon = BoMon.builder()
                 .tenBoMon(request.getTenBoMon())
@@ -381,7 +485,7 @@ public class AdminService {
                 .deTaiDangThucHien(deTaiRepository.countByTrangThai(TrangThaiDeTai.DANG_THUC_HIEN) +
                         deTaiRepository.countByTrangThai(TrangThaiDeTai.DA_NOP_BAO_CAO))
                 .deTaiHoanThanh(deTaiRepository.countByTrangThai(TrangThaiDeTai.HOAN_THANH))
-                .deTaiKhongDat(deTaiRepository.countByTrangThai(TrangThaiDeTai.KHONG_DAT))
+                .deTaiKhongDat(deTaiRepository.countByTrangThai(TrangThaiDeTai.KHONG_DAT_BAO_VE))
                 .build();
     }
 

@@ -21,6 +21,7 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', loadComponent: () => import('./features/admin/dashboard/dashboard.component').then(m => m.DashboardComponent) },
       { path: 'dot-dang-ky', loadComponent: () => import('./features/admin/dot-dang-ky/dot-dang-ky.component').then(m => m.DotDangKyComponent) },
+      { path: 'dot-dang-ky/danh-sach', loadComponent: () => import('./features/admin/danh-sach-dot-dang-ky/danh-sach-dot-dang-ky.component').then(m => m.DanhSachDotDangKyComponent) },
       { path: 'de-tai', loadComponent: () => import('./features/admin/de-tai/de-tai.component').then(m => m.DeTaiComponent) },
       { path: 'bo-mon', loadComponent: () => import('./features/admin/bo-mon/bo-mon.component').then(m => m.BoMonComponent) },
       { path: 'giang-vien', loadComponent: () => import('./features/admin/giang-vien/giang-vien.component').then(m => m.GiangVienComponent) },

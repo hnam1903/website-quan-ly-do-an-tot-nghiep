@@ -106,6 +106,13 @@ export class PhanCongComponent implements OnInit {
       }
     });
 
+    // Lấy đề tài bị GV từ chối, cần phân công lại
+    this.boMonService.getDeTai('CHO_GV_DUYET_LAI', boMonId).subscribe({
+      next: (res) => {
+        if (res.success) this.svDuDieuKien = [...this.svDuDieuKien, ...res.data];
+      }
+    });
+
     this.boMonService.getGiangVien(boMonId).subscribe({
       next: (res) => {
         if (res.success) this.giangVienList = res.data;
