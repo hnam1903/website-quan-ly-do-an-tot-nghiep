@@ -186,6 +186,26 @@ import { filter } from 'rxjs/operators';
             <i class="bi bi-file-earmark-text me-2"></i>Báo cáo SV
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link d-flex justify-content-between align-items-center"
+             (click)="baoCaoTienDoOpen = !baoCaoTienDoOpen"
+             [class.active]="baoCaoTienDoActive">
+            <span><i class="bi bi-clock-history me-2"></i>Báo cáo tiến độ</span>
+            <i class="bi" [ngClass]="baoCaoTienDoOpen ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+          </a>
+          <ul class="nav flex-column ms-3" *ngIf="baoCaoTienDoOpen">
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/bo-mon/bao-cao-tien-do/tao-dot" routerLinkActive="active">
+                <i class="bi bi-plus-circle me-2"></i>Tạo đợt báo cáo
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/bo-mon/bao-cao-tien-do/danh-sach" routerLinkActive="active">
+                <i class="bi bi-list-ul me-2"></i>Danh sách báo cáo
+              </a>
+            </li>
+          </ul>
+        </li>
       </ul>
     </nav>
 
@@ -306,6 +326,8 @@ export class BoMonLayoutComponent implements OnInit {
   quanLyHoiDongActive = false;
   quanLyDeTaiOpen = false;
   quanLyDeTaiActive = false;
+  baoCaoTienDoOpen = false;
+  baoCaoTienDoActive = false;
 
   constructor(
     private authService: AuthService,
@@ -337,6 +359,8 @@ export class BoMonLayoutComponent implements OnInit {
     if (this.quanLyGvpbActive) this.quanLyGvpbOpen = true;
     this.quanLyHoiDongActive = url.includes('/hoi-dong/');
     if (this.quanLyHoiDongActive) this.quanLyHoiDongOpen = true;
+    this.baoCaoTienDoActive = url.includes('/bao-cao-tien-do/');
+    if (this.baoCaoTienDoActive) this.baoCaoTienDoOpen = true;
   }
 
   logout(): void {

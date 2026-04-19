@@ -49,6 +49,8 @@ import { ToastrService } from 'ngx-toastr';
                 <th>STT</th>
                 <th>Sinh viên</th>
                 <th>Tên đề tài</th>
+                <th>Đợt</th>
+                <th>Năm học</th>
                 <th>Trạng thái</th>
                 <th>Báo cáo</th>
                 <th>Chi tiết</th>
@@ -62,6 +64,8 @@ import { ToastrService } from 'ngx-toastr';
                   <small class="text-muted">{{ dt.maSinhVien }}</small>
                 </td>
                 <td>{{ dt.tenDeTai }}</td>
+                <td>{{ dt.tenDotDangKy }}</td>
+                <td>{{ dt.namHoc }}</td>
                 <td>
                   <span [class]="getStatusClass(dt.trangThai)" class="badge">
                     {{ getStatusText(dt.trangThai) }}
@@ -82,7 +86,7 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
               </tr>
               <tr *ngIf="deTaiDangThucHien.length === 0">
-                <td colspan="6" class="text-center text-muted py-4">Không có đề tài nào</td>
+                <td colspan="8" class="text-center text-muted py-4">Không có đề tài nào</td>
               </tr>
             </tbody>
           </table>
@@ -103,6 +107,8 @@ import { ToastrService } from 'ngx-toastr';
                 <th>STT</th>
                 <th>Sinh viên</th>
                 <th>Tên đề tài</th>
+                <th>Đợt</th>
+                <th>Năm học</th>
                 <th>Trạng thái</th>
                 <th>Báo cáo</th>
                 <th>Chi tiết</th>
@@ -116,6 +122,8 @@ import { ToastrService } from 'ngx-toastr';
                   <small class="text-muted">{{ dt.maSinhVien }}</small>
                 </td>
                 <td>{{ dt.tenDeTai }}</td>
+                <td>{{ dt.tenDotDangKy }}</td>
+                <td>{{ dt.namHoc }}</td>
                 <td>
                   <span class="badge bg-success">Hoàn thành</span>
                 </td>
@@ -134,7 +142,7 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
               </tr>
               <tr *ngIf="deTaiHoanThanh.length === 0">
-                <td colspan="6" class="text-center text-muted py-4">Không có đề tài nào</td>
+                <td colspan="8" class="text-center text-muted py-4">Không có đề tài nào</td>
               </tr>
             </tbody>
           </table>
@@ -155,6 +163,8 @@ import { ToastrService } from 'ngx-toastr';
                 <th>STT</th>
                 <th>Sinh viên</th>
                 <th>Tên đề tài</th>
+                <th>Đợt</th>
+                <th>Năm học</th>
                 <th>Trạng thái</th>
                 <th>Báo cáo</th>
                 <th>Chi tiết</th>
@@ -168,6 +178,8 @@ import { ToastrService } from 'ngx-toastr';
                   <small class="text-muted">{{ dt.maSinhVien }}</small>
                 </td>
                 <td>{{ dt.tenDeTai }}</td>
+                <td>{{ dt.tenDotDangKy }}</td>
+                <td>{{ dt.namHoc }}</td>
                 <td>
                   <span [class]="getStatusClass(dt.trangThai)" class="badge">
                     {{ getStatusText(dt.trangThai) }}
@@ -188,7 +200,7 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
               </tr>
               <tr *ngIf="deTaiKhongDat.length === 0">
-                <td colspan="6" class="text-center text-muted py-4">Không có sinh viên nào không đạt</td>
+                <td colspan="8" class="text-center text-muted py-4">Không có sinh viên nào không đạt</td>
               </tr>
             </tbody>
           </table>
@@ -393,12 +405,7 @@ import { ToastrService } from 'ngx-toastr';
                     <div class="mb-3">
                       <i class="bi bi-folder2-open" style="font-size: 3rem; color: #ffc107;"></i>
                     </div>
-                    <button *ngIf="chiTietBaoCao.fileSourceCode" 
-                            class="btn btn-warning" 
-                            (click)="downloadFile(chiTietBaoCao.fileSourceCode)">
-                      <i class="bi bi-download me-1"></i>Tải xuống
-                    </button>
-                    <p *ngIf="!chiTietBaoCao.fileSourceCode" class="text-muted mb-0">Chưa có file</p>
+                    <p class="text-muted mb-0">Không có file source code</p>
                   </div>
                 </div>
               </div>

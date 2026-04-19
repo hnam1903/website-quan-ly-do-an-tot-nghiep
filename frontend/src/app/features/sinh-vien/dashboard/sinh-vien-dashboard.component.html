@@ -1,0 +1,168 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">
+          <i class="bi bi-speedometer2 me-2"></i>
+          Dashboard Sinh viên
+        </h2>
+        <button class="btn btn-outline-primary" (click)="refresh()" [disabled]="loading">
+          <i class="bi bi-arrow-clockwise" [class.spin]="loading"></i> Làm mới
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading">
+    <!-- Row 1: Trạng thái đề tài & Điểm -->
+    <div class="row mb-4">
+      <!-- Card: Trạng thái đề tài -->
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-muted mb-3">
+              <i class="bi bi-folder-fill me-2"></i>Trạng thái đề tài
+            </h5>
+            <div *ngIf="deTai; else chuaDangKy">
+              <span class="badge fs-6 px-4 py-3 rounded-pill" [class]="getTrangThaiClass()">
+                {{ getTrangThaiText() }}
+              </span>
+              <hr>
+              <p class="mb-1"><strong>Tên đề tài:</strong> {{ deTai.tenDeTai }}</p>
+              <p class="mb-1"><strong>Giảng viên HD:</strong> {{ deTai.hoTenGiangVienHuongDan || 'Chưa phân công' }}</p>
+              <p class="mb-0"><strong>Bộ môn:</strong> {{ deTai.tenBoMon }}</p>
+            </div>
+            <ng-template #chuaDangKy>
+              <div class="text-center py-4">
+                <i class="bi bi-exclamation-circle text-warning" style="font-size: 3rem;"></i>
+                <p class="mt-3 mb-0">Bạn chưa đăng ký đề tài</p>
+                <button class="btn btn-primary mt-2" routerLink="/sinh-vien/de-tai/dang-ky">
+                  <i class="bi bi-plus-circle me-2"></i>Đăng ký ngay
+                </button>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: Điểm Hướng dẫn -->
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-muted mb-3">
+              <i class="bi bi-star-fill me-2 text-warning"></i>Điểm Hướng dẫn
+            </h5>
+            <div *ngIf="ketQuaHD; else chuaCoDiem">
+              <div class="display-4 fw-bold text-primary">{{ ketQuaHD.diem }}</div>
+              <hr>
+              <p class="mb-1"><strong>Ngày chấm:</strong> {{ ketQuaHD.ngayCham | date:'dd/MM/yyyy' }}</p>
+              <div *ngIf="ketQuaHD.nhanXet" class="mt-3">
+                <strong>Nhận xét:</strong>
+                <p class="bg-light p-3 rounded mt-2 mb-0">{{ ketQuaHD.nhanXet }}</p>
+              </div>
+            </div>
+            <ng-template #chuaCoDiem>
+              <div class="text-center py-4">
+                <i class="bi bi-hourglass text-muted" style="font-size: 3rem;"></i>
+                <p class="mt-3 mb-0">Chưa có điểm hướng dẫn</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: Điểm Phản biện -->
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-muted mb-3">
+              <i class="bi bi-check-circle-fill me-2 text-success"></i>Điểm Phản biện
+            </h5>
+            <div *ngIf="ketQuaPB; else chuaCoDiem">
+              <div class="display-4 fw-bold text-success">{{ ketQuaPB.diem }}</div>
+              <hr>
+              <p class="mb-1"><strong>Ngày chấm:</strong> {{ ketQuaPB.ngayCham | date:'dd/MM/yyyy' }}</p>
+              <div *ngIf="ketQuaPB.nhanXet" class="mt-3">
+                <strong>Nhận xét:</strong>
+                <p class="bg-light p-3 rounded mt-2 mb-0">{{ ketQuaPB.nhanXet }}</p>
+              </div>
+            </div>
+            <ng-template #chuaCoDiem>
+              <div class="text-center py-4">
+                <i class="bi bi-hourglass text-muted" style="font-size: 3rem;"></i>
+                <p class="mt-3 mb-0">Chưa có điểm phản biện</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <!-- Row 2: Điểm Bảo vệ & Lịch bảo vệ -->
+    <div class="row mb-4">
+      <!-- Card: Điểm Bảo vệ -->
+      <div class="col-lg-6 col-md-6 mb-4">
+        <div class="card h-100 shadow-sm border-danger">
+          <div class="card-body">
+            <h5 class="card-title text-muted mb-3">
+              <i class="bi bi-trophy-fill me-2 text-danger"></i>Điểm Bảo vệ
+            </h5>
+            <div *ngIf="ketQuaBV; else chuaCoDiem">
+              <div class="display-4 fw-bold text-danger">{{ ketQuaBV.diemBaoVe }}</div>
+              <hr>
+              <p class="mb-1"><strong>Ngày bảo vệ:</strong> {{ ketQuaBV.ngayBaoVe | date:'dd/MM/yyyy HH:mm' }}</p>
+              <div *ngIf="ketQuaBV.nhanXetCham" class="mt-3">
+                <strong>Nhận xét:</strong>
+                <p class="bg-light p-3 rounded mt-2 mb-0">{{ ketQuaBV.nhanXetCham }}</p>
+              </div>
+            </div>
+            <ng-template #chuaCoDiem>
+              <div class="text-center py-4">
+                <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                <p class="mt-3 mb-0">Chưa có điểm bảo vệ</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card: Lịch bảo vệ -->
+      <div class="col-lg-6 col-md-6 mb-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-muted mb-3">
+              <i class="bi bi-calendar-event-fill me-2"></i>Lịch bảo vệ
+            </h5>
+            <div *ngIf="lichBaoVe; else chuaCoLich">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-primary bg-opacity-10 p-3 rounded me-3">
+                  <i class="bi bi-calendar-week text-primary" style="font-size: 2rem;"></i>
+                </div>
+                <div>
+                  <p class="mb-1 fw-bold">Đề tài của bạn sẽ bảo vệ</p>
+                  <p class="mb-0 text-muted">{{ lichBaoVe.ngayBaoVe | date:'dd/MM/yyyy HH:mm' }}</p>
+                </div>
+              </div>
+              <hr>
+              <p class="mb-1"><strong>Địa điểm:</strong> {{ lichBaoVe.diaDiem || 'Chưa xác định' }}</p>
+            </div>
+            <ng-template #chuaCoLich>
+              <div class="text-center py-4">
+                <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                <p class="mt-3 mb-0">Chưa có lịch bảo vệ</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+    </div>
+
+  </div>

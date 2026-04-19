@@ -201,22 +201,46 @@ export class DeTaiSvComponent implements OnInit {
       this.toastr.warning('Vui lòng nhập đầy đủ thông tin');
       return;
     }
-    this.svService.dangKyLaiDeTai(this.deTaiCuaToi!.id, this.formData).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.toastr.success('Đăng ký lại thành công!');
-          const modalEl = document.getElementById('dangKyLaiModal');
-          if (modalEl) {
-            const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
-            if (modal) modal.hide();
+
+    // Hybrid approach:
+    // - BI_TU_CHOI: cập nhật đề tài cũ (dangKyLaiDeTai)
+    // - KHONG_DAT_*: tạo đề tài mới (dangKyDeTai)
+    if (this.deTaiCuaToi!.trangThai === 'BI_TU_CHOI') {
+      this.svService.dangKyLaiDeTai(this.deTaiCuaToi!.id, this.formData).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.toastr.success('Đăng ký lại thành công!');
+            const modalEl = document.getElementById('dangKyLaiModal');
+            if (modalEl) {
+              const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
+              if (modal) modal.hide();
+            }
+            this.loadData();
           }
-          this.loadData();
+        },
+        error: (err) => {
+          this.toastr.error(err.error?.message || 'Đăng ký lại thất bại');
         }
-      },
-      error: (err) => {
-        this.toastr.error(err.error?.message || 'Đăng ký lại thất bại');
-      }
-    });
+      });
+    } else {
+      // KHONG_DAT_GVHD, KHONG_DAT_PHAN_BIEN, KHONG_DAT_BAO_VE: tạo đề tài mới
+      this.svService.dangKyDeTai(this.formData).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.toastr.success('Đăng ký đề tài mới thành công!');
+            const modalEl = document.getElementById('dangKyLaiModal');
+            if (modalEl) {
+              const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
+              if (modal) modal.hide();
+            }
+            this.loadData();
+          }
+        },
+        error: (err) => {
+          this.toastr.error(err.error?.message || 'Đăng ký đề tài thất bại');
+        }
+      });
+    }
   }
 
   dangKy(): void {
@@ -239,7 +263,9 @@ export class DeTaiSvComponent implements OnInit {
 
   laTrangThaiThatBai(trangThai: string): boolean {
     const trangThaiThatBai = [
-      'KHONG_DU_DIEU_KIEN',
+      'BI_TU_CHOI',
+      'KHONG_DAT_GVHD',
+      'KHONG_DAT_PHAN_BIEN',
       'KHONG_DAT_BAO_VE'
     ];
     return trangThaiThatBai.includes(trangThai);

@@ -7,6 +7,7 @@ import com.quanlydoan.enums.*;
 import com.quanlydoan.exception.BadRequestException;
 import com.quanlydoan.exception.ResourceNotFoundException;
 import com.quanlydoan.repository.*;
+import com.quanlydoan.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,8 @@ public class SinhVienService {
     private final BaoCaoRepository baoCaoRepository;
     private final DiemBaoVeRepository diemBaoVeRepository;
     private final DiemHuongDanRepository diemHuongDanRepository;
+    private final DotBaoCaoTienDoRepository dotBaoCaoTienDoRepository;
+    private final BaoCaoTienDoRepository baoCaoTienDoRepository;
 
     public List<DotDangKyResponse> getDotDangKyDangMo() {
         List<DotDangKy> dots = dotDangKyRepository.findByTrangThai(TrangThaiDot.DANG_MO);
@@ -79,11 +82,12 @@ public class SinhVienService {
             throw new BadRequestException("Đợt đăng ký đã kết thúc");
         }
 
-        // Kiểm tra sinh viên đã đăng ký đề tài chưa (bỏ qua các đề tài bị từ chối hoặc không đạt)
+        // Kiểm tra sinh viên đã đăng ký đề tài chưa (bỏ qua các đề tài không đạt: KHONG_DAT_GVHD, KHONG_DAT_PHAN_BIEN, KHONG_DAT_BAO_VE, BI_TU_CHOI)
         List<DeTai> existing = deTaiRepository.findBySinhVienId(sinhVien.getId());
         existing = existing.stream()
                 .filter(dt -> dt.getTrangThai() != TrangThaiDeTai.BI_TU_CHOI &&
-                             dt.getTrangThai() != TrangThaiDeTai.KHONG_DU_DIEU_KIEN &&
+                             dt.getTrangThai() != TrangThaiDeTai.KHONG_DAT_GVHD &&
+                             dt.getTrangThai() != TrangThaiDeTai.KHONG_DAT_PHAN_BIEN &&
                              dt.getTrangThai() != TrangThaiDeTai.KHONG_DAT_BAO_VE)
                 .collect(Collectors.toList());
         if (!existing.isEmpty()) {
@@ -121,6 +125,8 @@ public class SinhVienService {
         if (deTai.getSinhVien() == null || !deTai.getSinhVien().getId().equals(sinhVien.getId())) {
             throw new BadRequestException("Bạn không có quyền cập nhật đề tài này");
         }
+        // Chỉ cho phép đăng ký lại khi đề tài bị Bộ môn từ chối (BI_TU_CHOI)
+        // Các trạng thái KHONG_DAT_* phải tạo đề tài mới
         if (deTai.getTrangThai() != TrangThaiDeTai.BI_TU_CHOI) {
             throw new BadRequestException("Chỉ có thể đăng ký lại khi đề tài bị Bộ môn từ chối");
         }
@@ -158,7 +164,11 @@ public class SinhVienService {
         if (deTais.isEmpty()) {
             return null;
         }
-        return mapToDeTaiResponse(deTais.get(0));
+        // Lấy đề tài mới nhất theo createdAt
+        return deTais.stream()
+                .max(Comparator.comparing(DeTai::getCreatedAt))
+                .map(this::mapToDeTaiResponse)
+                .orElse(null);
     }
 
     @Transactional
@@ -188,9 +198,6 @@ public class SinhVienService {
         try {
             if (request.getFileBaoCao() != null) {
                 baoCao.setFileBaoCao(saveFile(request.getFileBaoCao(), "bao_cao", deTai.getId()));
-            }
-            if (request.getFileSourceCode() != null) {
-                baoCao.setFileSourceCode(saveFile(request.getFileSourceCode(), "source_code", deTai.getId()));
             }
         } catch (Exception e) {
             throw new BadRequestException("Lỗi khi lưu file: " + e.getMessage());
@@ -445,7 +452,6 @@ public class SinhVienService {
                 .deTaiId(bc.getDeTai().getId())
                 .tenDeTai(bc.getDeTai().getTenDeTai())
                 .fileBaoCao(bc.getFileBaoCao())
-                .fileSourceCode(bc.getFileSourceCode())
                 .ngayNop(bc.getNgayNop())
                 .trangThai(bc.getTrangThai())
                 .build();
@@ -533,5 +539,150 @@ public class SinhVienService {
         }
 
         return builder.build();
+    }
+
+    // ==================== BÁO CÁO TIẾN ĐỘ ====================
+
+    // Lấy đợt báo cáo tiến độ mà SV có thể nộp
+    public List<DotBaoCaoTienDoResponse> getDotBaoCaoTienDoDangMo(Long sinhVienId) {
+        SinhVien sv = sinhVienRepository.findById(sinhVienId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sinh viên"));
+
+        // Lấy đề tài của SV
+        List<DeTai> deTais = deTaiRepository.findBySinhVienId(sinhVienId);
+        if (deTais.isEmpty()) {
+            return new ArrayList<>();
+        }
+        DeTai deTai = deTais.get(0);
+
+        // KIỂM TRA: Chỉ khi đề tài đang thực hiện mới cho xem báo cáo tiến độ
+        if (deTai.getTrangThai() != TrangThaiDeTai.DANG_THUC_HIEN) {
+            return new ArrayList<>();
+        }
+
+        // KIỂM TRA: Chỉ khi GVHD đã DUYỆT mới cho xem báo cáo tiến độ
+        if (deTai.getPhanCongHuongDan() == null || 
+            deTai.getPhanCongHuongDan().getGiangVien() == null ||
+            deTai.getPhanCongHuongDan().getTrangThai() != TrangThaiPhanCong.DUYET) {
+            return new ArrayList<>();
+        }
+        
+        Long gvhdId = deTai.getPhanCongHuongDan().getGiangVien().getId();
+
+        // Lấy các đợt báo cáo của GVHD
+        List<DotBaoCaoTienDo> dots = dotBaoCaoTienDoRepository.findAllByGiangVien(gvhdId);
+
+        // Filter chỉ lấy đợt đang mở (chỉ phụ thuộc trạng thái MO)
+        List<DotBaoCaoTienDo> dotsDangMo = dots.stream()
+                .filter(d -> d.getTrangThai() == TrangThaiDotBaoCao.MO)
+                .collect(Collectors.toList());
+
+        return dotsDangMo.stream().map(this::mapToDotBaoCaoTienDoResponse).collect(Collectors.toList());
+    }
+
+    // Lấy tất cả báo cáo tiến độ của SV
+    public List<BaoCaoTienDoResponse> getBaoCaoTienDoCuaToi(Long sinhVienId) {
+        List<BaoCaoTienDo> baoCaos = baoCaoTienDoRepository.findAllBySinhVien(sinhVienId);
+        return baoCaos.stream().map(this::mapToBaoCaoTienDoResponse).collect(Collectors.toList());
+    }
+
+    // Nộp báo cáo tiến độ
+    @Transactional
+    public BaoCaoTienDoResponse nopBaoCaoTienDo(NopBaoCaoTienDoRequest request, Long sinhVienId) {
+        SinhVien sv = sinhVienRepository.findById(sinhVienId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sinh viên"));
+
+        // Lấy đề tài của SV
+        List<DeTai> deTais = deTaiRepository.findBySinhVienId(sinhVienId);
+        if (deTais.isEmpty()) {
+            throw new BadRequestException("Sinh viên chưa có đề tài");
+        }
+        DeTai deTai = deTais.get(0);
+
+        // KIỂM TRA: Chỉ khi đề tài đang thực hiện mới cho nộp báo cáo tiến độ
+        if (deTai.getTrangThai() != TrangThaiDeTai.DANG_THUC_HIEN) {
+            throw new BadRequestException("Đề tài chưa được duyệt hoặc không trong giai đoạn thực hiện");
+        }
+
+        // KIỂM TRA: Chỉ khi GVHD đã DUYỆT mới cho nộp báo cáo tiến độ
+        if (deTai.getPhanCongHuongDan() == null || 
+            deTai.getPhanCongHuongDan().getGiangVien() == null ||
+            deTai.getPhanCongHuongDan().getTrangThai() != TrangThaiPhanCong.DUYET) {
+            throw new BadRequestException("Giảng viên hướng dẫn chưa duyệt đề tài của bạn");
+        }
+
+        // Kiểm tra đợt báo cáo
+        DotBaoCaoTienDo dot = dotBaoCaoTienDoRepository.findById(request.getDotBaoCaoTienDoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đợt báo cáo"));
+
+        // Kiểm tra đợt còn mở (chỉ phụ thuộc trạng thái MO)
+        if (dot.getTrangThai() != TrangThaiDotBaoCao.MO) {
+            throw new BadRequestException("Đợt báo cáo đã đóng");
+        }
+
+        // Kiểm tra đã nộp chưa
+        if (baoCaoTienDoRepository.existsByDotBaoCaoTienDoIdAndDeTaiId(dot.getId(), deTai.getId())) {
+            throw new BadRequestException("Bạn đã nộp báo cáo tiến độ cho đợt này rồi");
+        }
+
+        // Tạo báo cáo
+        BaoCaoTienDo baoCao = BaoCaoTienDo.builder()
+                .dotBaoCaoTienDo(dot)
+                .deTai(deTai)
+                .noiDung(request.getNoiDung())
+                .trangThai(TrangThaiBaoCaoTienDo.CHO_NHAN_XET)
+                .build();
+
+        // Lưu file
+        try {
+            if (request.getFileBaoCao() != null) {
+                baoCao.setFileBaoCao(saveFile(request.getFileBaoCao(), "bao_cao_tien_do", deTai.getId()));
+            }
+        } catch (Exception e) {
+            throw new BadRequestException("Lỗi khi lưu file: " + e.getMessage());
+        }
+
+        baoCao = baoCaoTienDoRepository.save(baoCao);
+        return mapToBaoCaoTienDoResponse(baoCao);
+    }
+
+    // Mapper
+    private DotBaoCaoTienDoResponse mapToDotBaoCaoTienDoResponse(DotBaoCaoTienDo dot) {
+        int soLuongNop = baoCaoTienDoRepository.findAllByDotBaoCaoTienDoId(dot.getId()).size();
+
+        return DotBaoCaoTienDoResponse.builder()
+                .id(dot.getId())
+                .giangVienId(dot.getGiangVien().getId())
+                .hoTenGiangVien(dot.getGiangVien().getHoTen())
+                .tenDot(dot.getTenDot())
+                .ngayBatDau(dot.getNgayBatDau())
+                .ngayKetThuc(dot.getNgayKetThuc())
+                .trangThai(dot.getTrangThai())
+                .createdAt(dot.getCreatedAt())
+                .soLuongSinhVienNop(soLuongNop)
+                .build();
+    }
+
+    private BaoCaoTienDoResponse mapToBaoCaoTienDoResponse(BaoCaoTienDo bc) {
+        DeTai deTai = bc.getDeTai();
+        SinhVien sv = deTai.getSinhVien();
+
+        return BaoCaoTienDoResponse.builder()
+                .id(bc.getId())
+                .dotBaoCaoTienDoId(bc.getDotBaoCaoTienDo().getId())
+                .tenDotBaoCao(bc.getDotBaoCaoTienDo().getTenDot())
+                .deTaiId(deTai.getId())
+                .tenDeTai(deTai.getTenDeTai())
+                .sinhVienId(sv != null ? sv.getId() : null)
+                .hoTenSinhVien(sv != null ? sv.getHoTen() : null)
+                .maSinhVien(sv != null ? sv.getMaSinhVien() : null)
+                .lopSinhVien(sv != null ? sv.getLop() : null)
+                .fileBaoCao(bc.getFileBaoCao())
+                .noiDung(bc.getNoiDung())
+                .ngayNop(bc.getNgayNop())
+                .trangThai(bc.getTrangThai())
+                .nhanXet(bc.getNhanXet())
+                .ngayNhanXet(bc.getNgayNhanXet())
+                .build();
     }
 }

@@ -2,6 +2,8 @@ package com.quanlydoan.controller;
 
 import com.quanlydoan.dto.request.*;
 import com.quanlydoan.dto.response.*;
+import com.quanlydoan.entity.SinhVien;
+import com.quanlydoan.repository.SinhVienRepository;
 import com.quanlydoan.service.SinhVienService;
 import com.quanlydoan.service.AuthService;
 import jakarta.validation.Valid;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 @RestController
 @RequestMapping("/api/sinh-vien")
@@ -19,6 +22,7 @@ public class SinhVienController {
 
     private final SinhVienService sinhVienService;
     private final AuthService authService;
+    private final SinhVienRepository sinhVienRepository;
 
     @GetMapping("/dot-dang-ky")
     public ResponseEntity<ApiResponse<List<DotDangKyResponse>>> getDotDangKyDangMo() {
@@ -112,4 +116,33 @@ public class SinhVienController {
         return ResponseEntity.ok(ApiResponse.success(lichBaoVe));
     }
 
+    // ==================== BÁO CÁO TIẾN ĐỘ ====================
+
+    // Lấy đợt báo cáo tiến độ mà SV có thể nộp
+    @GetMapping("/bao-cao-tien-do/dot")
+    public ResponseEntity<ApiResponse<List<DotBaoCaoTienDoResponse>>> getDotBaoCaoTienDo() {
+        UserResponse currentUser = authService.getCurrentUser();
+        SinhVien sv = sinhVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sinh viên"));
+        return ResponseEntity.ok(ApiResponse.success(sinhVienService.getDotBaoCaoTienDoDangMo(sv.getId())));
+    }
+
+    // Lấy báo cáo tiến độ của SV
+    @GetMapping("/bao-cao-tien-do")
+    public ResponseEntity<ApiResponse<List<BaoCaoTienDoResponse>>> getBaoCaoTienDoCuaToi() {
+        UserResponse currentUser = authService.getCurrentUser();
+        SinhVien sv = sinhVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sinh viên"));
+        return ResponseEntity.ok(ApiResponse.success(sinhVienService.getBaoCaoTienDoCuaToi(sv.getId())));
+    }
+
+    // Nộp báo cáo tiến độ
+    @PostMapping("/bao-cao-tien-do")
+    public ResponseEntity<ApiResponse<BaoCaoTienDoResponse>> nopBaoCaoTienDo(@ModelAttribute NopBaoCaoTienDoRequest request) {
+        UserResponse currentUser = authService.getCurrentUser();
+        SinhVien sv = sinhVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sinh viên"));
+        return ResponseEntity.ok(ApiResponse.success("Nộp báo cáo tiến độ thành công",
+                sinhVienService.nopBaoCaoTienDo(request, sv.getId())));
+    }
 }

@@ -3,6 +3,8 @@ package com.quanlydoan.controller;
 import com.quanlydoan.dto.request.*;
 import com.quanlydoan.dto.response.*;
 import com.quanlydoan.entity.GiangVien;
+import com.quanlydoan.enums.TrangThaiDotBaoCao;
+import com.quanlydoan.enums.TrangThaiBaoCaoTienDo;
 import com.quanlydoan.repository.GiangVienRepository;
 import com.quanlydoan.service.GiangVienService;
 import com.quanlydoan.service.AuthService;
@@ -100,5 +102,86 @@ public class GiangVienController {
             return ResponseEntity.ok(ApiResponse.success("Chưa có báo cáo", null));
         }
         return ResponseEntity.ok(ApiResponse.success(baoCao));
+    }
+
+    // ==================== BÁO CÁO TIẾN ĐỘ ====================
+
+    // Tạo đợt báo cáo tiến độ
+    @PostMapping("/bao-cao-tien-do/dot")
+    public ResponseEntity<ApiResponse<DotBaoCaoTienDoResponse>> taoDotBaoCaoTienDo(
+            @Valid @RequestBody DotBaoCaoTienDoRequest request) {
+        UserResponse currentUser = authService.getCurrentUser();
+        GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
+        return ResponseEntity.ok(ApiResponse.success("Tạo đợt báo cáo thành công",
+                giangVienService.taoDotBaoCaoTienDo(request, gv.getId())));
+    }
+
+    // Lấy danh sách đợt báo cáo tiến độ
+    @GetMapping("/bao-cao-tien-do/dot")
+    public ResponseEntity<ApiResponse<List<DotBaoCaoTienDoResponse>>> getDotBaoCaoTienDo() {
+        UserResponse currentUser = authService.getCurrentUser();
+        GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
+        return ResponseEntity.ok(ApiResponse.success(giangVienService.getDotBaoCaoTienDo(gv.getId())));
+    }
+
+    // Cập nhật trạng thái đợt báo cáo (mở/đóng)
+    @PutMapping("/bao-cao-tien-do/dot/{dotId}/trang-thai")
+    public ResponseEntity<ApiResponse<DotBaoCaoTienDoResponse>> capNhatTrangThaiDot(
+            @PathVariable Long dotId, @RequestParam String trangThai) {
+        UserResponse currentUser = authService.getCurrentUser();
+        GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
+        return ResponseEntity.ok(ApiResponse.success(
+                giangVienService.capNhatTrangThaiDot(dotId, com.quanlydoan.enums.TrangThaiDotBaoCao.valueOf(trangThai))));
+    }
+
+    // Lấy báo cáo tiến độ theo đợt
+    @GetMapping("/bao-cao-tien-do/dot/{dotId}/danh-sach")
+    public ResponseEntity<ApiResponse<List<BaoCaoTienDoResponse>>> getBaoCaoTienDoByDot(@PathVariable Long dotId) {
+        UserResponse currentUser = authService.getCurrentUser();
+        GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
+        return ResponseEntity.ok(ApiResponse.success(giangVienService.getBaoCaoTienDoByDot(dotId, gv.getId())));
+    }
+
+    // Nhận xét báo cáo tiến độ
+    @PostMapping("/bao-cao-tien-do/nhan-xet")
+    public ResponseEntity<ApiResponse<BaoCaoTienDoResponse>> nhanXetBaoCaoTienDo(
+            @Valid @RequestBody NhanXetBaoCaoTienDoRequest request) {
+        UserResponse currentUser = authService.getCurrentUser();
+        GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
+        return ResponseEntity.ok(ApiResponse.success("Nhận xét thành công",
+                giangVienService.nhanXetBaoCaoTienDo(request, gv.getId())));
+    }
+
+    // Xóa đợt báo cáo tiến độ
+    @DeleteMapping("/bao-cao-tien-do/dot/{dotId}")
+    public ResponseEntity<ApiResponse<Void>> xoaDotBaoCaoTienDo(@PathVariable Long dotId) {
+        UserResponse currentUser = authService.getCurrentUser();
+        GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
+        giangVienService.xoaDotBaoCaoTienDo(dotId, gv.getId());
+        return ResponseEntity.ok(ApiResponse.success("Xóa đợt báo cáo thành công", null));
+    }
+
+    // Lấy danh sách sinh viên được hướng dẫn
+    @GetMapping("/sinh-vien-huong-dan")
+    public ResponseEntity<ApiResponse<List<SinhVienHuongDanResponse>>> getSinhVienHuongDan() {
+        UserResponse currentUser = authService.getCurrentUser();
+        GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
+        return ResponseEntity.ok(ApiResponse.success(giangVienService.getSinhVienHuongDan(gv.getId())));
+    }
+
+    // Lấy báo cáo tiến độ của một sinh viên
+    @GetMapping("/bao-cao-tien-do/sinh-vien/{sinhVienId}")
+    public ResponseEntity<ApiResponse<List<BaoCaoTienDoResponse>>> getBaoCaoTienDoBySinhVien(@PathVariable Long sinhVienId) {
+        UserResponse currentUser = authService.getCurrentUser();
+        GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
+        return ResponseEntity.ok(ApiResponse.success(giangVienService.getBaoCaoTienDoBySinhVien(sinhVienId, gv.getId())));
     }
 }

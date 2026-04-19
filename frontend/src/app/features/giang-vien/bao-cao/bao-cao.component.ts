@@ -91,15 +91,6 @@ import { ToastrService } from 'ngx-toastr';
                   <span *ngIf="!baoCaoChon.fileBaoCao" class="text-muted">Chưa có file</span>
                 </td>
               </tr>
-              <tr>
-                <th>Source code:</th>
-                <td>
-                  <button *ngIf="baoCaoChon.fileSourceCode" class="btn btn-sm btn-info" (click)="taiFile(baoCaoChon.fileSourceCode, 'source_code')">
-                    <i class="fas fa-download"></i> Tải source code
-                  </button>
-                  <span *ngIf="!baoCaoChon.fileSourceCode" class="text-muted">Chưa có file</span>
-                </td>
-              </tr>
             </table>
           </div>
           <div class="modal-footer">

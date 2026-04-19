@@ -73,6 +73,9 @@ public class DeTai {
     @OneToOne(mappedBy = "deTai", cascade = CascadeType.ALL)
     private HoiDongBaoVe hoiDongBaoVe;
 
+    @OneToMany(mappedBy = "deTai", cascade = CascadeType.ALL)
+    private List<BaoCaoTienDo> danhSachBaoCaoTienDo;
+
 
     @PrePersist
     protected void onCreate() {

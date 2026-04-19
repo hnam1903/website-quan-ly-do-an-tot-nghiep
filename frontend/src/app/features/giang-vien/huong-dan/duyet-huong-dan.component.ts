@@ -26,6 +26,7 @@ import { ToastrService } from 'ngx-toastr';
               <th>Lớp</th>
               <th>Tên đề tài</th>
               <th>Bộ môn</th>
+              <th class="text-center">Chi tiết</th>
               <th>Thao tác</th>
             </tr>
           </thead>
@@ -37,6 +38,11 @@ import { ToastrService } from 'ngx-toastr';
               <td>{{ sv.lopSinhVien || '-' }}</td>
               <td>{{ sv.tenDeTai }}</td>
               <td>{{ sv.tenBoMon }}</td>
+              <td class="text-center">
+                <button class="btn btn-outline-primary btn-sm" (click)="xemChiTiet(sv)" data-bs-toggle="modal" data-bs-target="#chiTietModal">
+                  <i class="bi bi-eye"></i> Xem
+                </button>
+              </td>
               <td>
                 <button class="btn btn-sm btn-success me-2" (click)="duyet(sv)">
                   <i class="bi bi-check-circle"></i> Đồng ý
@@ -91,11 +97,68 @@ import { ToastrService } from 'ngx-toastr';
         </div>
       </div>
     </div>
+
+    <!-- Modal chi tiết đề tài -->
+    <div class="modal fade" id="chiTietModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content" *ngIf="chiTietDeTai">
+          <div class="modal-header bg-info text-white">
+            <h5 class="modal-title">Chi tiết đề tài đăng ký</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Sinh viên</label>
+                <p class="mb-1">{{ chiTietDeTai.hoTenSinhVien }}</p>
+                <small class="text-muted">{{ chiTietDeTai.maSinhVien }} - {{ chiTietDeTai.lopSinhVien }}</small>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Bộ môn</label>
+                <p>{{ chiTietDeTai.tenBoMon }}</p>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-bold">Tên đề tài</label>
+                <p>{{ chiTietDeTai.tenDeTai }}</p>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-bold">Nội dung dự kiến</label>
+                <p class="text-muted">{{ chiTietDeTai.noiDungDuKien || 'Chưa có' }}</p>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Công nghệ sử dụng</label>
+                <p class="text-muted">{{ chiTietDeTai.congNgheSuDung || 'Chưa có' }}</p>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Giảng viên hướng dẫn</label>
+                <p>{{ chiTietDeTai.hoTenGiangVien || 'Chưa phân công' }}</p>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Trạng thái phân công</label>
+                <p>
+                  <span [class]="getTrangThaiPhanCongClass(chiTietDeTai.trangThai)">
+                    {{ getTrangThaiPhanCongText(chiTietDeTai.trangThai) }}
+                  </span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Ngày phân công</label>
+                <p>{{ chiTietDeTai.ngayPhanCong | date:'dd/MM/yyyy HH:mm' }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          </div>
+        </div>
+      </div>
+    </div>
   `
 })
 export class DuyetHuongDanComponent implements OnInit {
   choDuyetList: PhanCongHuongDanResponse[] = [];
   selected: PhanCongHuongDanResponse | null = null;
+  chiTietDeTai: PhanCongHuongDanResponse | null = null;
   actionType: 'duyet' | 'tuchoi' = 'duyet';
 
   constructor(private gvService: GiangVienService, private toastr: ToastrService) {}
@@ -113,6 +176,10 @@ export class DuyetHuongDanComponent implements OnInit {
       },
       error: (err) => console.error('Lỗi load:', err)
     });
+  }
+
+  xemChiTiet(item: PhanCongHuongDanResponse): void {
+    this.chiTietDeTai = item;
   }
 
   duyet(item: PhanCongHuongDanResponse): void {
@@ -143,6 +210,24 @@ export class DuyetHuongDanComponent implements OnInit {
         this.toastr.error(err.error?.message || 'Có lỗi xảy ra');
       }
     });
+  }
+
+  getTrangThaiPhanCongText(trangThai: string): string {
+    const map: Record<string, string> = {
+      'CHO_DUYET': 'Chờ duyệt',
+      'DUYET': 'Đã duyệt',
+      'TU_CHOI': 'Từ chối'
+    };
+    return map[trangThai] || trangThai;
+  }
+
+  getTrangThaiPhanCongClass(trangThai: string): string {
+    const map: Record<string, string> = {
+      'CHO_DUYET': 'badge bg-warning text-dark',
+      'DUYET': 'badge bg-success',
+      'TU_CHOI': 'badge bg-danger'
+    };
+    return map[trangThai] || 'badge bg-secondary';
   }
 
   private showModal(): void {

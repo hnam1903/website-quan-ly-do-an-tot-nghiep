@@ -77,6 +77,7 @@ export interface DeTaiResponse {
   ghiChu?: string;
   dotDangKyId?: number;
   tenDotDangKy?: string;
+  namHoc?: string;
   sinhVienId?: number;
   hoTenSinhVien?: string;
   maSinhVien?: string;
@@ -154,7 +155,6 @@ export interface BaoCaoResponse {
   hoTenSinhVien?: string;
   maSinhVien?: string;
   fileBaoCao?: string;
-  fileSourceCode?: string;
   ngayNop?: string;
   trangThai: string;
 }
@@ -224,4 +224,44 @@ export interface DanhSachSinhVienDotDangKyResponse {
   tongSoSinhVien: number;
   soLuongDaDangKy: number;
   soLuongChuaDangKy: number;
+}
+
+// Báo cáo tiến độ
+export interface DotBaoCaoTienDoResponse {
+  id: number;
+  giangVienId: number;
+  hoTenGiangVien: string;
+  tenDot: string;
+  ngayBatDau: string;
+  ngayKetThuc: string;
+  trangThai: string;
+  createdAt: string;
+  soLuongSinhVienNop?: number;
+}
+
+export interface BaoCaoTienDoResponse {
+  id: number;
+  dotBaoCaoTienDoId: number;
+  tenDotBaoCao: string;
+  deTaiId: number;
+  tenDeTai: string;
+  sinhVienId?: number;
+  hoTenSinhVien?: string;
+  maSinhVien?: string;
+  lopSinhVien?: string;
+  fileBaoCao?: string;
+  noiDung?: string;
+  ngayNop?: string;
+  trangThai: string;
+  nhanXet?: string;
+  ngayNhanXet?: string;
+}
+
+export interface SinhVienHuongDan {
+  id: number;
+  maSinhVien: string;
+  hoTen: string;
+  email?: string;
+  lop?: string;
+  tenDeTai?: string;
 }

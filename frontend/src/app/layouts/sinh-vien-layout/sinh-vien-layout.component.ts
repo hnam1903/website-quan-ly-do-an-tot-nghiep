@@ -21,6 +21,11 @@ import { Router } from '@angular/router';
       
       <ul class="nav flex-column">
         <li class="nav-item">
+          <a class="nav-link" routerLink="/sinh-vien/dashboard" routerLinkActive="active">
+            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" routerLink="/sinh-vien/de-tai" routerLinkActive="active">
             <i class="bi bi-file-earmark-plus me-2"></i>Đăng ký đề tài
           </a>
@@ -38,6 +43,11 @@ import { Router } from '@angular/router';
         <li class="nav-item">
           <a class="nav-link" routerLink="/sinh-vien/ket-qua" routerLinkActive="active">
             <i class="bi bi-graph-up me-2"></i>Kết quả
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/sinh-vien/bao-cao-tien-do" routerLinkActive="active">
+            <i class="bi bi-clock-history me-2"></i>Báo cáo tiến độ
           </a>
         </li>
       </ul>

@@ -82,27 +82,14 @@ public class AdminController {
     }
 
 
-    // Đề tài bị từ chối
-    @GetMapping("/de-tai/bi-tu-choi")
-    public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiBiTuChoi(
+    // Đề tài không đạt
+    @GetMapping("/de-tai/khong-dat")
+    public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiKhongDat(
             @RequestParam(required = false) Long dotDangKyId) {
-        return ResponseEntity.ok(ApiResponse.success(adminService.getDeTaiBiTuChoi(dotDangKyId)));
+        return ResponseEntity.ok(ApiResponse.success(adminService.getDeTaiKhongDat(dotDangKyId)));
     }
 
-    @DeleteMapping("/de-tai/{id}/xoa")
-    public ResponseEntity<ApiResponse<Void>> xoaDeTaiBiTuChoi(@PathVariable Long id) {
-        adminService.xoaDeTaiBiTuChoi(id);
-        return ResponseEntity.ok(ApiResponse.success("Đã xóa đề tài bị từ chối", null));
-    }
-
-    @DeleteMapping("/de-tai/xoa-nhieu")
-    public ResponseEntity<ApiResponse<Void>> xoaNhieuDeTaiBiTuChoi(@RequestBody List<Long> ids) {
-        adminService.xoaNhieuDeTaiBiTuChoi(ids);
-        return ResponseEntity.ok(ApiResponse.success("Đã xóa " + ids.size() + " đề tài bị từ chối", null));
-    }
-
-
-    // Bộ môn
+    // ==================== Bộ môn ====================
     @GetMapping("/bo-mon")
     public ResponseEntity<ApiResponse<List<BoMonResponse>>> getAllBoMon() {
         return ResponseEntity.ok(ApiResponse.success(adminService.getAllBoMon()));

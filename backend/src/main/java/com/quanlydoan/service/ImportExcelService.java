@@ -124,7 +124,7 @@ public class ImportExcelService {
             headerStyle.setAlignment(HorizontalAlignment.CENTER);
 
             // Tạo header
-            String[] headers = {"MSV", "Họ tên SV", "Điểm Chủ tịch", "Điểm Thư ký", "Điểm Ủy viên", "Nhận xét"};
+            String[] headers = {"MSV", "Họ tên SV", "Đề tài", "Điểm Chủ tịch", "Điểm Thư ký", "Điểm Ủy viên", "Nhận xét"};
             Row headerRow = sheet.createRow(0);
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
@@ -135,10 +135,11 @@ public class ImportExcelService {
             // Set column width
             sheet.setColumnWidth(0, 3000);
             sheet.setColumnWidth(1, 5000);
-            sheet.setColumnWidth(2, 4000);
+            sheet.setColumnWidth(2, 10000);  // Đề tài
             sheet.setColumnWidth(3, 4000);
             sheet.setColumnWidth(4, 4000);
-            sheet.setColumnWidth(5, 10000);
+            sheet.setColumnWidth(5, 4000);
+            sheet.setColumnWidth(6, 10000);
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             workbook.write(outputStream);
@@ -163,14 +164,37 @@ public class ImportExcelService {
         SinhVien sinhVien = sinhVienRepository.findByMaSinhVien(msv.trim())
                 .orElseThrow(() -> new BadRequestException("Không tìm thấy sinh viên với MSV: " + msv));
 
+        // Lấy tên đề tài từ file Excel (nếu có)
+        Integer deTaiColIndex = columnIndex.get("đề tài") != null ? columnIndex.get("đề tài") :
+                               columnIndex.get("de tai");
+        String tenDeTai = deTaiColIndex != null ? getCellValueAsString(getCellOrDefault(row, deTaiColIndex)) : null;
+
         // Tìm đề tài của sinh viên
         List<DeTai> deTaiList = deTaiRepository.findBySinhVienId(sinhVien.getId());
         if (deTaiList.isEmpty()) {
             throw new BadRequestException("Sinh viên " + msv + " chưa có đề tài");
         }
 
-        // Lấy đề tài đầu tiên (mỗi SV có 1 đề tài)
-        DeTai deTai = deTaiList.get(0);
+        // Chọn đề tài phù hợp
+        DeTai deTai;
+        if (tenDeTai != null && !tenDeTai.isBlank()) {
+            // Tìm đề tài có tên khớp với tên trong file
+            Optional<DeTai> matchedDeTai = deTaiList.stream()
+                    .filter(dt -> dt.getTenDeTai() != null && dt.getTenDeTai().trim().equalsIgnoreCase(tenDeTai.trim()))
+                    .findFirst();
+
+            if (matchedDeTai.isPresent()) {
+                deTai = matchedDeTai.get();
+            } else {
+                throw new BadRequestException("Sinh viên " + msv + " không có đề tài với tên: '" + tenDeTai + "'. " +
+                        "Đề tài của SV: " + deTaiList.stream()
+                                .map(DeTai::getTenDeTai)
+                                .collect(java.util.stream.Collectors.joining(", ")));
+            }
+        } else {
+            // Nếu không có cột đề tài, lấy đề tài đầu tiên (cách cũ - để backward compatibility)
+            deTai = deTaiList.get(0);
+        }
 
         // Tìm hội đồng của đề tài
         HoiDongBaoVe hoiDong = hoiDongBaoVeRepository.findByDeTaiId(deTai.getId())

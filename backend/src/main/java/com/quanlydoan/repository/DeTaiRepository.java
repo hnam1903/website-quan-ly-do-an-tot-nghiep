@@ -15,6 +15,8 @@ public interface DeTaiRepository extends JpaRepository<DeTai, Long> {
 
     List<DeTai> findByDotDangKyId(Long dotDangKyId);
     List<DeTai> findByDotDangKyIdAndTrangThai(Long dotDangKyId, TrangThaiDeTai trangThai);
+    List<DeTai> findByTrangThaiIn(List<TrangThaiDeTai> trangThais);
+    List<DeTai> findByDotDangKyIdAndTrangThaiIn(Long dotDangKyId, List<TrangThaiDeTai> trangThais);
     List<DeTai> findBySinhVienId(Long sinhVienId);
     
     @Query("SELECT dt FROM DeTai dt WHERE dt.sinhVien.boMon.id = :boMonId")

@@ -23,6 +23,7 @@ public class DeTaiResponse {
     private String ghiChu;
     private Long dotDangKyId;
     private String tenDotDangKy;
+    private String namHoc;
     private Long sinhVienId;
     private String hoTenSinhVien;
     private String maSinhVien;

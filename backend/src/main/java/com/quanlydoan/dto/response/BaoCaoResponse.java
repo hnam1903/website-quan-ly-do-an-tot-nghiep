@@ -18,7 +18,6 @@ public class BaoCaoResponse {
     private String hoTenSinhVien;
     private String maSinhVien;
     private String fileBaoCao;
-    private String fileSourceCode;
     private LocalDateTime ngayNop;
     private TrangThaiBaoCao trangThai;
 }

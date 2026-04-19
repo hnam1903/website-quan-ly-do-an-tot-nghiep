@@ -51,7 +51,6 @@ public class BoMonService {
                         .deTaiId(dt.getId())
                         .tenDeTai(dt.getTenDeTai())
                         .fileBaoCao(bc.getFileBaoCao())
-                        .fileSourceCode(bc.getFileSourceCode())
                         .ngayNop(bc.getNgayNop())
                         .trangThai(bc.getTrangThai());
 
@@ -81,7 +80,6 @@ public class BoMonService {
                 .deTaiId(deTai.getId())
                 .tenDeTai(deTai.getTenDeTai())
                 .fileBaoCao(bc.getFileBaoCao())
-                .fileSourceCode(bc.getFileSourceCode())
                 .ngayNop(bc.getNgayNop())
                 .trangThai(bc.getTrangThai());
 
@@ -100,26 +98,6 @@ public class BoMonService {
 
     public List<DeTaiResponse> getDeTaiByTrangThai(Long boMonId, TrangThaiDeTai trangThai) {
         List<DeTai> deTais = deTaiRepository.findByBoMonIdAndTrangThai(boMonId, trangThai);
-        return deTais.stream().map(this::mapToDeTaiResponse).collect(Collectors.toList());
-    }
-
-    public List<DeTaiResponse> getDeTaiDuDieuKien(Long boMonId) {
-        List<DeTai> deTais = deTaiRepository.findByBoMonIdAndTrangThai(boMonId, TrangThaiDeTai.DU_DIEU_KIEN);
-        return deTais.stream().map(this::mapToDeTaiResponse).collect(Collectors.toList());
-    }
-
-    public List<DeTaiResponse> getDeTaiDangThucHien(Long boMonId) {
-        List<DeTai> deTais = deTaiRepository.findByBoMonIdAndTrangThai(boMonId, TrangThaiDeTai.DANG_THUC_HIEN);
-        return deTais.stream().map(this::mapToDeTaiResponse).collect(Collectors.toList());
-    }
-
-    public List<DeTaiResponse> getDeTaiDaGuiBoMon(Long boMonId) {
-        List<DeTai> deTais = deTaiRepository.findByBoMonIdAndTrangThai(boMonId, TrangThaiDeTai.DA_GUI_BO_MON);
-        return deTais.stream().map(this::mapToDeTaiResponse).collect(Collectors.toList());
-    }
-
-    public List<DeTaiResponse> getDeTaiChoBoMonDuyet(Long boMonId) {
-        List<DeTai> deTais = deTaiRepository.findByBoMonIdAndTrangThai(boMonId, TrangThaiDeTai.CHO_BO_MON_DUYET);
         return deTais.stream().map(this::mapToDeTaiResponse).collect(Collectors.toList());
     }
 
@@ -360,7 +338,8 @@ public class BoMonService {
 
         if (dt.getDotDangKy() != null) {
             builder.dotDangKyId(dt.getDotDangKy().getId())
-                   .tenDotDangKy(dt.getDotDangKy().getTenDot());
+                   .tenDotDangKy(dt.getDotDangKy().getTenDot())
+                   .namHoc(dt.getDotDangKy().getNamHoc());
         }
 
         if (dt.getSinhVien() != null) {

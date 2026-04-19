@@ -25,8 +25,6 @@ public class BaoCao {
     @Column(name = "file_bao_cao", length = 255)
     private String fileBaoCao;
 
-    @Column(name = "file_source_code", length = 255)
-    private String fileSourceCode;
 
     @Column(name = "ngay_nop")
     private LocalDateTime ngayNop;

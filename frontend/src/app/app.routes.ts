@@ -78,7 +78,15 @@ export const routes: Routes = [
           { path: 'danh-sach', loadComponent: () => import('./features/giang-vien/hoi-dong/danh-sach-bao-ve.component').then(m => m.DanhSachBaoVeComponent) }
         ]
       },
-      { path: 'bao-cao', loadComponent: () => import('./features/giang-vien/bao-cao/bao-cao.component').then(m => m.BaoCaoGvComponent) }
+      { path: 'bao-cao', loadComponent: () => import('./features/giang-vien/bao-cao/bao-cao.component').then(m => m.BaoCaoGvComponent) },
+      { path: 'bao-cao-tien-do', redirectTo: 'bao-cao-tien-do/tao-dot', pathMatch: 'full' },
+      {
+        path: 'bao-cao-tien-do',
+        children: [
+          { path: 'tao-dot', loadComponent: () => import('./features/giang-vien/bao-cao-tien-do/bao-cao-tien-do.component').then(m => m.BaoCaoTienDoComponent) },
+          { path: 'danh-sach', loadComponent: () => import('./features/giang-vien/bao-cao-tien-do/bao-cao-tien-do.component').then(m => m.BaoCaoTienDoComponent) }
+        ]
+      }
     ]
   },
   {
@@ -112,7 +120,15 @@ export const routes: Routes = [
           { path: 'danh-sach', loadComponent: () => import('./features/giang-vien/hoi-dong/danh-sach-bao-ve.component').then(m => m.DanhSachBaoVeComponent) }
         ]
       },
-      { path: 'bao-cao', loadComponent: () => import('./features/giang-vien/bao-cao/bao-cao.component').then(m => m.BaoCaoGvComponent) }
+      { path: 'bao-cao', loadComponent: () => import('./features/giang-vien/bao-cao/bao-cao.component').then(m => m.BaoCaoGvComponent) },
+      { path: 'bao-cao-tien-do', redirectTo: 'bao-cao-tien-do/tao-dot', pathMatch: 'full' },
+      {
+        path: 'bao-cao-tien-do',
+        children: [
+          { path: 'tao-dot', loadComponent: () => import('./features/giang-vien/bao-cao-tien-do/bao-cao-tien-do.component').then(m => m.BaoCaoTienDoComponent) },
+          { path: 'danh-sach', loadComponent: () => import('./features/giang-vien/bao-cao-tien-do/bao-cao-tien-do.component').then(m => m.BaoCaoTienDoComponent) }
+        ]
+      }
     ]
   },
   {
@@ -121,11 +137,13 @@ export const routes: Routes = [
     data: { roles: ['ADMIN', 'SINH_VIEN'] },
     loadComponent: () => import('./layouts/sinh-vien-layout/sinh-vien-layout.component').then(m => m.SinhVienLayoutComponent),
     children: [
-      { path: '', redirectTo: 'de-tai', pathMatch: 'full' },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', loadComponent: () => import('./features/sinh-vien/dashboard/sinh-vien-dashboard.component').then(m => m.SinhVienDashboardComponent) },
       { path: 'de-tai', loadComponent: () => import('./features/sinh-vien/de-tai/de-tai.component').then(m => m.DeTaiSvComponent) },
       { path: 'lich-bao-ve', loadComponent: () => import('./features/sinh-vien/lich-bao-ve/lich-bao-ve.component').then(m => m.LichBaoVeComponent) },
       { path: 'nop-bao-cao', loadComponent: () => import('./features/sinh-vien/nop-bao-cao/nop-bao-cao.component').then(m => m.NopBaoCaoComponent) },
-      { path: 'ket-qua', loadComponent: () => import('./features/sinh-vien/ket-qua/ket-qua.component').then(m => m.KetQuaComponent) }
+      { path: 'ket-qua', loadComponent: () => import('./features/sinh-vien/ket-qua/ket-qua.component').then(m => m.KetQuaComponent) },
+      { path: 'bao-cao-tien-do', loadComponent: () => import('./features/sinh-vien/bao-cao-tien-do/bao-cao-tien-do.component').then(m => m.BaoCaoTienDoSvComponent) }
     ]
   },
   {

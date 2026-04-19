@@ -291,9 +291,7 @@ export class ThongKeComponent implements OnInit {
       'CHO_HOI_DONG': 'Chờ hội đồng',
       'DANG_BAO_VE': 'Đã gặp hội đồng',
       'HOAN_THANH': 'Hoàn thành',
-      'KHONG_DAT_BAO_VE': 'Không đạt bảo vệ',
-      'DU_DIEU_KIEN': 'Đủ điều kiện',
-      'KHONG_DU_DIEU_KIEN': 'K đủ điều kiện'
+      'KHONG_DAT_BAO_VE': 'Không đạt bảo vệ'
     };
     return statusMap[trangThai] || trangThai;
   }

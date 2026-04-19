@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DiemHuongDanResponse, DiemPhanBienResponse, HoiDongBaoVeResponse, GiangVienResponse } from '../models/models';
+import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DiemHuongDanResponse, DiemPhanBienResponse, HoiDongBaoVeResponse, GiangVienResponse, DotBaoCaoTienDoResponse, BaoCaoTienDoResponse } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -53,5 +53,18 @@ export class SinhVienService {
 
   getLichBaoVe(): Observable<ApiResponse<DeTaiResponse>> {
     return this.http.get<ApiResponse<DeTaiResponse>>(`${this.apiUrl}/lich-bao-ve`);
+  }
+
+  // Báo cáo tiến độ
+  getDotBaoCaoTienDo(): Observable<ApiResponse<DotBaoCaoTienDoResponse[]>> {
+    return this.http.get<ApiResponse<DotBaoCaoTienDoResponse[]>>(`${this.apiUrl}/bao-cao-tien-do/dot`);
+  }
+
+  getBaoCaoTienDoCuaToi(): Observable<ApiResponse<BaoCaoTienDoResponse[]>> {
+    return this.http.get<ApiResponse<BaoCaoTienDoResponse[]>>(`${this.apiUrl}/bao-cao-tien-do`);
+  }
+
+  nopBaoCaoTienDo(formData: FormData): Observable<ApiResponse<BaoCaoTienDoResponse>> {
+    return this.http.post<ApiResponse<BaoCaoTienDoResponse>>(`${this.apiUrl}/bao-cao-tien-do`, formData);
   }
 }

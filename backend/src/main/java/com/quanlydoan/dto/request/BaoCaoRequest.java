@@ -7,5 +7,5 @@ import org.springframework.web.multipart.MultipartFile;
 public class BaoCaoRequest {
     private Long deTaiId;
     private MultipartFile fileBaoCao;
-    private MultipartFile fileSourceCode;
+ 
 }

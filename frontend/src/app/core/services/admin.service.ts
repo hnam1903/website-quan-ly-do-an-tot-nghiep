@@ -56,20 +56,20 @@ export class AdminService {
     return this.http.put<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/de-tai/gui-bo-mon`, ids);
   }
 
-  // Đề tài bị từ chối
-  getDeTaiBiTuChoi(dotDangKyId?: number): Observable<ApiResponse<DeTaiResponse[]>> {
+  // Đề tài không đạt
+  getDeTaiKhongDat(dotDangKyId?: number): Observable<ApiResponse<DeTaiResponse[]>> {
     let params = new HttpParams();
     if (dotDangKyId) {
       params = params.set('dotDangKyId', dotDangKyId.toString());
     }
-    return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/de-tai/bi-tu-choi`, { params });
+    return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/de-tai/khong-dat`, { params });
   }
 
-  xoaDeTaiBiTuChoi(id: number): Observable<ApiResponse<any>> {
+  xoaDeTaiKhongDat(id: number): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/de-tai/${id}/xoa`);
   }
 
-  xoaNhieuDeTaiBiTuChoi(ids: number[]): Observable<ApiResponse<any>> {
+  xoaNhieuDeTaiKhongDat(ids: number[]): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/de-tai/xoa-nhieu`, { body: ids });
   }
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DiemHuongDanResponse, DiemPhanBienResponse, HoiDongBaoVeResponse, BaoCaoResponse } from '../models/models';
+import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DiemHuongDanResponse, DiemPhanBienResponse, HoiDongBaoVeResponse, BaoCaoResponse, DotBaoCaoTienDoResponse, BaoCaoTienDoResponse } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -49,5 +49,39 @@ export class GiangVienService {
 
   getBaoCaoChiTiet(deTaiId: number): Observable<ApiResponse<BaoCaoResponse>> {
     return this.http.get<ApiResponse<BaoCaoResponse>>(`${this.apiUrl}/bao-cao/${deTaiId}`);
+  }
+
+  // Báo cáo tiến độ
+  getDotBaoCaoTienDo(): Observable<ApiResponse<DotBaoCaoTienDoResponse[]>> {
+    return this.http.get<ApiResponse<DotBaoCaoTienDoResponse[]>>(`${this.apiUrl}/bao-cao-tien-do/dot`);
+  }
+
+  taoDotBaoCaoTienDo(data: any): Observable<ApiResponse<DotBaoCaoTienDoResponse>> {
+    return this.http.post<ApiResponse<DotBaoCaoTienDoResponse>>(`${this.apiUrl}/bao-cao-tien-do/dot`, data);
+  }
+
+  capNhatTrangThaiDot(dotId: number, trangThai: string): Observable<ApiResponse<DotBaoCaoTienDoResponse>> {
+    return this.http.put<ApiResponse<DotBaoCaoTienDoResponse>>(`${this.apiUrl}/bao-cao-tien-do/dot/${dotId}/trang-thai?trangThai=${trangThai}`, {});
+  }
+
+  getBaoCaoTienDoByDot(dotId: number): Observable<ApiResponse<BaoCaoTienDoResponse[]>> {
+    return this.http.get<ApiResponse<BaoCaoTienDoResponse[]>>(`${this.apiUrl}/bao-cao-tien-do/dot/${dotId}/danh-sach`);
+  }
+
+  nhanXetBaoCaoTienDo(data: any): Observable<ApiResponse<BaoCaoTienDoResponse>> {
+    return this.http.post<ApiResponse<BaoCaoTienDoResponse>>(`${this.apiUrl}/bao-cao-tien-do/nhan-xet`, data);
+  }
+
+  xoaDotBaoCaoTienDo(dotId: number): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/bao-cao-tien-do/dot/${dotId}`);
+  }
+
+  // Sinh viên hướng dẫn
+  getSinhVienHuongDan(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/sinh-vien-huong-dan`);
+  }
+
+  getBaoCaoTienDoBySinhVien(sinhVienId: number): Observable<ApiResponse<BaoCaoTienDoResponse[]>> {
+    return this.http.get<ApiResponse<BaoCaoTienDoResponse[]>>(`${this.apiUrl}/bao-cao-tien-do/sinh-vien/${sinhVienId}`);
   }
 }

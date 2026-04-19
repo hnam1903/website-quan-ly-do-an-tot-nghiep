@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,12 @@ public class AdminService {
     private final KhoaRepository khoaRepository;
     private final TaiKhoanRepository taiKhoanRepository;
     private final DiemBaoVeRepository diemBaoVeRepository;
+    private final HoiDongBaoVeRepository hoiDongBaoVeRepository;
+    private final PhanCongHuongDanRepository phanCongHuongDanRepository;
+    private final PhanCongPhanBienRepository phanCongPhanBienRepository;
+    private final DiemHuongDanRepository diemHuongDanRepository;
+    private final DiemPhanBienRepository diemPhanBienRepository;
+    private final BaoCaoRepository baoCaoRepository;
 
     private final AuthService authService;
 
@@ -171,18 +178,36 @@ public class AdminService {
                 .distinct()
                 .collect(Collectors.toList());
 
-        // Lấy ID sinh viên đã hoàn thành (chỉ hoàn thành mới không cần đăng ký nữa)
-        List<Long> svHoanThanhIds = deTaiRepository.findAll().stream()
+        // Lấy ID sinh viên có đề tài chưa hoàn thành quy trình (không được đăng ký đề tài mới)
+        // Chỉ được đăng ký lại khi đề tài ở trạng thái KHONG_DAT_GVHD, KHONG_DAT_PHAN_BIEN, KHONG_DAT_BAO_VE
+        // Tất cả các trạng thái khác đều coi là chưa hoàn thành (không được đăng ký mới)
+        List<TrangThaiDeTai> trangThaiChuaHoanThanh = Arrays.asList(
+                TrangThaiDeTai.CHO_DUYET,
+                TrangThaiDeTai.DA_GUI_BO_MON,
+                TrangThaiDeTai.BI_TU_CHOI,
+                TrangThaiDeTai.CHO_BO_MON_DUYET,
+                TrangThaiDeTai.CHO_GV_DUYET,
+                TrangThaiDeTai.CHO_GV_DUYET_LAI,
+                TrangThaiDeTai.DANG_THUC_HIEN,
+                TrangThaiDeTai.DA_NOP_BAO_CAO,
+                TrangThaiDeTai.DAT_GVHD,
+                TrangThaiDeTai.CHO_PHAN_BIEN,
+                TrangThaiDeTai.DAT_PHAN_BIEN,
+                TrangThaiDeTai.CHO_HOI_DONG,
+                TrangThaiDeTai.DANG_BAO_VE,
+                TrangThaiDeTai.HOAN_THANH
+        );
+        List<Long> svCoDeTaiChuaHoanThanhIds = deTaiRepository.findAll().stream()
                 .filter(dt -> dt.getSinhVien() != null)
-                .filter(dt -> dt.getTrangThai() == TrangThaiDeTai.HOAN_THANH)
+                .filter(dt -> trangThaiChuaHoanThanh.contains(dt.getTrangThai()))
                 .map(dt -> dt.getSinhVien().getId())
                 .distinct()
                 .collect(Collectors.toList());
 
-        // Sinh viên chưa đăng ký đợt này VÀ chưa hoàn thành (không đạt vẫn đăng ký lại được)
+        // Sinh viên chưa đăng ký đợt này VÀ không có đề tài chưa hoàn thành
         List<SinhVienResponse> chuaDangKy = allSinhVien.stream()
                 .filter(sv -> daDangKy.stream().noneMatch(dadk -> dadk.getId().equals(sv.getId())))
-                .filter(sv -> !svHoanThanhIds.contains(sv.getId()))
+                .filter(sv -> !svCoDeTaiChuaHoanThanhIds.contains(sv.getId()))
                 .collect(Collectors.toList());
 
         return DanhSachSinhVienDotDangKyResponse.builder()
@@ -249,46 +274,24 @@ public class AdminService {
         return mapToDeTaiResponse(deTai);
     }
 
-    // ==================== Đề tài bị từ chối ====================
+    // ==================== Đề tài không đạt ====================
 
-    public List<DeTaiResponse> getDeTaiBiTuChoi(Long dotDangKyId) {
+    public List<DeTaiResponse> getDeTaiKhongDat(Long dotDangKyId) {
+        List<TrangThaiDeTai> trangThaiKhongDat = Arrays.asList(
+                TrangThaiDeTai.KHONG_DAT_GVHD,
+                TrangThaiDeTai.KHONG_DAT_PHAN_BIEN,
+                TrangThaiDeTai.KHONG_DAT_BAO_VE,
+                TrangThaiDeTai.BI_TU_CHOI
+        );
         List<DeTai> deTais;
         if (dotDangKyId != null) {
-            deTais = deTaiRepository.findByDotDangKyIdAndTrangThai(dotDangKyId, TrangThaiDeTai.BI_TU_CHOI);
+            deTais = deTaiRepository.findByDotDangKyIdAndTrangThaiIn(dotDangKyId, trangThaiKhongDat);
         } else {
-            deTais = deTaiRepository.findByTrangThai(TrangThaiDeTai.BI_TU_CHOI);
+            deTais = deTaiRepository.findByTrangThaiIn(trangThaiKhongDat);
         }
         return deTais.stream()
                 .map(this::mapToDeTaiResponse)
                 .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public void xoaDeTaiBiTuChoi(Long id) {
-        DeTai deTai = deTaiRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đề tài"));
-
-        if (deTai.getTrangThai() != TrangThaiDeTai.BI_TU_CHOI) {
-            throw new BadRequestException("Chỉ có thể xóa đề tài bị từ chối");
-        }
-
-        deTaiRepository.delete(deTai);
-    }
-
-    @Transactional
-    public void xoaNhieuDeTaiBiTuChoi(List<Long> ids) {
-        List<DeTai> deTais = deTaiRepository.findAllById(ids);
-        if (deTais.isEmpty()) {
-            throw new ResourceNotFoundException("Không tìm thấy đề tài nào");
-        }
-
-        for (DeTai deTai : deTais) {
-            if (deTai.getTrangThai() != TrangThaiDeTai.BI_TU_CHOI) {
-                throw new BadRequestException("Chỉ có thể xóa đề tài bị từ chối");
-            }
-        }
-
-        deTaiRepository.deleteAll(deTais);
     }
 
     // ==================== Bộ môn ====================

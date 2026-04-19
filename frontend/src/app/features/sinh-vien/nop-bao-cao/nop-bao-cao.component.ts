@@ -72,9 +72,7 @@ import { AuthService } from '../../../core/services/auth.service';
               <button *ngIf="baoCao.fileBaoCao" (click)="downloadFile(baoCao.fileBaoCao, 'bao-cao')" class="btn btn-outline-primary btn-sm">
                 <i class="fas fa-download me-1"></i> Tải báo cáo
               </button>
-              <button *ngIf="baoCao.fileSourceCode" (click)="downloadFile(baoCao.fileSourceCode, 'source-code')" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-download me-1"></i> Tải source code
-              </button>
+              <span class="text-muted">Không có source code</span>
             </div>
           </div>
 
@@ -179,9 +177,6 @@ export class NopBaoCaoComponent implements OnInit {
     const formData = new FormData();
     formData.append('deTaiId', this.deTaiCuaToi?.id?.toString() || '');
     formData.append('fileBaoCao', this.fileBaoCao!);
-    if (this.fileSource) {
-      formData.append('fileSourceCode', this.fileSource!);
-    }
 
     this.svService.nopBaoCao(formData).subscribe({
       next: (res) => {

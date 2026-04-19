@@ -48,6 +48,9 @@ public class HoiDongBaoVe {
     @OneToMany(mappedBy = "hoiDong", cascade = CascadeType.ALL)
     private List<ThanhVienHoiDong> thanhViens;
 
+    @OneToMany(mappedBy = "hoiDong", cascade = CascadeType.ALL)
+    private List<DiemBaoVe> diemBaoVes;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

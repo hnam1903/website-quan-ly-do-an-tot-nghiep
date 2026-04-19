@@ -32,9 +32,9 @@ import { ToastrService } from 'ngx-toastr';
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" [class.active]="activeTab === 'bi-tu-choi'" (click)="switchTab('bi-tu-choi')">
-          <i class="bi bi-x-circle me-1"></i>Bị Bộ môn từ chối
-          <span class="badge bg-danger ms-1">{{ biTuChoiList.length }}</span>
+        <a class="nav-link" [class.active]="activeTab === 'khong-dat'" (click)="switchTab('khong-dat')">
+          <i class="bi bi-x-circle me-1"></i>Không đạt
+          <span class="badge bg-danger ms-1">{{ khongDatList.length }}</span>
         </a>
       </li>
     </ul>
@@ -104,17 +104,22 @@ import { ToastrService } from 'ngx-toastr';
       </div>
     </div>
 
-    <!-- Tab 2: Bị từ chối -->
-    <div *ngIf="activeTab === 'bi-tu-choi'">
+    <!-- Tab 2: Không đạt -->
+    <div *ngIf="activeTab === 'khong-dat'">
       
+      <div class="alert alert-info mb-3">
+        <i class="bi bi-info-circle me-2"></i>
+        Danh sách đề tài không đạt (bị từ chối, trượt hướng dẫn, phản biện, bảo vệ). 
+        Xóa để sinh viên đăng ký lại sau khi thực tập.
+      </div>
 
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <span>Danh sách bị từ chối ({{ biTuChoiList.length }} đề tài)</span>
-          <button *ngIf="selectedBiTuChois.length > 0"
+          <span>Danh sách không đạt ({{ khongDatList.length }} đề tài)</span>
+          <button *ngIf="selectedKhongDats.length > 0"
                   class="btn btn-danger btn-sm"
-                  (click)="xoaNhieuBiTuChoi()">
-            <i class="bi bi-trash me-1"></i>Xóa {{ selectedBiTuChois.length }} đề tài
+                  (click)="xoaNhieuKhongDat()">
+            <i class="bi bi-trash me-1"></i>Xóa {{ selectedKhongDats.length }} đề tài
           </button>
         </div>
         <div class="card-body">
@@ -123,27 +128,27 @@ import { ToastrService } from 'ngx-toastr';
               <thead>
                 <tr>
                   <th width="40">
-                    <input type="checkbox" (change)="toggleSelectBiTuChoiAll($event)" [checked]="isAllBiTuChoiSelected()">
+                    <input type="checkbox" (change)="toggleSelectKhongDatAll($event)" [checked]="isAllKhongDatSelected()">
                   </th>
                   <th>STT</th>
                   <th>Sinh viên</th>
                   <th>Tên đề tài</th>
                   <th>Bộ môn</th>
-                  <th>Lý do từ chối</th>
+                  <th>Trạng thái</th>
                   <th class="text-center">Xóa</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngIf="isLoadingBiTuChoi">
+                <tr *ngIf="isLoadingKhongDat">
                   <td colspan="7" class="text-center py-4">
                     <span class="spinner-border spinner-border-sm me-2"></span> Đang tải...
                   </td>
                 </tr>
-                <tr *ngFor="let dt of biTuChoiList; let i = index">
+                <tr *ngFor="let dt of khongDatList; let i = index">
                   <td>
                     <input type="checkbox"
-                           [checked]="selectedBiTuChois.includes(dt.id)"
-                           (change)="toggleSelectBiTuChoi(dt.id)">
+                           [checked]="selectedKhongDats.includes(dt.id)"
+                           (change)="toggleSelectKhongDat(dt.id)">
                   </td>
                   <td>{{ i + 1 }}</td>
                   <td>
@@ -153,17 +158,19 @@ import { ToastrService } from 'ngx-toastr';
                   <td>{{ dt.tenDeTai }}</td>
                   <td>{{ dt.tenBoMon }}</td>
                   <td>
-                    <span class="text-danger">{{ dt.ghiChu?.replace('Bộ môn từ chối: ', '') || 'Không có lý do' }}</span>
+                    <span [class]="getTrangThaiClass(dt.trangThai)">
+                      {{ getTrangThaiText(dt.trangThai) }}
+                    </span>
                   </td>
                   <td class="text-center">
-                    <button class="btn btn-outline-danger btn-sm" (click)="xoaMotBiTuChoi(dt.id)">
+                    <button class="btn btn-outline-danger btn-sm" (click)="xoaMotKhongDat(dt.id)">
                       <i class="bi bi-trash"></i>
                     </button>
                   </td>
                 </tr>
-                <tr *ngIf="!isLoadingBiTuChoi && biTuChoiList.length === 0">
+                <tr *ngIf="!isLoadingKhongDat && khongDatList.length === 0">
                   <td colspan="7" class="text-center text-muted py-4">
-                    Không có đề tài nào bị từ chối.
+                    Không có đề tài nào không đạt.
                   </td>
                 </tr>
               </tbody>
@@ -219,15 +226,15 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class DeTaiComponent implements OnInit {
   deTaiList: DeTaiResponse[] = [];
-  biTuChoiList: DeTaiResponse[] = [];
+  khongDatList: DeTaiResponse[] = [];
   dotList: DotDangKyResponse[] = [];
   selectedDotId: number | null = null;
   selectedDeTais: number[] = [];
-  selectedBiTuChois: number[] = [];
+  selectedKhongDats: number[] = [];
   chiTietDeTai: DeTaiResponse | null = null;
   isLoading = false;
-  isLoadingBiTuChoi = false;
-  activeTab: 'cho-gui' | 'bi-tu-choi' = 'cho-gui';
+  isLoadingKhongDat = false;
+  activeTab: 'cho-gui' | 'khong-dat' = 'cho-gui';
 
   constructor(
     private adminService: AdminService,
@@ -237,7 +244,7 @@ export class DeTaiComponent implements OnInit {
   ngOnInit(): void {
     this.loadDotList();
     this.loadDeTai();
-    this.loadBiTuChoi();
+    this.loadKhongDat();
   }
 
   loadDotList(): void {
@@ -250,7 +257,7 @@ export class DeTaiComponent implements OnInit {
     });
   }
 
-  switchTab(tab: 'cho-gui' | 'bi-tu-choi'): void {
+  switchTab(tab: 'cho-gui' | 'khong-dat'): void {
     this.activeTab = tab;
   }
 
@@ -274,22 +281,22 @@ export class DeTaiComponent implements OnInit {
     });
   }
 
-  loadBiTuChoi(): void {
-    this.isLoadingBiTuChoi = true;
+  loadKhongDat(): void {
+    this.isLoadingKhongDat = true;
     const dotId = this.selectedDotId ?? undefined;
-    this.adminService.getDeTaiBiTuChoi(dotId).subscribe({
+    this.adminService.getDeTaiKhongDat(dotId).subscribe({
       next: (res) => {
-        this.isLoadingBiTuChoi = false;
+        this.isLoadingKhongDat = false;
         if (res.success && res.data) {
-          this.biTuChoiList = res.data;
+          this.khongDatList = res.data;
         } else {
-          this.biTuChoiList = [];
+          this.khongDatList = [];
         }
       },
       error: () => {
-        this.isLoadingBiTuChoi = false;
-        this.toastr.error('Không thể tải danh sách bị từ chối');
-        this.biTuChoiList = [];
+        this.isLoadingKhongDat = false;
+        this.toastr.error('Không thể tải danh sách không đạt');
+        this.khongDatList = [];
       }
     });
   }
@@ -333,36 +340,36 @@ export class DeTaiComponent implements OnInit {
     });
   }
 
-  // Bị từ chối
-  toggleSelectBiTuChoi(id: number): void {
-    const idx = this.selectedBiTuChois.indexOf(id);
+  // Không đạt
+  toggleSelectKhongDat(id: number): void {
+    const idx = this.selectedKhongDats.indexOf(id);
     if (idx > -1) {
-      this.selectedBiTuChois.splice(idx, 1);
+      this.selectedKhongDats.splice(idx, 1);
     } else {
-      this.selectedBiTuChois.push(id);
+      this.selectedKhongDats.push(id);
     }
   }
 
-  toggleSelectBiTuChoiAll(event: Event): void {
+  toggleSelectKhongDatAll(event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     if (checked) {
-      this.selectedBiTuChois = this.biTuChoiList.map(dt => dt.id);
+      this.selectedKhongDats = this.khongDatList.map(dt => dt.id);
     } else {
-      this.selectedBiTuChois = [];
+      this.selectedKhongDats = [];
     }
   }
 
-  isAllBiTuChoiSelected(): boolean {
-    return this.biTuChoiList.length > 0 && this.biTuChoiList.every(dt => this.selectedBiTuChois.includes(dt.id));
+  isAllKhongDatSelected(): boolean {
+    return this.khongDatList.length > 0 && this.khongDatList.every(dt => this.selectedKhongDats.includes(dt.id));
   }
 
-  xoaMotBiTuChoi(id: number): void {
-    if (!confirm('Xóa đề tài này để sinh viên đăng ký lại?')) return;
-    this.adminService.xoaDeTaiBiTuChoi(id).subscribe({
+  xoaMotKhongDat(id: number): void {
+    if (!confirm('Xóa đề tài này để sinh viên đăng ký lại sau khi thực tập?')) return;
+    this.adminService.xoaDeTaiKhongDat(id).subscribe({
       next: (res) => {
         if (res.success) {
-          this.toastr.success('Đã xóa đề tài bị từ chối!');
-          this.loadBiTuChoi();
+          this.toastr.success('Đã xóa đề tài!');
+          this.loadKhongDat();
         }
       },
       error: (err) => {
@@ -371,19 +378,39 @@ export class DeTaiComponent implements OnInit {
     });
   }
 
-  xoaNhieuBiTuChoi(): void {
-    if (!confirm('Xóa ' + this.selectedBiTuChois.length + ' đề tài để sinh viên đăng ký lại?')) return;
-    this.adminService.xoaNhieuDeTaiBiTuChoi(this.selectedBiTuChois).subscribe({
+  xoaNhieuKhongDat(): void {
+    if (!confirm('Xóa ' + this.selectedKhongDats.length + ' đề tài để sinh viên đăng ký lại sau khi thực tập?')) return;
+    this.adminService.xoaNhieuDeTaiKhongDat(this.selectedKhongDats).subscribe({
       next: (res) => {
         if (res.success) {
-          this.toastr.success('Đã xóa ' + this.selectedBiTuChois.length + ' đề tài bị từ chối!');
-          this.selectedBiTuChois = [];
-          this.loadBiTuChoi();
+          this.toastr.success('Đã xóa ' + this.selectedKhongDats.length + ' đề tài!');
+          this.selectedKhongDats = [];
+          this.loadKhongDat();
         }
       },
       error: (err) => {
         this.toastr.error(err.error?.message || 'Không thể xóa đề tài');
       }
     });
+  }
+
+  getTrangThaiText(trangThai: string): string {
+    const map: Record<string, string> = {
+      'BI_TU_CHOI': 'Bị từ chối',
+      'KHONG_DAT_GVHD': 'Không đạt HD',
+      'KHONG_DAT_PHAN_BIEN': 'Không đạt PB',
+      'KHONG_DAT_BAO_VE': 'Không đạt BV'
+    };
+    return map[trangThai] || trangThai;
+  }
+
+  getTrangThaiClass(trangThai: string): string {
+    const map: Record<string, string> = {
+      'BI_TU_CHOI': 'badge bg-secondary',
+      'KHONG_DAT_GVHD': 'badge bg-warning text-dark',
+      'KHONG_DAT_PHAN_BIEN': 'badge bg-danger',
+      'KHONG_DAT_BAO_VE': 'badge bg-dark'
+    };
+    return map[trangThai] || 'badge bg-secondary';
   }
 }
