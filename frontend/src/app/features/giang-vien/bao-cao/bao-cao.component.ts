@@ -139,8 +139,43 @@ export class BaoCaoGvComponent implements OnInit {
   }
 
   taiFile(filePath: string, type: string): void {
-    // Tạo link download trực tiếp
+    const token = localStorage.getItem('token');
     const url = `http://localhost:8080/api/files/download?path=${encodeURIComponent(filePath)}`;
-    window.open(url, '_blank');
+
+    fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Access Denied');
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      const extension = this.getFileExtension(filePath);
+      const downloadName = `file_${type}.${extension}`;
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(downloadUrl);
+    })
+    .catch(error => {
+      console.error('Download error:', error);
+      this.toastr.error('Không thể tải file. Vui lòng đăng nhập lại.');
+    });
+  }
+
+  private getFileExtension(filePath: string): string {
+    if (!filePath) return 'pdf';
+    const parts = filePath.split(/[/\\]/);
+    const fileName = parts[parts.length - 1];
+    const lastDot = fileName.lastIndexOf('.');
+    return lastDot > 0 ? fileName.substring(lastDot + 1) : 'pdf';
   }
 }

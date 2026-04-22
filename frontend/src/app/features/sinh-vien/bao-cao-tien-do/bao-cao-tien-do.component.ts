@@ -191,10 +191,9 @@ import { AuthService } from '../../../core/services/auth.service';
             </table>
 
             <div *ngIf="chiTietBaoCao?.fileBaoCao" class="mt-3">
-              <a [href]="getDownloadUrl(chiTietBaoCao?.fileBaoCao)" 
-                 class="btn btn-outline-primary" target="_blank">
+              <button class="btn btn-outline-primary" (click)="downloadFile(chiTietBaoCao?.fileBaoCao)">
                 <i class="fas fa-download me-1"></i> Tải file báo cáo
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -317,5 +316,49 @@ export class BaoCaoTienDoSvComponent implements OnInit {
   getDownloadUrl(filePath: string | undefined | null): string {
     if (!filePath) return '';
     return `http://localhost:8080/api/files/download?path=${encodeURIComponent(filePath)}`;
+  }
+
+  downloadFile(filePath: string | undefined | null): void {
+    if (!filePath) {
+      this.toastr.error('Không có file để tải');
+      return;
+    }
+
+    const token = this.authService.getToken();
+    const url = `http://localhost:8080/api/files/download?path=${encodeURIComponent(filePath)}`;
+
+    fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Access Denied');
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      const fileName = this.getFileNameFromPath(filePath);
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(downloadUrl);
+    })
+    .catch(error => {
+      console.error('Download error:', error);
+      this.toastr.error('Không thể tải file. Vui lòng đăng nhập lại.');
+    });
+  }
+
+  private getFileNameFromPath(filePath: string): string {
+    if (!filePath) return 'file';
+    const parts = filePath.split(/[/\\]/);
+    const fileName = parts[parts.length - 1];
+    return fileName || 'file';
   }
 }

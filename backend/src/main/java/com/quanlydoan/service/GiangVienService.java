@@ -466,12 +466,20 @@ public class GiangVienService {
         return phanCongs.stream().map(pc -> {
             DeTai dt = pc.getDeTai();
             SinhVien sv = dt.getSinhVien();
+            
+            // Kiểm tra đã chấm điểm chưa
+            Boolean daChamDiem = false;
+            if (dt.getDiemHuongDan() != null && dt.getDiemHuongDan().getDiem() != null) {
+                daChamDiem = true;
+            }
+            
             return SinhVienHuongDanResponse.builder()
                     .id(sv.getId())
                     .maSinhVien(sv.getMaSinhVien())
                     .hoTen(sv.getHoTen())
                     .lop(sv.getLop())
                     .tenDeTai(dt.getTenDeTai())
+                    .daChamDiem(daChamDiem)
                     .build();
         }).collect(Collectors.toList());
     }

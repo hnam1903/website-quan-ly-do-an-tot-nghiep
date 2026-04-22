@@ -67,8 +67,9 @@ public class AdminController {
     @GetMapping("/de-tai")
     public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiDangKy(
             @RequestParam(required = false) Long dotDangKyId,
-            @RequestParam(required = false) TrangThaiDeTai trangThai) {
-        return ResponseEntity.ok(ApiResponse.success(adminService.getDeTaiDangKy(dotDangKyId, trangThai)));
+            @RequestParam(required = false) TrangThaiDeTai trangThai,
+            @RequestParam(required = false) Long boMonId) {
+        return ResponseEntity.ok(ApiResponse.success(adminService.getDeTaiDangKy(dotDangKyId, trangThai, boMonId)));
     }
 
     @PutMapping("/de-tai/{id}/gui-bo-mon")
@@ -87,6 +88,12 @@ public class AdminController {
     public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiKhongDat(
             @RequestParam(required = false) Long dotDangKyId) {
         return ResponseEntity.ok(ApiResponse.success(adminService.getDeTaiKhongDat(dotDangKyId)));
+    }
+
+    @DeleteMapping("/de-tai/{id}/xoa")
+    public ResponseEntity<ApiResponse<Void>> xoaDeTai(@PathVariable Long id) {
+        adminService.xoaDeTai(id);
+        return ResponseEntity.ok(ApiResponse.success("Xóa đề tài thành công", null));
     }
 
     // ==================== Bộ môn ====================

@@ -19,11 +19,29 @@ public interface DeTaiRepository extends JpaRepository<DeTai, Long> {
     List<DeTai> findByDotDangKyIdAndTrangThaiIn(Long dotDangKyId, List<TrangThaiDeTai> trangThais);
     List<DeTai> findBySinhVienId(Long sinhVienId);
     
-    @Query("SELECT dt FROM DeTai dt WHERE dt.sinhVien.boMon.id = :boMonId")
+    @Query("SELECT DISTINCT dt FROM DeTai dt " +
+           "LEFT JOIN FETCH dt.sinhVien sv " +
+           "LEFT JOIN FETCH sv.boMon " +
+           "WHERE sv IS NOT NULL AND sv.boMon.id = :boMonId")
     List<DeTai> findAllByBoMonId(@Param("boMonId") Long boMonId);
+    
+    @Query("SELECT DISTINCT dt FROM DeTai dt " +
+           "LEFT JOIN FETCH dt.sinhVien sv " +
+           "LEFT JOIN FETCH sv.boMon " +
+           "LEFT JOIN FETCH dt.phanCongHuongDan " +
+           "LEFT JOIN FETCH dt.phanCongPhanBien " +
+           "WHERE sv IS NOT NULL AND sv.boMon.id = :boMonId")
+    List<DeTai> findAllByBoMonIdWithPhanCong(@Param("boMonId") Long boMonId);
     
     @Query("SELECT dt FROM DeTai dt WHERE dt.sinhVien.boMon.id = :boMonId AND dt.trangThai = :trangThai")
     List<DeTai> findByBoMonIdAndTrangThai(@Param("boMonId") Long boMonId, @Param("trangThai") TrangThaiDeTai trangThai);
+
+    @Query("SELECT DISTINCT dt FROM DeTai dt " +
+           "LEFT JOIN FETCH dt.sinhVien sv " +
+           "LEFT JOIN FETCH sv.boMon " +
+           "LEFT JOIN FETCH dt.phanCongHuongDan " +
+           "WHERE sv.boMon.id = :boMonId AND dt.trangThai = :trangThai")
+    List<DeTai> findByBoMonIdAndTrangThaiWithPhanCong(@Param("boMonId") Long boMonId, @Param("trangThai") TrangThaiDeTai trangThai);
     
     @Query("SELECT dt FROM DeTai dt WHERE dt.phanCongHuongDan.giangVien.id = :gvId")
     List<DeTai> findByGiangVienHuongDanId(@Param("gvId") Long gvId);

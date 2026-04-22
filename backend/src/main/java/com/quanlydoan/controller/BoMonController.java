@@ -2,6 +2,7 @@ package com.quanlydoan.controller;
 
 import com.quanlydoan.dto.request.*;
 import com.quanlydoan.dto.response.*;
+import com.quanlydoan.enums.TrangThaiDeTai;
 import com.quanlydoan.service.BoMonService;
 import com.quanlydoan.service.AuthService;
 import com.quanlydoan.service.ImportExcelService;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/bo-mon")
+@PreAuthorize("hasAnyRole('ADMIN', 'LANH_DAO_BO_MON')")
 @RequiredArgsConstructor
 public class BoMonController {
 
@@ -206,5 +208,19 @@ public class BoMonController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @GetMapping("/thong-ke-diem")
+    public ResponseEntity<ApiResponse<ThongKeDiemResponse>> getThongKeDiem() {
+        UserResponse currentUser = authService.getCurrentUser();
+        Long boMonId = currentUser.getBoMonId();
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getThongKeDiem(boMonId)));
+    }
+
+    @GetMapping("/thong-ke-phan-cong")
+    public ResponseEntity<ApiResponse<ThongKePhanCongResponse>> getThongKePhanCong() {
+        UserResponse currentUser = authService.getCurrentUser();
+        Long boMonId = currentUser.getBoMonId();
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getThongKePhanCong(boMonId)));
     }
 }

@@ -53,22 +53,20 @@ import { ToastrService } from 'ngx-toastr';
                 <td>{{ dot.soLuongDangKy || 0 }}</td>
                 <td>
                   <button *ngIf="dot.trangThai === 'DANG_MO'" 
-                          class="btn btn-sm btn-outline-warning me-1" 
-                          (click)="dongDot(dot)"
-                          title="Đóng đợt đăng ký">
-                    <i class="bi bi-lock"></i>
+                          class="btn btn-sm btn-warning me-1" 
+                          (click)="dongDot(dot)">
+                    <i class="bi bi-lock me-1"></i>Đóng
                   </button>
                   <button *ngIf="dot.trangThai === 'KET_THUC'" 
-                          class="btn btn-sm btn-outline-success me-1" 
-                          (click)="moLaiDot(dot)"
-                          title="Mở lại đợt đăng ký">
-                    <i class="bi bi-unlock"></i>
+                          class="btn btn-sm btn-success me-1" 
+                          (click)="moLaiDot(dot)">
+                    <i class="bi bi-unlock me-1"></i>Mở lại
                   </button>
-                  <button class="btn btn-sm btn-outline-primary me-1" (click)="editDot(dot)">
-                    <i class="bi bi-pencil"></i>
+                  <button class="btn btn-sm btn-primary me-1" (click)="editDot(dot)">
+                    <i class="bi bi-pencil me-1"></i>Sửa
                   </button>
-                  <button class="btn btn-sm btn-outline-danger" (click)="deleteDot(dot.id)">
-                    <i class="bi bi-trash"></i>
+                  <button class="btn btn-sm btn-danger" (click)="deleteDot(dot.id)">
+                    <i class="bi bi-trash me-1"></i>Xóa
                   </button>
                 </td>
               </tr>

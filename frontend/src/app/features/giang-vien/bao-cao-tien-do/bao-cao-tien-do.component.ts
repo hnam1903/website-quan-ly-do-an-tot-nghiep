@@ -251,10 +251,9 @@ interface SinhVienBaoCao {
             </div>
             <div class="mb-3">
               <label class="form-label">File báo cáo:</label>
-              <a *ngIf="baoCaoChon?.fileBaoCao" [href]="getDownloadUrl(baoCaoChon?.fileBaoCao)" 
-                 class="btn btn-sm btn-outline-primary" target="_blank">
+              <button *ngIf="baoCaoChon?.fileBaoCao" class="btn btn-sm btn-outline-primary" (click)="downloadFile(baoCaoChon?.fileBaoCao)">
                 <i class="fas fa-download"></i> Tải file
-              </a>
+              </button>
               <span *ngIf="!baoCaoChon?.fileBaoCao" class="text-muted">Không có file</span>
             </div>
             <hr>
@@ -519,5 +518,49 @@ export class BaoCaoTienDoComponent implements OnInit {
   getDownloadUrl(filePath: string | undefined | null): string {
     if (!filePath) return '';
     return `http://localhost:8080/api/files/download?path=${encodeURIComponent(filePath)}`;
+  }
+
+  downloadFile(filePath: string | undefined | null): void {
+    if (!filePath) {
+      this.toastr.error('Không có file để tải');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    const url = `http://localhost:8080/api/files/download?path=${encodeURIComponent(filePath)}`;
+
+    fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Access Denied');
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      const downloadName = this.getFileNameFromPath(filePath);
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = downloadName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(downloadUrl);
+    })
+    .catch(error => {
+      console.error('Download error:', error);
+      this.toastr.error('Không thể tải file. Vui lòng đăng nhập lại.');
+    });
+  }
+
+  private getFileNameFromPath(filePath: string): string {
+    if (!filePath) return 'file';
+    const parts = filePath.split(/[/\\]/);
+    const fileName = parts[parts.length - 1];
+    return fileName || 'file';
   }
 }

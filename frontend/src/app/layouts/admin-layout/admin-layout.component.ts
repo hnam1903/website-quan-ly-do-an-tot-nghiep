@@ -43,29 +43,37 @@ import { Router } from '@angular/router';
             </li>
           </ul>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/admin/de-tai" routerLinkActive="active">
-            <i class="bi bi-file-earmark-text me-2"></i>Đề tài đăng ký
+        <li class="nav-item nav-dropdown" [class.open]="isDeTaiOpen">
+          <a class="nav-link" (click)="toggleDeTai()">
+            <i class="bi bi-list-ul me-2"></i>Quản lý đề tài
+            <i class="bi bi-chevron-right ms-auto" [class.bi-chevron-down]="isDeTaiOpen"></i>
           </a>
+          <ul class="nav flex-column sub-menu">
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/admin/de-tai" routerLinkActive="active">
+                <i class="bi bi-send me-2"></i>Gửi đề tài
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" routerLink="/admin/thong-ke" routerLinkActive="active">
+                <i class="bi bi-list-ul me-2"></i>Danh sách đề tài
+              </a>
+            </li>
+          </ul>
         </li>
         <li class="nav-item">
           <a class="nav-link" routerLink="/admin/bo-mon" routerLinkActive="active">
-            <i class="bi bi-building me-2"></i>Bộ môn
+            <i class="bi bi-building me-2"></i>Quản lý Bộ môn
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" routerLink="/admin/giang-vien" routerLinkActive="active">
-            <i class="bi bi-person-badge me-2"></i>Giảng viên
+            <i class="bi bi-person-badge me-2"></i>Quản lý Giảng viên
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" routerLink="/admin/sinh-vien" routerLinkActive="active">
-            <i class="bi bi-mortarboard me-2"></i>Sinh viên
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/admin/thong-ke" routerLinkActive="active">
-            <i class="bi bi-bar-chart me-2"></i>Thống kê
+            <i class="bi bi-mortarboard me-2"></i>Quản  lý Sinh viên
           </a>
         </li>
       </ul>
@@ -195,14 +203,15 @@ import { Router } from '@angular/router';
 export class AdminLayoutComponent {
   currentUser: any;
   isDotDangKyOpen = false;
+  isDeTaiOpen = false;
 
   constructor(
     private authService: AuthService,
     private router: Router
   ) {
     this.currentUser = this.authService.getCurrentUser();
-    // Auto-expand submenu if on dot-dang-ky pages
     this.checkDotDangKyRoute();
+    this.checkDeTaiRoute();
   }
 
   checkDotDangKyRoute(): void {
@@ -212,8 +221,19 @@ export class AdminLayoutComponent {
     }
   }
 
+  checkDeTaiRoute(): void {
+    const currentUrl = this.router.url;
+    if (currentUrl.includes('/de-tai') || currentUrl.includes('/thong-ke')) {
+      this.isDeTaiOpen = true;
+    }
+  }
+
   toggleDotDangKy(): void {
     this.isDotDangKyOpen = !this.isDotDangKyOpen;
+  }
+
+  toggleDeTai(): void {
+    this.isDeTaiOpen = !this.isDeTaiOpen;
   }
 
   logout(): void {

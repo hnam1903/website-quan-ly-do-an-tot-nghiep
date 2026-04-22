@@ -14,7 +14,6 @@ public enum TrangThaiDeTai {
     CHO_PHAN_BIEN,      // Chờ phân công phản biện
     DAT_PHAN_BIEN,      // Đạt phản biện
     KHONG_DAT_PHAN_BIEN,// Không đạt phản biện
-    CHO_HOI_DONG,       // Chờ thành lập hội đồng
     DANG_BAO_VE,        // Đang bảo vệ
     HOAN_THANH,         // Hoàn thành
     KHONG_DAT_BAO_VE    // Không đạt bảo vệ

@@ -22,6 +22,11 @@ import { filter } from 'rxjs/operators';
       <p class="text-black small px-3 mb-2">CHỨC NĂNG LÃNH ĐẠO</p>
       <ul class="nav flex-column">
         <li class="nav-item">
+          <a class="nav-link" routerLink="/bo-mon/ld-dashboard" routerLinkActive="active" [class.active]="ldDashboardActive">
+            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link d-flex justify-content-between align-items-center"
              (click)="quanLyDeTaiOpen = !quanLyDeTaiOpen"
              [class.active]="quanLyDeTaiActive">
@@ -121,6 +126,11 @@ import { filter } from 'rxjs/operators';
       <div class="border-top my-3"></div>
       <p class="text-black small px-3 mb-2">CHỨC NĂNG GIẢNG VIÊN</p>
       <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/bo-mon/dashboard" routerLinkActive="active" [class.active]="dashboardActive">
+            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+          </a>
+        </li>
         <li class="nav-item">
           <a class="nav-link d-flex justify-content-between align-items-center"
              (click)="huongDanOpen = !huongDanOpen"
@@ -312,6 +322,8 @@ import { filter } from 'rxjs/operators';
 })
 export class BoMonLayoutComponent implements OnInit {
   currentUser: any;
+  ldDashboardActive = false;
+  dashboardActive = false;
   huongDanOpen = false;
   huongDanActive = false;
   phanBienOpen = false;
@@ -345,6 +357,9 @@ export class BoMonLayoutComponent implements OnInit {
 
   checkRoutes(): void {
     const url = this.router.url;
+    this.ldDashboardActive = url === '/bo-mon/ld-dashboard';
+    this.dashboardActive = url === '/bo-mon' || url === '/bo-mon/' || url === '/bo-mon/dashboard';
+    if (this.dashboardActive || this.ldDashboardActive) return;
     this.quanLyDeTaiActive = url.includes('/duyet-de-tai') || url.includes('/de-tai');
     if (this.quanLyDeTaiActive) this.quanLyDeTaiOpen = true;
     this.huongDanActive = url.includes('/gv-huong-dan/');

@@ -54,11 +54,11 @@ import { ToastrService } from 'ngx-toastr';
                 <td>{{ sv.email }}</td>
                 <td>{{ sv.tenBoMon }}</td>
                 <td>
-                  <button class="btn btn-sm btn-outline-primary me-1" (click)="editSinhVien(sv)">
-                    <i class="bi bi-pencil"></i>
+                  <button class="btn btn-sm btn-primary me-1" (click)="editSinhVien(sv)">
+                    <i class="bi bi-pencil me-1"></i>Sửa
                   </button>
-                  <button class="btn btn-sm btn-outline-danger" (click)="deleteSinhVien(sv.id)">
-                    <i class="bi bi-trash"></i>
+                  <button class="btn btn-sm btn-danger" (click)="deleteSinhVien(sv.id)">
+                    <i class="bi bi-trash me-1"></i>Xóa
                   </button>
                 </td>
               </tr>

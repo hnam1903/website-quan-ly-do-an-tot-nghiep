@@ -58,14 +58,14 @@ import { ToastrService } from 'ngx-toastr';
                   </span>
                 </td>
                 <td>
-                  <button class="btn btn-sm btn-outline-primary me-1" (click)="editGiangVien(gv)">
-                    <i class="bi bi-pencil"></i>
+                  <button class="btn btn-sm btn-primary me-1" (click)="editGiangVien(gv)">
+                    <i class="bi bi-pencil me-1"></i>Sửa
                   </button>
-                  <button class="btn btn-sm btn-outline-warning me-1" (click)="toggleLanhDao(gv)">
-                    <i class="bi bi-person-check"></i>
+                  <button class="btn btn-sm btn-warning me-1" (click)="toggleLanhDao(gv)">
+                    <i class="bi bi-person-check me-1"></i>{{ gv.laLanhDao ? 'Hủy LĐ' : 'Đặt LĐ' }}
                   </button>
-                  <button class="btn btn-sm btn-outline-danger" (click)="deleteGiangVien(gv.id)">
-                    <i class="bi bi-trash"></i>
+                  <button class="btn btn-sm btn-danger" (click)="deleteGiangVien(gv.id)">
+                    <i class="bi bi-trash me-1"></i>Xóa
                   </button>
                 </td>
               </tr>

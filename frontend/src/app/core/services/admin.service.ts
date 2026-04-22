@@ -37,13 +37,16 @@ export class AdminService {
   }
 
   // Gửi lên Bộ môn
-  getDeTaiDangKy(dotDangKyId?: number, trangThai?: string): Observable<ApiResponse<DeTaiResponse[]>> {
+  getDeTaiDangKy(dotDangKyId?: number, trangThai?: string, boMonId?: number): Observable<ApiResponse<DeTaiResponse[]>> {
     let params = new HttpParams();
     if (dotDangKyId) {
       params = params.set('dotDangKyId', dotDangKyId.toString());
     }
     if (trangThai) {
       params = params.set('trangThai', trangThai);
+    }
+    if (boMonId) {
+      params = params.set('boMonId', boMonId.toString());
     }
     return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/de-tai`, { params });
   }
@@ -71,6 +74,11 @@ export class AdminService {
 
   xoaNhieuDeTaiKhongDat(ids: number[]): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/de-tai/xoa-nhieu`, { body: ids });
+  }
+
+  // Xóa đề tài
+  xoaDeTai(id: number): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/de-tai/${id}/xoa`);
   }
 
   // Bộ môn

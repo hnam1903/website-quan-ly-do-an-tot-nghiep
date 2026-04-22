@@ -1,97 +1,80 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { AdminService } from '../../../core/services/admin.service';
-import { DashboardResponse } from '../../../core/models/models';
+import { AuthService } from '../../../core/services/auth.service';
+import { NgChartsModule } from 'ng2-charts';
+import { ChartConfiguration, ChartData } from 'chart.js';
+import { DashboardResponse, BoMonResponse, UserResponse } from '../../../core/models/models';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
-  template: `
-    <div class="page-header">
-      <h2>Dashboard</h2>
-      <p class="text-muted">Tổng quan hệ thống</p>
-    </div>
-
-    <div *ngIf="dashboard" class="row">
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <div class="card-body text-center">
-            <h1 class="text-primary">{{ dashboard.tongSoGiangVien }}</h1>
-            <p class="text-muted mb-0">Giảng viên</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <div class="card-body text-center">
-            <h1 class="text-success">{{ dashboard.tongSoSinhVien }}</h1>
-            <p class="text-muted mb-0">Sinh viên</p>
-          </div>
-        </div>
-      </div>
-      
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <div class="card-body text-center">
-            <h1 class="text-info">{{ dashboard.tongSoDeTai }}</h1>
-            <p class="text-muted mb-0">Đề tài</p>
-          </div>
-        </div>
-      </div>
-      
-
-
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Đang thực hiện</h5>
-          </div>
-          <div class="card-body text-center">
-            <h2 class="text-primary">{{ dashboard.deTaiDangThucHien }}</h2>
-            <p class="text-muted mb-0">đề tài</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <div class="card-header bg-success text-white">
-            <h5 class="mb-0">Hoàn thành</h5>
-          </div>
-          <div class="card-body text-center">
-            <h2 class="text-success">{{ dashboard.deTaiHoanThanh }}</h2>
-            <p class="text-muted mb-0">đề tài</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          <div class="card-header bg-danger text-white">
-            <h5 class="mb-0">Không đạt</h5>
-          </div>
-          <div class="card-body text-center">
-            <h2 class="text-danger">{{ dashboard.deTaiKhongDat }}</h2>
-            <p class="text-muted mb-0">đề tài</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="text-center mt-4" *ngIf="!dashboard">
-      <p>Đang tải dữ liệu...</p>
-    </div>
-  `
+  imports: [CommonModule, RouterModule, NgChartsModule],
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+  currentUser: UserResponse | null = null;
   dashboard: DashboardResponse | null = null;
+  boMons: BoMonResponse[] = [];
+  loading = true;
 
-  constructor(private adminService: AdminService) {}
+  public trangThaiChartData: ChartData<'doughnut'> = {
+    labels: ['Chờ duyệt', 'Đang thực hiện', 'Hoàn thành', 'Không đạt'],
+    datasets: [{
+      data: [0, 0, 0, 0],
+      backgroundColor: [
+        'rgba(255, 193, 7, 0.8)',
+        'rgba(54, 162, 235, 0.8)',
+        'rgba(40, 167, 69, 0.8)',
+        'rgba(255, 99, 132, 0.8)'
+      ],
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  };
+
+  public trangThaiChartOptions: ChartConfiguration<'doughnut'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } },
+      title: { display: true, text: 'Tỷ lệ đề tài theo trạng thái', font: { size: 14, weight: 'bold' } }
+    }
+  };
+
+  public boMonChartData: ChartData<'bar'> = {
+    labels: [],
+    datasets: [
+      { data: [], label: 'Đề tài', backgroundColor: 'rgba(54, 162, 235, 0.8)' },
+      { data: [], label: 'Sinh viên', backgroundColor: 'rgba(75, 192, 192, 0.8)' },
+      { data: [], label: 'Giảng viên', backgroundColor: 'rgba(153, 102, 255, 0.8)' }
+    ]
+  };
+
+  public boMonChartOptions: ChartConfiguration<'bar'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } },
+      title: { display: true, text: 'Thống kê theo Bộ môn', font: { size: 14, weight: 'bold' } }
+    },
+    scales: {
+      y: { beginAtZero: true, title: { display: true, text: 'Số lượng' } }
+    }
+  };
+
+  constructor(
+    private adminService: AdminService,
+    private authService: AuthService
+  ) {
+    this.currentUser = this.authService.getCurrentUser();
+  }
 
   ngOnInit(): void {
     this.loadDashboard();
+    this.loadBoMon();
   }
 
   loadDashboard(): void {
@@ -99,11 +82,50 @@ export class DashboardComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.dashboard = res.data;
+          this.updateCharts();
         }
+        this.loading = false;
       },
       error: (err) => {
         console.error('Error loading dashboard:', err);
+        this.loading = false;
       }
     });
+  }
+
+  loadBoMon(): void {
+    this.adminService.getAllBoMon().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.boMons = res.data || [];
+          this.updateBoMonChart();
+        }
+      }
+    });
+  }
+
+  refresh(): void {
+    this.loadDashboard();
+    this.loadBoMon();
+  }
+
+  updateCharts(): void {
+    if (!this.dashboard) return;
+
+    this.trangThaiChartData.datasets[0].data = [
+      this.dashboard.deTaiChoDuyet,
+      this.dashboard.deTaiDangThucHien,
+      this.dashboard.deTaiHoanThanh,
+      this.dashboard.deTaiKhongDat
+    ];
+  }
+
+  updateBoMonChart(): void {
+    if (this.boMons.length === 0) return;
+
+    this.boMonChartData.labels = this.boMons.map(bm => bm.tenBoMon);
+    this.boMonChartData.datasets[0].data = this.boMons.map(bm => bm.soLuongDeTai || 0);
+    this.boMonChartData.datasets[1].data = this.boMons.map(bm => bm.soLuongSinhVien || 0);
+    this.boMonChartData.datasets[2].data = this.boMons.map(bm => bm.soLuongGiangVien || 0);
   }
 }

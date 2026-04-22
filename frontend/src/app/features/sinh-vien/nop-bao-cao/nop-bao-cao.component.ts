@@ -30,13 +30,8 @@ import { AuthService } from '../../../core/services/auth.service';
           <form (ngSubmit)="nopBaoCao()">
             <div class="mb-3">
               <label class="form-label">File báo cáo (Word) *</label>
-              <input type="file" class="form-control" (change)="onFileChange($event, 'baoCao')" accept=".doc,.docx" required>
+              <input type="file" class="form-control" (change)="onFileChange($event)" accept=".doc,.docx" required>
               <small class="text-muted">Chấp nhận file .doc, .docx</small>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Source code (ZIP/RAR)</label>
-              <input type="file" class="form-control" (change)="onFileChange($event, 'source')" accept=".zip,.rar,.7z">
-              <small class="text-muted">Chấp nhận file .zip, .rar, .7z</small>
             </div>
             <button type="submit" class="btn btn-primary" [disabled]="!fileBaoCao || isSubmitting">
               <span *ngIf="isSubmitting">Đang nộp...</span>
@@ -69,10 +64,9 @@ import { AuthService } from '../../../core/services/auth.service';
           <div class="mt-3">
             <h6>Tài liệu đã nộp:</h6>
             <div class="d-flex gap-2 flex-wrap">
-              <button *ngIf="baoCao.fileBaoCao" (click)="downloadFile(baoCao.fileBaoCao, 'bao-cao')" class="btn btn-outline-primary btn-sm">
+              <button *ngIf="baoCao.fileBaoCao" (click)="downloadFile(baoCao.fileBaoCao)" class="btn btn-outline-primary btn-sm">
                 <i class="fas fa-download me-1"></i> Tải báo cáo
               </button>
-              <span class="text-muted">Không có source code</span>
             </div>
           </div>
 
@@ -86,7 +80,6 @@ export class NopBaoCaoComponent implements OnInit {
   deTaiCuaToi: DeTaiResponse | null = null;
   baoCao: BaoCaoResponse | null = null;
   fileBaoCao: File | null = null;
-  fileSource: File | null = null;
   isSubmitting = false;
 
   constructor(
@@ -99,14 +92,12 @@ export class NopBaoCaoComponent implements OnInit {
     return `http://localhost:8080/api/files/download?path=${encodeURIComponent(filePath)}`;
   }
 
-  downloadFile(filePath: string, type: string): void {
+  downloadFile(filePath: string): void {
     const token = this.authService.getToken();
     const user = this.authService.getCurrentUser();
     const hoTen = user?.hoTen?.replace(/\s+/g, '-').toLowerCase() || 'user';
     const maSV = user?.maSinhVien || '';
-    const fileName = type === 'bao-cao'
-      ? `${type}-${hoTen}-${maSV}.docx`
-      : `${type}-${hoTen}-${maSV}.zip`;
+    const fileName = `bao-cao-${hoTen}-${maSV}.docx`;
 
     fetch(this.getDownloadUrl(filePath), {
       headers: {
@@ -152,12 +143,8 @@ export class NopBaoCaoComponent implements OnInit {
     });
   }
 
-  onFileChange(event: any, type: string): void {
-    if (type === 'baoCao') {
-      this.fileBaoCao = event.target.files[0];
-    } else {
-      this.fileSource = event.target.files[0];
-    }
+  onFileChange(event: any): void {
+    this.fileBaoCao = event.target.files[0];
   }
 
   nopBaoCao(): void {

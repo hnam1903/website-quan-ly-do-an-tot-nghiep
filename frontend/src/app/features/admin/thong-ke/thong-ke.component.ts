@@ -41,22 +41,25 @@ import * as XLSX from 'xlsx';
             <thead class="table-light">
               <tr>
                 <th class="text-center" width="50">STT</th>
+                <th>Đợt</th>
                 <th>Tên SV</th>
                 <th>Mã SV</th>
                 <th>Bộ môn</th>
                 <th>GV Hướng dẫn</th>
                 <th>Trạng thái</th>
                 <th class="text-center">Chi tiết</th>
+                <th class="text-center">Xóa</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngIf="isLoading">
-                <td colspan="7" class="text-center py-4">
+                <td colspan="9" class="text-center py-4">
                   <span class="spinner-border spinner-border-sm me-2"></span> Đang tải...
                 </td>
               </tr>
               <tr *ngFor="let dt of thongKeList; let i = index">
                 <td class="text-center">{{ i + 1 }}</td>
+                <td>{{ dt.tenDotDangKy || '-' }}</td>
                 <td>
                   <strong>{{ dt.hoTenSinhVien }}</strong>
                 </td>
@@ -73,9 +76,14 @@ import * as XLSX from 'xlsx';
                     <i class="bi bi-eye"></i>
                   </button>
                 </td>
+                <td class="text-center">
+                  <button class="btn btn-outline-danger btn-sm" (click)="xoaDeTai(dt)" title="Xóa đề tài">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
               </tr>
               <tr *ngIf="!isLoading && thongKeList.length === 0">
-                <td colspan="7" class="text-center text-muted py-4">
+                <td colspan="9" class="text-center text-muted py-4">
                   Không có dữ liệu thống kê.
                 </td>
               </tr>
@@ -259,6 +267,26 @@ export class ThongKeComponent implements OnInit {
     });
   }
 
+  xoaDeTai(deTai: DeTaiResponse): void {
+    if (!confirm(`Bạn có chắc chắn muốn xóa đề tài "${deTai.tenDeTai}" của sinh viên ${deTai.hoTenSinhVien}?`)) {
+      return;
+    }
+    if (!deTai.id) return;
+    this.adminService.xoaDeTai(deTai.id).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.toastr.success('Xóa đề tài thành công');
+          this.loadThongKe();
+        } else {
+          this.toastr.error(res.message || 'Xóa thất bại');
+        }
+      },
+      error: () => {
+        this.toastr.error('Không thể xóa đề tài');
+      }
+    });
+  }
+
   getStatusClass(trangThai: any): string {
     if (!trangThai) return 'bg-secondary';
     switch (trangThai) {
@@ -288,7 +316,6 @@ export class ThongKeComponent implements OnInit {
       'CHO_PHAN_BIEN': 'Chờ PB',
       'DAT_PHAN_BIEN': 'Đạt PB',
       'KHONG_DAT_PHAN_BIEN': 'K đạt PB',
-      'CHO_HOI_DONG': 'Chờ hội đồng',
       'DANG_BAO_VE': 'Đã gặp hội đồng',
       'HOAN_THANH': 'Hoàn thành',
       'KHONG_DAT_BAO_VE': 'Không đạt bảo vệ'

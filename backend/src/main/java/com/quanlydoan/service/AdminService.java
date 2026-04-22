@@ -38,6 +38,8 @@ public class AdminService {
     private final DiemHuongDanRepository diemHuongDanRepository;
     private final DiemPhanBienRepository diemPhanBienRepository;
     private final BaoCaoRepository baoCaoRepository;
+    private final BaoCaoTienDoRepository baoCaoTienDoRepository;
+    private final ThanhVienHoiDongRepository thanhVienHoiDongRepository;
 
     private final AuthService authService;
 
@@ -193,7 +195,6 @@ public class AdminService {
                 TrangThaiDeTai.DAT_GVHD,
                 TrangThaiDeTai.CHO_PHAN_BIEN,
                 TrangThaiDeTai.DAT_PHAN_BIEN,
-                TrangThaiDeTai.CHO_HOI_DONG,
                 TrangThaiDeTai.DANG_BAO_VE,
                 TrangThaiDeTai.HOAN_THANH
         );
@@ -221,9 +222,16 @@ public class AdminService {
 
     // ==================== Gửi lên Bộ môn ====================
 
-    public List<DeTaiResponse> getDeTaiDangKy(Long dotDangKyId, TrangThaiDeTai trangThai) {
+    public List<DeTaiResponse> getDeTaiDangKy(Long dotDangKyId, TrangThaiDeTai trangThai, Long boMonId) {
         List<DeTai> deTais;
-        if (trangThai != null) {
+
+        if (boMonId != null) {
+            if (trangThai != null) {
+                deTais = deTaiRepository.findByBoMonIdAndTrangThai(boMonId, trangThai);
+            } else {
+                deTais = deTaiRepository.findAllByBoMonId(boMonId);
+            }
+        } else if (trangThai != null) {
             if (dotDangKyId != null) {
                 deTais = deTaiRepository.findByDotDangKyIdAndTrangThai(dotDangKyId, trangThai);
             } else {
@@ -292,6 +300,75 @@ public class AdminService {
         return deTais.stream()
                 .map(this::mapToDeTaiResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void xoaDeTai(Long id) {
+        if (!deTaiRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Không tìm thấy đề tài");
+        }
+
+        // Xóa các bản ghi liên quan theo thứ tự TỪ CON NHẤT đến CHA:
+        
+        // 1. Xóa hội đồng bảo vệ và các bản ghi con
+        HoiDongBaoVe hoiDong = hoiDongBaoVeRepository.findByDeTaiId(id).orElse(null);
+        if (hoiDong != null) {
+            Long hoiDongId = hoiDong.getId();
+            
+            // 1.1 Xóa điểm bảo vệ (con của hoi_dong_bao_ve)
+            List<DiemBaoVe> diemBaoVes = diemBaoVeRepository.findByHoiDongId(hoiDongId);
+            if (!diemBaoVes.isEmpty()) {
+                diemBaoVeRepository.deleteAll(diemBaoVes);
+            }
+            
+            // 1.2 Xóa thành viên hội đồng (con của hoi_dong_bao_ve)
+            List<ThanhVienHoiDong> thanhViens = thanhVienHoiDongRepository.findByHoiDongId(hoiDongId);
+            if (!thanhViens.isEmpty()) {
+                thanhVienHoiDongRepository.deleteAll(thanhViens);
+            }
+            
+            // 1.3 Xóa hội đồng bảo vệ
+            hoiDongBaoVeRepository.delete(hoiDong);
+        }
+
+        // 2. Xóa báo cáo tiến độ (con của de_tai)
+        List<BaoCaoTienDo> dsBaoCaoTienDo = baoCaoTienDoRepository.findAllByDeTaiId(id);
+        if (!dsBaoCaoTienDo.isEmpty()) {
+            baoCaoTienDoRepository.deleteAll(dsBaoCaoTienDo);
+        }
+
+        // 3. Xóa điểm phản biện (con của de_tai)
+        DiemPhanBien diemPB = diemPhanBienRepository.findByDeTaiId(id).orElse(null);
+        if (diemPB != null) {
+            diemPhanBienRepository.delete(diemPB);
+        }
+
+        // 4. Xóa điểm hướng dẫn (con của de_tai)
+        DiemHuongDan diemHD = diemHuongDanRepository.findByDeTaiId(id).orElse(null);
+        if (diemHD != null) {
+            diemHuongDanRepository.delete(diemHD);
+        }
+
+        // 5. Xóa phân công phản biện (con của de_tai)
+        PhanCongPhanBien pcpb = phanCongPhanBienRepository.findByDeTaiId(id).orElse(null);
+        if (pcpb != null) {
+            phanCongPhanBienRepository.delete(pcpb);
+        }
+
+        // 6. Xóa phân công hướng dẫn (con của de_tai)
+        PhanCongHuongDan pchd = phanCongHuongDanRepository.findByDeTaiId(id).orElse(null);
+        if (pchd != null) {
+            phanCongHuongDanRepository.delete(pchd);
+        }
+
+        // 7. Xóa báo cáo (con của de_tai)
+        BaoCao baoCao = baoCaoRepository.findByDeTaiId(id).orElse(null);
+        if (baoCao != null) {
+            baoCaoRepository.delete(baoCao);
+        }
+
+        // 8. Cuối cùng xóa đề tài (bảng cha)
+        deTaiRepository.deleteById(id);
     }
 
     // ==================== Bộ môn ====================
@@ -546,6 +623,13 @@ public class AdminService {
                 builder.boMonId(dt.getSinhVien().getBoMon().getId())
                        .tenBoMon(dt.getSinhVien().getBoMon().getTenBoMon());
             }
+        }
+
+        // Đợt đăng ký
+        if (dt.getDotDangKy() != null) {
+            builder.dotDangKyId(dt.getDotDangKy().getId())
+                   .tenDotDangKy(dt.getDotDangKy().getTenDot())
+                   .namHoc(dt.getDotDangKy().getNamHoc());
         }
 
         // GV hướng dẫn

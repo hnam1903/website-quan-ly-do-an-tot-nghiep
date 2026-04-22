@@ -35,7 +35,9 @@ export const routes: Routes = [
     data: { roles: ['ADMIN', 'LANH_DAO_BO_MON'] },
     loadComponent: () => import('./layouts/bo-mon-layout/bo-mon-layout.component').then(m => m.BoMonLayoutComponent),
     children: [
-      { path: '', redirectTo: 'de-tai', pathMatch: 'full' },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', loadComponent: () => import('./features/bo-mon/dashboard/bo-mon-gv-dashboard.component').then(m => m.BoMonGvDashboardComponent) },
+      { path: 'ld-dashboard', loadComponent: () => import('./features/bo-mon/dashboard/lanh-dao-bo-mon-dashboard.component').then(m => m.LanhDaoBoMonDashboardComponent) },
       { path: 'duyet-de-tai', loadComponent: () => import('./features/bo-mon/duyet-de-tai/duyet-de-tai.component').then(m => m.DuyetDeTaiComponent) },
       { path: 'de-tai', loadComponent: () => import('./features/bo-mon/de-tai/de-tai.component').then(m => m.DeTaiBoMonComponent) },
       { path: 'sinh-vien', loadComponent: () => import('./features/bo-mon/sinh-vien/sinh-vien.component').then(m => m.SinhVienBoMonComponent) },
@@ -95,7 +97,8 @@ export const routes: Routes = [
     data: { roles: ['GIANG_VIEN'] },
     loadComponent: () => import('./layouts/giang-vien-layout/giang-vien-layout.component').then(m => m.GiangVienLayoutComponent),
     children: [
-      { path: '', redirectTo: 'huong-dan/duyet', pathMatch: 'full' },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', loadComponent: () => import('./features/giang-vien/dashboard/giang-vien-dashboard.component').then(m => m.GiangVienDashboardComponent) },
       {
         path: 'huong-dan',
         children: [

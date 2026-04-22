@@ -21,6 +21,11 @@ import { filter } from 'rxjs/operators';
       
       <ul class="nav flex-column">
         <li class="nav-item">
+          <a class="nav-link" routerLink="/giang-vien/dashboard" routerLinkActive="active">
+            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link d-flex justify-content-between align-items-center"
              (click)="huongDanOpen = !huongDanOpen"
              [class.active]="huongDanActive">

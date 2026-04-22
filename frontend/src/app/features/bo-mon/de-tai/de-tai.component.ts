@@ -394,21 +394,6 @@ import { ToastrService } from 'ngx-toastr';
                   </div>
                 </div>
               </div>
-
-              <!-- File Source Code -->
-              <div class="col-md-6 mb-3">
-                <div class="card h-100 border-start border-4 border-warning">
-                  <div class="card-body text-center">
-                    <h6 class="card-title text-warning">
-                      <i class="bi bi-code-slash me-1"></i>Source Code
-                    </h6>
-                    <div class="mb-3">
-                      <i class="bi bi-folder2-open" style="font-size: 3rem; color: #ffc107;"></i>
-                    </div>
-                    <p class="text-muted mb-0">Không có file source code</p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -491,13 +476,6 @@ export class DeTaiBoMonComponent implements OnInit {
         }
       }
     });
-    this.boMonService.getDeTai('CHO_HOI_DONG').subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.deTaiDangThucHien = [...this.deTaiDangThucHien, ...res.data];
-        }
-      }
-    });
     this.boMonService.getDeTai('DANG_BAO_VE').subscribe({
       next: (res) => {
         if (res.success) {
@@ -559,7 +537,6 @@ export class DeTaiBoMonComponent implements OnInit {
       'CHO_PHAN_BIEN': 'bg-warning',
       'DAT_PHAN_BIEN': 'bg-success',
       'KHONG_DAT_PHAN_BIEN': 'bg-danger',
-      'CHO_HOI_DONG': 'bg-secondary',
       'DANG_BAO_VE': 'bg-primary',
       'KHONG_DAT_BAO_VE': 'bg-danger'
     };
@@ -577,7 +554,6 @@ export class DeTaiBoMonComponent implements OnInit {
       'CHO_PHAN_BIEN': 'Chờ phản biện',
       'DAT_PHAN_BIEN': 'Đạt phản biện',
       'KHONG_DAT_PHAN_BIEN': 'Không đạt phản biện',
-      'CHO_HOI_DONG': 'Chờ hội đồng',
       'DANG_BAO_VE': 'Đã gặp hội đồng',
       'KHONG_DAT': 'Không đạt bảo vệ',
       'KHONG_DAT_BAO_VE': 'Không đạt bảo vệ'
@@ -617,13 +593,48 @@ export class DeTaiBoMonComponent implements OnInit {
     });
   }
 
-  /** Tải file báo cáo/source code */
+  /** Tải file báo cáo */
   downloadFile(filePath: string): void {
     if (!filePath) {
       this.toastr.warning('Không có file để tải');
       return;
     }
-    const encodedPath = encodeURIComponent(filePath);
-    window.open(`http://localhost:8080/api/files/download?path=${encodedPath}`, '_blank');
+
+    const token = localStorage.getItem('token');
+    const url = `http://localhost:8080/api/files/download?path=${encodeURIComponent(filePath)}`;
+
+    fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Access Denied');
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      const fileName = this.getFileNameFromPath(filePath);
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(downloadUrl);
+    })
+    .catch(error => {
+      console.error('Download error:', error);
+      this.toastr.error('Không thể tải file. Vui lòng đăng nhập lại.');
+    });
+  }
+
+  private getFileNameFromPath(filePath: string): string {
+    if (!filePath) return 'file';
+    const parts = filePath.split(/[/\\]/);
+    const fileName = parts[parts.length - 1];
+    return fileName || 'file';
   }
 }

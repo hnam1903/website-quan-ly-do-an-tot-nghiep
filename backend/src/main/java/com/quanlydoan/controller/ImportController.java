@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +19,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/admin/import")
+@PreAuthorize("hasRole('ADMIN')")
 @CrossOrigin(origins = "http://localhost:4200")
 @RequiredArgsConstructor
 public class ImportController {

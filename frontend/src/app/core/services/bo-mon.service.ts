@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiResponse, DeTaiResponse, GiangVienResponse, SinhVienResponse, PhanCongHuongDanResponse, PhanCongPhanBienResponse, HoiDongBaoVeResponse, BoMonResponse, BaoCaoResponse } from '../models/models';
+import { ApiResponse, DeTaiResponse, GiangVienResponse, SinhVienResponse, PhanCongHuongDanResponse, PhanCongPhanBienResponse, HoiDongBaoVeResponse, BoMonResponse, BaoCaoResponse, DotBaoCaoTienDoResponse, ThongKePhanCongResponse } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -124,5 +124,22 @@ export class BoMonService {
     return this.http.get(`${this.apiUrl}/diem-bao-ve/excel-template`, {
       responseType: 'blob'
     });
+  }
+
+  // Dashboard thống kê
+  getThongKe(): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/thong-ke`);
+  }
+
+  getDotBaoCaoTienDo(): Observable<ApiResponse<DotBaoCaoTienDoResponse[]>> {
+    return this.http.get<ApiResponse<DotBaoCaoTienDoResponse[]>>(`${this.apiUrl}/bao-cao-tien-do`);
+  }
+
+  getThongKeDiem(): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/thong-ke-diem`);
+  }
+
+  getThongKePhanCong(): Observable<ApiResponse<ThongKePhanCongResponse>> {
+    return this.http.get<ApiResponse<ThongKePhanCongResponse>>(`${this.apiUrl}/thong-ke-phan-cong`);
   }
 }

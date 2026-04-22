@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 public class FileController {
 
     @GetMapping("/download")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Resource> downloadFile(@RequestParam String path) {
         try {
             // Path từ query param đã được encode 1 lần, decode nó
@@ -59,13 +60,13 @@ public class FileController {
                 downloadName = "bao_cao.pdf";
             } else if (".zip".equals(extension)) {
                 contentType = "application/zip";
-                downloadName = "source_code.zip";
+                downloadName = "file.zip";
             } else if (".rar".equals(extension)) {
                 contentType = "application/vnd.rar";
-                downloadName = "source_code.rar";
+                downloadName = "file.rar";
             } else if (".7z".equals(extension)) {
                 contentType = "application/x-7z-compressed";
-                downloadName = "source_code.7z";
+                downloadName = "file.7z";
             }
 
             return ResponseEntity.ok()

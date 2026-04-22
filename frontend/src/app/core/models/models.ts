@@ -43,6 +43,7 @@ export interface BoMonResponse {
   tenKhoa?: string;
   soLuongGiangVien?: number;
   soLuongSinhVien?: number;
+  soLuongDeTai?: number;
 }
 
 export interface GiangVienResponse {
@@ -138,6 +139,15 @@ export interface PhanCongHuongDanResponse {
   daChamDiemPB?: boolean;
   diemPhanBien?: number;
   nhanXetPhanBien?: string;
+}
+
+export interface SinhVienHuongDanResponse {
+  id: number;
+  maSinhVien?: string;
+  hoTen: string;
+  lop?: string;
+  tenDeTai: string;
+  daChamDiem?: boolean;
 }
 
 export interface PhanCongPhanBienResponse {
@@ -264,4 +274,13 @@ export interface SinhVienHuongDan {
   email?: string;
   lop?: string;
   tenDeTai?: string;
+}
+
+export interface ThongKePhanCongResponse {
+  tongSinhVien: number;
+  svDaPhanCongHuongDan: number;
+  svChuaPhanCongHuongDan: number;
+  svDaPhanCongPhanBien: number;
+  svChuaPhanCongPhanBien: number;
+  svChoLapHoiDong: number;
 }

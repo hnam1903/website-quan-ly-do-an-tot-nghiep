@@ -153,7 +153,6 @@ export class DanhSachGvpbComponent implements OnInit {
       case 'CHO_PHAN_CONG_PB': return 'bg-warning';
       case 'DA_PHAN_CONG_PB': return 'bg-secondary';
       case 'DA_PHAN_CONG_HD': return 'bg-info';
-      case 'CHO_HOI_DONG': return 'bg-warning';
       case 'DA_CHAM_DIEM': return 'bg-primary';
       case 'DA_BAO_VE': return 'bg-success';
       case 'KET_QUA': return 'bg-success';

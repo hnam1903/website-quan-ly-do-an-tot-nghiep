@@ -8,6 +8,7 @@ import com.quanlydoan.exception.BadRequestException;
 import com.quanlydoan.exception.ResourceNotFoundException;
 import com.quanlydoan.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BoMonService {
 
     private final DeTaiRepository deTaiRepository;
@@ -92,12 +94,27 @@ public class BoMonService {
     }
 
     public List<DeTaiResponse> getDeTaiByBoMon(Long boMonId) {
+        log.info("getDeTaiByBoMon called with boMonId: {}", boMonId);
         List<DeTai> deTais = deTaiRepository.findAllByBoMonId(boMonId);
+        log.info("Found {} de tai for boMonId: {}", deTais.size(), boMonId);
         return deTais.stream().map(this::mapToDeTaiResponse).collect(Collectors.toList());
     }
 
     public List<DeTaiResponse> getDeTaiByTrangThai(Long boMonId, TrangThaiDeTai trangThai) {
-        List<DeTai> deTais = deTaiRepository.findByBoMonIdAndTrangThai(boMonId, trangThai);
+        List<DeTai> deTais;
+        
+        // Nếu lấy đề tài DANG_THUC_HIEN (chờ phân công GVHD), dùng query có JOIN FETCH để lọc đề tài đã được GV duyệt
+        if (trangThai == TrangThaiDeTai.DANG_THUC_HIEN) {
+            deTais = deTaiRepository.findByBoMonIdAndTrangThaiWithPhanCong(boMonId, trangThai);
+            // Lọc bỏ đề tài đã được GV duyệt (có phanCongHuongDan với trangThai = DUYET)
+            deTais = deTais.stream()
+                    .filter(dt -> dt.getPhanCongHuongDan() == null || 
+                                  dt.getPhanCongHuongDan().getTrangThai() != TrangThaiPhanCong.DUYET)
+                    .collect(Collectors.toList());
+        } else {
+            deTais = deTaiRepository.findByBoMonIdAndTrangThai(boMonId, trangThai);
+        }
+        
         return deTais.stream().map(this::mapToDeTaiResponse).collect(Collectors.toList());
     }
 
@@ -639,5 +656,144 @@ public class BoMonService {
 
         hoiDong = hoiDongBaoVeRepository.save(hoiDong);
         return mapToHoiDongBaoVeResponse(hoiDong);
+    }
+
+    public ThongKeDiemResponse getThongKeDiem(Long boMonId) {
+        List<DeTai> deTais = deTaiRepository.findAllByBoMonId(boMonId);
+        
+        long tongDeTai = deTais.size();
+        long deTaiCoDiemHD = 0;
+        long deTaiCoDiemPB = 0;
+        long deTaiCoDiemBV = 0;
+        long deTaiHoanThanh = 0;
+        
+        double sumDiemHD = 0;
+        double sumDiemPB = 0;
+        double sumDiemBV = 0;
+        
+        double maxDiemHD = 0;
+        double maxDiemPB = 0;
+        double maxDiemBV = 0;
+        
+        double minDiemHD = 10;
+        double minDiemPB = 10;
+        double minDiemBV = 10;
+        
+        for (DeTai dt : deTais) {
+            // Điểm hướng dẫn
+            if (dt.getDiemHuongDan() != null) {
+                double diem = dt.getDiemHuongDan().getDiem().doubleValue();
+                deTaiCoDiemHD++;
+                sumDiemHD += diem;
+                maxDiemHD = Math.max(maxDiemHD, diem);
+                minDiemHD = Math.min(minDiemHD, diem);
+            }
+            
+            // Điểm phản biện
+            if (dt.getDiemPhanBien() != null) {
+                double diem = dt.getDiemPhanBien().getDiem().doubleValue();
+                deTaiCoDiemPB++;
+                sumDiemPB += diem;
+                maxDiemPB = Math.max(maxDiemPB, diem);
+                minDiemPB = Math.min(minDiemPB, diem);
+            }
+            
+            // Điểm bảo vệ
+            if (dt.getHoiDongBaoVe() != null) {
+                BigDecimal avgDiem = diemBaoVeRepository.calculateAverageDiemByHoiDongId(dt.getHoiDongBaoVe().getId());
+                if (avgDiem != null && avgDiem.doubleValue() > 0) {
+                    double diem = avgDiem.doubleValue();
+                    deTaiCoDiemBV++;
+                    sumDiemBV += diem;
+                    maxDiemBV = Math.max(maxDiemBV, diem);
+                    minDiemBV = Math.min(minDiemBV, diem);
+                }
+            }
+            
+            // Hoàn thành
+            if (dt.getTrangThai() == TrangThaiDeTai.HOAN_THANH) {
+                deTaiHoanThanh++;
+            }
+        }
+        
+        return ThongKeDiemResponse.builder()
+                .tongDeTai(tongDeTai)
+                .deTaiCoDiemHuongDan(deTaiCoDiemHD)
+                .deTaiCoDiemPhanBien(deTaiCoDiemPB)
+                .deTaiCoDiemBaoVe(deTaiCoDiemBV)
+                .deTaiHoanThanh(deTaiHoanThanh)
+                .diemHuongDanTrungBinh(deTaiCoDiemHD > 0 ? Math.round(sumDiemHD / deTaiCoDiemHD * 100.0) / 100.0 : 0)
+                .diemPhanBienTrungBinh(deTaiCoDiemPB > 0 ? Math.round(sumDiemPB / deTaiCoDiemPB * 100.0) / 100.0 : 0)
+                .diemBaoVeTrungBinh(deTaiCoDiemBV > 0 ? Math.round(sumDiemBV / deTaiCoDiemBV * 100.0) / 100.0 : 0)
+                .diemTongKetTrungBinh(calculateDiemTongKet(deTais))
+                .diemHuongDanCaoNhat(maxDiemHD)
+                .diemPhanBienCaoNhat(maxDiemPB)
+                .diemBaoVeCaoNhat(maxDiemBV)
+                .diemHuongDanThapNhat(minDiemHD == 10 ? 0 : minDiemHD)
+                .diemPhanBienThapNhat(minDiemPB == 10 ? 0 : minDiemPB)
+                .diemBaoVeThapNhat(minDiemBV == 10 ? 0 : minDiemBV)
+                .build();
+    }
+    
+    private double calculateDiemTongKet(List<DeTai> deTais) {
+        double sumTong = 0;
+        int count = 0;
+        for (DeTai dt : deTais) {
+            double diemHD = dt.getDiemHuongDan() != null ? dt.getDiemHuongDan().getDiem().doubleValue() : 0;
+            double diemPB = dt.getDiemPhanBien() != null ? dt.getDiemPhanBien().getDiem().doubleValue() : 0;
+            double diemBV = 0;
+            if (dt.getHoiDongBaoVe() != null) {
+                BigDecimal avg = diemBaoVeRepository.calculateAverageDiemByHoiDongId(dt.getHoiDongBaoVe().getId());
+                if (avg != null) diemBV = avg.doubleValue();
+            }
+
+            if (diemHD > 0 && diemPB > 0 && diemBV > 0) {
+                sumTong += (diemHD * 0.3 + diemPB * 0.3 + diemBV * 0.4);
+                count++;
+            }
+        }
+        return count > 0 ? Math.round(sumTong / count * 100.0) / 100.0 : 0;
+    }
+
+    public ThongKePhanCongResponse getThongKePhanCong(Long boMonId) {
+        List<DeTai> deTais = deTaiRepository.findAllByBoMonId(boMonId);
+
+        int tongSinhVien = 0;
+        int svDaPhanCongHuongDan = 0;
+        int svDaPhanCongPhanBien = 0;
+        int svChoLapHoiDong = 0;
+
+        for (DeTai dt : deTais) {
+            // Chỉ đếm sinh viên có đề tài đã được duyệt (không phải CHO_DUYET, BI_TU_CHOI)
+            if (dt.getTrangThai() != TrangThaiDeTai.CHO_DUYET
+                && dt.getTrangThai() != TrangThaiDeTai.BI_TU_CHOI
+                && dt.getSinhVien() != null) {
+                tongSinhVien++;
+
+                // Đã phân công HD khi có PhanCongHuongDan
+                if (dt.getPhanCongHuongDan() != null && dt.getPhanCongHuongDan().getGiangVien() != null) {
+                    svDaPhanCongHuongDan++;
+                }
+
+                // Đã phân công PB khi có PhanCongPhanBien
+                if (dt.getPhanCongPhanBien() != null && dt.getPhanCongPhanBien().getGiangVien() != null) {
+                    svDaPhanCongPhanBien++;
+                }
+
+                // Chờ lập hội đồng: đã đạt phản biện (DAT_PHAN_BIEN) nhưng chưa có hội đồng
+                if (dt.getTrangThai() == TrangThaiDeTai.DAT_PHAN_BIEN && dt.getHoiDongBaoVe() == null) {
+                    svChoLapHoiDong++;
+                }
+            }
+        }
+
+        return ThongKePhanCongResponse.builder()
+                .tongSinhVien(tongSinhVien)
+                .svDaPhanCongHuongDan(svDaPhanCongHuongDan)
+                .svChuaPhanCongHuongDan(tongSinhVien - svDaPhanCongHuongDan)
+                .svDaPhanCongPhanBien(svDaPhanCongPhanBien)
+                .svChuaPhanCongPhanBien(tongSinhVien - svDaPhanCongPhanBien)
+                .svChoLapHoiDong(svChoLapHoiDong)
+                .build();
     }
 }
