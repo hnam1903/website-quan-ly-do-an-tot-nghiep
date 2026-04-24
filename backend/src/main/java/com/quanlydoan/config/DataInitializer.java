@@ -30,7 +30,7 @@ public class DataInitializer implements CommandLineRunner {
                     .trangThai(true)
                     .build();
             taiKhoanRepository.save(admin);
-            System.out.println("Tạo tài khoản Admin: admin@gmail.com / admin123");
+
         }
 
 
