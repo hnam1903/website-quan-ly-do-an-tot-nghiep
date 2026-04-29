@@ -1,6 +1,8 @@
 package com.quanlydoan.repository;
 
 import com.quanlydoan.entity.GiangVien;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +22,15 @@ public interface GiangVienRepository extends JpaRepository<GiangVien, Long> {
     
     @Query("SELECT gv FROM GiangVien gv JOIN gv.taiKhoan tk WHERE tk.email = :email")
     Optional<GiangVien> findByEmail(@Param("email") String email);
+    
+    // Phân trang
+    Page<GiangVien> findAll(Pageable pageable);
+    
+    Page<GiangVien> findByBoMonId(Long boMonId, Pageable pageable);
+    
+    @Query("SELECT gv FROM GiangVien gv JOIN FETCH gv.taiKhoan tk JOIN FETCH gv.boMon WHERE LOWER(gv.hoTen) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(tk.email) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    Page<GiangVien> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
+    
+    @Query("SELECT gv FROM GiangVien gv JOIN FETCH gv.taiKhoan tk JOIN FETCH gv.boMon WHERE gv.boMon.id = :boMonId AND (LOWER(gv.hoTen) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(tk.email) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<GiangVien> searchByKeywordAndBoMon(@Param("keyword") String keyword, @Param("boMonId") Long boMonId, Pageable pageable);
 }

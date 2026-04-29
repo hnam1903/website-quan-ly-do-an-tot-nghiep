@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +69,7 @@ public class DiemBaoVeService {
                                 .giangVien(giangVien)
                                 .build());
 
-                diemBaoVe.setDiem(diemThanhVien.getDiem());
+                diemBaoVe.setDiem(diemThanhVien.getDiem().setScale(1, RoundingMode.HALF_UP));
                 diemBaoVe.setTrangThai(TrangThaiDiem.DU_DIEU_KIEN);
 
                 DiemBaoVe saved = diemBaoVeRepository.save(diemBaoVe);
@@ -93,7 +94,7 @@ public class DiemBaoVeService {
                         .giangVien(giangVien)
                         .build());
 
-        diemBaoVe.setDiem(diem);
+        diemBaoVe.setDiem(diem.setScale(1, RoundingMode.HALF_UP));
         diemBaoVe.setTrangThai(diem != null ? TrangThaiDiem.DU_DIEU_KIEN : TrangThaiDiem.CHUA_CHAM);
 
         DiemBaoVe saved = diemBaoVeRepository.save(diemBaoVe);
@@ -117,7 +118,7 @@ public class DiemBaoVeService {
                             .build();
                 });
 
-        diemBaoVe.setDiem(diem);
+        diemBaoVe.setDiem(diem.setScale(1, RoundingMode.HALF_UP));
         diemBaoVe.setTrangThai(diem != null ? TrangThaiDiem.DU_DIEU_KIEN : TrangThaiDiem.CHUA_CHAM);
         diemBaoVe.setUpdatedAt(LocalDateTime.now());
         diemBaoVeRepository.save(diemBaoVe);

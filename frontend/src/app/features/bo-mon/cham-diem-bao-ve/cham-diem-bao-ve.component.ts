@@ -10,55 +10,63 @@ import { ToastrService } from 'ngx-toastr';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="page-header d-flex justify-content-between align-items-center">
-      <div>
-        <h2>Chấm điểm bảo vệ</h2>
-        
+    <div class="page-header">
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-warning-subtle">
+          <i class="bi bi-shield-check text-warning"></i>
+        </div>
+        <div>
+          <h2>Chấm điểm bảo vệ</h2>
+          <p class="mb-0">Nhập và quản lý điểm bảo vệ của các hội đồng</p>
+        </div>
       </div>
       <label class="btn btn-primary mb-0">
-        <i class="bi bi-upload"></i> Import Excel
+        <i class="bi bi-upload me-2"></i> Import Excel
         <input type="file" accept=".xlsx,.xls" (change)="onFileSelected($event)" style="display: none;">
       </label>
     </div>
 
     <!-- Alert import -->
     <div *ngIf="importMessage" class="alert mt-3" [ngClass]="importSuccess ? 'alert-success' : 'alert-danger'">
+      <i class="bi me-2" [class.bi-check-circle-fill]="importSuccess" [class.bi-exclamation-triangle-fill]="!importSuccess"></i>
       {{ importMessage }}
     </div>
 
     <div class="card">
-      <div class="card-body">
+      <div class="card-body p-0">
         <div *ngIf="loading" class="text-center p-3">
           <span class="spinner-border spinner-border-sm me-2"></span> Đang tải...
         </div>
 
-        <div *ngIf="!loading && hoiDongList.length === 0" class="alert alert-info">
-          Không có hội đồng nào cần chấm điểm.
+        <div *ngIf="!loading && hoiDongList.length === 0" class="alert alert-info m-4">
+          <i class="bi bi-info-circle me-2"></i>Không có hội đồng nào cần chấm điểm.
         </div>
 
         <div *ngIf="!loading && hoiDongList.length > 0">
           <div class="table-responsive">
-            <table class="table table-hover">
-              <thead class="table-light">
+            <table class="table table-hover mb-0">
+              <thead>
                 <tr>
-                  <th>STT</th>
+                  <th class="text-center" style="width: 60px">STT</th>
                   <th>Sinh viên</th>
                   <th>Đề tài</th>
-                  <th>Ngày bảo vệ</th>
-                  <th>Địa điểm</th>
-                  <th>Trạng thái</th>
-                  <th>Điểm</th>
-                  <th>Thao tác</th>
+                  <th style="width: 150px">Ngày bảo vệ</th>
+                  <th style="width: 100px">Địa điểm</th>
+                  <th style="width: 120px">Trạng thái</th>
+                  <th style="width: 80px" class="text-center">Điểm</th>
+                  <th style="width: 160px">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let hd of hoiDongList; let i = index">
-                  <td>{{ i + 1 }}</td>
+                <tr *ngFor="let hd of hoiDongList; let i = index" class="align-middle">
+                  <td class="text-center"><span class="stt-badge">{{ i + 1 }}</span></td>
                   <td>
                     <strong>{{ hd.hoTenSinhVien }}</strong><br>
-                    <small class="text-muted">{{ hd.maSinhVien }}</small>
+                    <small class="text-secondary"><code>{{ hd.maSinhVien }}</code></small>
                   </td>
-                  <td>{{ hd.tenDeTai }}</td>
+                  <td>
+                    <span class="text-truncate d-inline-block" style="max-width: 200px">{{ hd.tenDeTai }}</span>
+                  </td>
                   <td>{{ hd.ngayBaoVe ? (hd.ngayBaoVe | date:'dd/MM/yyyy HH:mm') : '-' }}</td>
                   <td>{{ hd.diaDiem || '-' }}</td>
                   <td>
@@ -66,16 +74,18 @@ import { ToastrService } from 'ngx-toastr';
                       {{ getTrangThaiText(hd.trangThai) }}
                     </span>
                   </td>
-                  <td>
-                    {{ hd.diemBaoVe || '-' }}
+                  <td class="text-center">
+                    <strong>{{ hd.diemBaoVe || '-' }}</strong>
                   </td>
                   <td>
-                    <button class="btn btn-sm btn-warning me-1" (click)="openEditModal(hd)" *ngIf="hd.trangThai === 'DA_BAO_VE' || hd.diemBaoVe">
-                      <i class="bi bi-pencil"></i> Sửa
-                    </button>
-                    <button class="btn btn-sm btn-info" (click)="xemChiTiet(hd)">
-                      <i class="bi bi-eye"></i> Xem
-                    </button>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-outline-warning btn-icon" (click)="openEditModal(hd)" *ngIf="hd.trangThai === 'DA_BAO_VE' || hd.diemBaoVe" title="Sửa điểm">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-info btn-icon" (click)="xemChiTiet(hd)" title="Xem chi tiết">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -86,31 +96,37 @@ import { ToastrService } from 'ngx-toastr';
     </div>
 
     <!-- Modal nhập/sửa điểm -->
-    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5)" *ngIf="showModal">
-      <div class="modal-dialog modal-lg">
+    <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+      <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ isEditMode ? 'Sửa điểm bảo vệ' : 'Nhập điểm bảo vệ' }}</h5>
+            <h5 class="modal-title"><i class="bi" [class.bi-pencil-square]="isEditMode" [class.bi-shield-check]="!isEditMode"></i> {{ isEditMode ? 'Sửa điểm bảo vệ' : 'Nhập điểm bảo vệ' }}</h5>
             <button type="button" class="btn-close" (click)="closeModal()"></button>
           </div>
           <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label">Sinh viên</label>
-              <input type="text" class="form-control" [value]="selectedHoiDong?.hoTenSinhVien" readonly>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Đề tài</label>
-              <input type="text" class="form-control" [value]="selectedHoiDong?.tenDeTai" readonly>
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <div class="info-group">
+                  <label class="info-label">Sinh viên</label>
+                  <p class="info-value">{{ selectedHoiDong?.hoTenSinhVien }}</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="info-group mb-0">
+                  <label class="info-label">Đề tài</label>
+                  <p class="info-value">{{ selectedHoiDong?.tenDeTai }}</p>
+                </div>
+              </div>
             </div>
 
             <hr>
-            <h6 class="mb-3">Điểm của từng thành viên hội đồng</h6>
+            <h6 class="mb-3"><i class="bi bi-people me-2"></i>Điểm của từng thành viên hội đồng</h6>
 
-            <div class="row mb-3" *ngFor="let tv of selectedHoiDong?.thanhViens; let i = index">
+            <div *ngFor="let tv of selectedHoiDong?.thanhViens; let i = index" class="row g-3 mb-3">
               <div class="col-md-8">
                 <label class="form-label">
-                  {{ tv.hoTenGiangVien }}
-                  <span class="badge bg-secondary ms-1">{{ getVaiTroText(tv.vaiTro) }}</span>
+                  <i class="bi bi-person me-1"></i>{{ tv.hoTenGiangVien }}
+                  <span class="badge badge-secondary ms-1">{{ getVaiTroText(tv.vaiTro) }}</span>
                   <span *ngIf="tv.hocVi" class="text-muted ms-1">({{ tv.hocVi }})</span>
                 </label>
               </div>
@@ -123,11 +139,7 @@ import { ToastrService } from 'ngx-toastr';
               </div>
             </div>
 
-            <div class="alert alert-info mt-3" *ngIf="tinhTrungBinh() !== null">
-              <strong>Điểm trung bình: {{ tinhTrungBinh() }}/10</strong>
-            </div>
-
-            <div class="mb-3 mt-3">
+            <div class="mt-4">
               <label class="form-label">Nhận xét chung</label>
               <textarea class="form-control" [(ngModel)]="nhanXetMoi" rows="3"
                         placeholder="Nhận xét của hội đồng..."></textarea>
@@ -136,7 +148,7 @@ import { ToastrService } from 'ngx-toastr';
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" (click)="closeModal()">Hủy</button>
             <button type="button" class="btn btn-success" (click)="luuDiem()">
-              <i class="bi bi-check-lg"></i> {{ isEditMode ? 'Cập nhật' : 'Lưu điểm' }}
+              <i class="bi bi-check2 me-1"></i>{{ isEditMode ? 'Cập nhật' : 'Lưu điểm' }}
             </button>
           </div>
         </div>
@@ -144,26 +156,26 @@ import { ToastrService } from 'ngx-toastr';
     </div>
 
     <!-- Modal xem chi tiết -->
-    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5)" *ngIf="showChiTietModal">
-      <div class="modal-dialog modal-lg">
+    <div class="modal-overlay" *ngIf="showChiTietModal" (click)="closeChiTietModal()">
+      <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Kết quả bảo vệ</h5>
+            <h5 class="modal-title"><i class="bi bi-shield-check me-2"></i>Kết quả bảo vệ</h5>
             <button type="button" class="btn-close" (click)="closeChiTietModal()"></button>
           </div>
           <div class="modal-body">
-            <div class="mb-4">
+            <div class="alert alert-info mb-4">
               <strong>Sinh viên:</strong> {{ selectedHoiDong?.hoTenSinhVien }}<br>
               <strong>Đề tài:</strong> {{ selectedHoiDong?.tenDeTai }}
             </div>
 
             <!-- Bảng điểm từng thành viên -->
             <table class="table table-bordered mb-3" *ngIf="selectedHoiDong && selectedHoiDong.thanhViens && selectedHoiDong.thanhViens.length > 0">
-              <thead class="table-light">
+              <thead>
                 <tr>
                   <th>Thành viên</th>
-                  <th>Vai trò</th>
-                  <th>Điểm</th>
+                  <th style="width: 140px">Vai trò</th>
+                  <th style="width: 100px" class="text-center">Điểm</th>
                 </tr>
               </thead>
               <tbody>
@@ -171,23 +183,15 @@ import { ToastrService } from 'ngx-toastr';
                   <td><strong>{{ tv.hoTenGiangVien }}</strong></td>
                   <td>{{ getVaiTroText(tv.vaiTro) }}</td>
                   <td class="text-center">
-                    {{ tv.diem || '-' }}
+                    <strong>{{ tv.diem || '-' }}</strong>
                   </td>
                 </tr>
               </tbody>
-              <tfoot>
-                <tr class="table-success">
-                  <td colspan="2" class="text-end"><strong>Điểm trung bình:</strong></td>
-                  <td class="text-center">
-                    <strong>{{ selectedHoiDong.diemBaoVe }}</strong>
-                  </td>
-                </tr>
-              </tfoot>
             </table>
 
-            <p *ngIf="selectedHoiDong?.nhanXetCham" class="mt-3">
+            <div *ngIf="selectedHoiDong?.nhanXetCham" class="alert alert-success">
               <strong>Nhận xét:</strong><br>{{ selectedHoiDong?.nhanXetCham }}
-            </p>
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" (click)="closeChiTietModal()">Đóng</button>
@@ -310,24 +314,6 @@ export class ChamDiemBaoVeComponent implements OnInit {
   closeChiTietModal(): void {
     this.showChiTietModal = false;
     this.selectedHoiDong = null;
-  }
-
-  tinhTrungBinh(): number | null {
-    if (!this.selectedHoiDong?.thanhViens) return null;
-
-    let tongDiem = 0;
-    let soLuong = 0;
-
-    this.selectedHoiDong.thanhViens.forEach(tv => {
-      const diem = this.diemGiangVienMap[tv.giangVienId];
-      if (diem !== null && diem !== undefined) {
-        tongDiem += diem;
-        soLuong++;
-      }
-    });
-
-    if (soLuong === 0) return null;
-    return Math.round((tongDiem / soLuong) * 100) / 100;
   }
 
   luuDiem(): void {

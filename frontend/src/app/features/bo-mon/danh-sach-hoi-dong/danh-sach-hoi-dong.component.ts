@@ -10,8 +10,15 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule],
   template: `
     <div class="page-header">
-      <h2>Danh sách hội đồng bảo vệ</h2>
-     
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-info-subtle">
+          <i class="bi bi-people-fill text-info"></i>
+        </div>
+        <div>
+          <h2>Danh sách hội đồng bảo vệ</h2>
+          <p class="mb-0">Xem thông tin hội đồng đã thành lập</p>
+        </div>
+      </div>
     </div>
 
     <div class="card">
@@ -20,39 +27,46 @@ import { ToastrService } from 'ngx-toastr';
           <span class="spinner-border spinner-border-sm me-2"></span> Đang tải...
         </div>
         <div *ngIf="!loading && hoiDongList.length === 0" class="alert alert-info">
-          Chưa có hội đồng bảo vệ nào được thành lập.
+          <i class="bi bi-info-circle me-2"></i>Chưa có hội đồng bảo vệ nào được thành lập.
         </div>
 
         <div *ngIf="!loading && hoiDongList.length > 0">
           <div class="mb-3" *ngFor="let hd of hoiDongList">
-            <div class="card hoi-dong-card" [class.active]="expandedHd === hd.id" (click)="toggleHoiDong(hd.id)">
-              <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                  <i class="bi bi-people me-2"></i>
-                  <strong>{{ hd.sinhVien || hd.hoTenSinhVien }}</strong>
-                  <span class="text-muted ms-2">{{ hd.deTai || hd.tenDeTai }}</span>
+            <div class="hoi-dong-card hd-card" [class.active]="expandedHd === hd.id" (click)="toggleHoiDong(hd.id)">
+              <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="hd-icon">
+                      <i class="bi bi-people"></i>
+                    </div>
+                    <div>
+                      <strong>{{ hd.sinhVien || hd.hoTenSinhVien }}</strong>
+                      <br>
+                      <small class="text-muted">{{ hd.deTai || hd.tenDeTai }}</small>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center gap-4 me-3">
+                    <span class="text-muted"><strong>Ngày:</strong> {{ hd.ngayBaoVe | date:'dd/MM/yyyy' }}</span>
+                    <span class="text-muted"><strong>Phòng:</strong> {{ hd.diaDiem }}</span>
+                  </div>
+                  <i class="bi" [ngClass]="expandedHd === hd.id ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                 </div>
-                <div class="d-flex align-items-center gap-3 ms-auto">
-                  <span class="text-muted"><strong>Ngày bảo vệ:</strong> {{ hd.ngayBaoVe | date:'dd/MM/yyyy' }}</span>
-                  <span class="text-muted"><strong>Phòng:</strong> {{ hd.diaDiem }}</span>
-                </div>
-                <i class="bi" [ngClass]="expandedHd === hd.id ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
               </div>
             </div>
             <div class="table-responsive mt-2" *ngIf="expandedHd === hd.id">
-              <table class="table table-hover table-sm">
-                <thead class="table-light">
+              <table class="table table-hover">
+                <thead>
                   <tr>
-                    <th class="text-center" style="width: 50px;">STT</th>
+                    <th class="text-center" style="width: 60px">STT</th>
                     <th>Thành viên</th>
-                    <th>Vai trò</th>
+                    <th style="width: 140px">Vai trò</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let tv of hd.thanhViens; let i = index">
-                    <td class="text-center">{{ i + 2 }}</td>
-                    <td>{{ tv.hoTen || tv.hoTenGiangVien }}</td>
-                    <td><span class="badge" [ngClass]="getVaiTroBadge(tv.vaiTro)">{{ getVaiTroText(tv.vaiTro) }}</span></td>
+                    <td class="text-center"><span class="stt-badge">{{ i + 2 }}</span></td>
+                    <td><i class="bi bi-person me-2 text-muted"></i>{{ tv.hoTen || tv.hoTenGiangVien }}</td>
+                    <td><span class="badge" [ngClass]="getVaiTroBadge(tv.vaiTro)"><i class="bi me-1" [ngClass]="getVaiTroIcon(tv.vaiTro)"></i>{{ getVaiTroText(tv.vaiTro) }}</span></td>
                   </tr>
                 </tbody>
               </table>
@@ -67,12 +81,16 @@ import { ToastrService } from 'ngx-toastr';
       cursor: pointer;
       transition: all 0.2s;
     }
-    .hoi-dong-card:hover {
-      background-color: #f8f9fa;
-    }
-    .hoi-dong-card.active {
-      background-color: #e3f2fd;
-      border-color: #2196f3;
+    .hd-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--info-light);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--info);
+      font-size: 1.25rem;
     }
   `]
 })
@@ -130,10 +148,19 @@ export class DanhSachHoiDongComponent implements OnInit {
 
   getVaiTroBadge(vaiTro: string): string {
     switch (vaiTro) {
-      case 'CHU_TICH': return 'bg-danger';
-      case 'THU_KY': return 'bg-primary';
-      case 'UY_VIEN': return 'bg-secondary';
-      default: return 'bg-secondary';
+      case 'CHU_TICH': return 'badge-danger';
+      case 'THU_KY': return 'badge-primary';
+      case 'UY_VIEN': return 'badge-secondary';
+      default: return 'badge-secondary';
+    }
+  }
+
+  getVaiTroIcon(vaiTro: string): string {
+    switch (vaiTro) {
+      case 'CHU_TICH': return 'bi-shield-fill';
+      case 'THU_KY': return 'bi-pen-fill';
+      case 'UY_VIEN': return 'bi-person-fill';
+      default: return 'bi-person';
     }
   }
 

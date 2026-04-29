@@ -9,33 +9,45 @@ import { PhanCongHuongDanResponse } from '../../../core/models/models';
   imports: [CommonModule],
   template: `
     <div class="page-header">
-      <h2>Danh sách hướng dẫn</h2>
-    
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-primary-subtle">
+          <i class="bi bi-list-check text-primary"></i>
+        </div>
+        <div>
+          <h2>Danh sách hướng dẫn</h2>
+          <p class="mb-0">Danh sách sinh viên được hướng dẫn</p>
+        </div>
+      </div>
+      <span class="badge bg-primary">{{ huongDanList.length }} sinh viên</span>
     </div>
 
     <div class="card">
-      <div class="card-body">
-        <table class="table table-hover" *ngIf="huongDanList.length > 0">
-          <thead class="table-light">
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0" *ngIf="huongDanList.length > 0">
+          <thead>
             <tr>
-              <th>STT</th>
-              <th>Mã SV</th>
-              <th>Họ tên SV</th>
-              <th>Lớp</th>
+              <th class="text-center" style="width: 60px">STT</th>
+              <th style="width: 120px">Mã SV</th>
+              <th style="width: 160px">Họ tên SV</th>
+              <th style="width: 100px">Lớp</th>
               <th>Tên đề tài</th>
-              <th>Chi tiết</th>
+              <th style="width: 140px" class="text-center">Chi tiết</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let pc of huongDanList; let i = index">
-              <td>{{ i + 1 }}</td>
-              <td>{{ pc.maSinhVien || '-' }}</td>
-              <td>{{ pc.hoTenSinhVien || '-' }}</td>
+            <tr *ngFor="let pc of huongDanList; let i = index" class="align-middle">
+              <td class="text-center">
+                <span class="stt-badge">{{ i + 1 }}</span>
+              </td>
+              <td><code>{{ pc.maSinhVien || '-' }}</code></td>
+              <td><strong>{{ pc.hoTenSinhVien || '-' }}</strong></td>
               <td>{{ pc.lopSinhVien || '-' }}</td>
-              <td>{{ pc.tenDeTai }}</td>
               <td>
-                <button class="btn btn-sm btn-outline-primary" (click)="xemChiTiet(pc)">
-                  <i class="bi bi-eye"></i> Xem chi tiết
+                <span class="text-truncate d-inline-block" style="max-width: 300px">{{ pc.tenDeTai }}</span>
+              </td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-outline-primary btn-icon" (click)="xemChiTiet(pc)" title="Xem chi tiết">
+                  <i class="bi bi-eye"></i>
                 </button>
               </td>
             </tr>
@@ -43,8 +55,11 @@ import { PhanCongHuongDanResponse } from '../../../core/models/models';
         </table>
 
         <div *ngIf="huongDanList.length === 0" class="text-center py-5">
-          <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
-          <p class="text-muted mt-2">Chưa có sinh viên nào được hướng dẫn</p>
+          <div class="empty-state">
+            <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+            <p class="mb-1 fw-semibold">Chưa có sinh viên nào được hướng dẫn</p>
+            <small class="text-muted">Danh sách sẽ được cập nhật khi có sinh viên được phân công</small>
+          </div>
         </div>
       </div>
     </div>
@@ -53,45 +68,57 @@ import { PhanCongHuongDanResponse } from '../../../core/models/models';
     <div class="modal fade" id="chiTietModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-lg">
         <div class="modal-content" *ngIf="selected">
-          <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title">Chi tiết đề tài</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Chi tiết đề tài</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <div class="row mb-3">
+            <div class="row g-4">
               <div class="col-md-6">
-                <label class="fw-bold">Sinh viên</label>
-                <p class="mb-1">{{ selected.hoTenSinhVien }}</p>
-                <small class="text-muted">Mã SV: {{ selected.maSinhVien }} | Lớp: {{ selected.lopSinhVien }}</small>
+                <div class="info-group">
+                  <label class="info-label">Sinh viên</label>
+                  <p class="info-value">{{ selected.hoTenSinhVien }}</p>
+                  <small class="text-muted">Mã SV: {{ selected.maSinhVien }} | Lớp: {{ selected.lopSinhVien }}</small>
+                </div>
               </div>
               <div class="col-md-6">
-                <label class="fw-bold">Bộ môn</label>
-                <p>{{ selected.tenBoMon || '-' }}</p>
+                <div class="info-group">
+                  <label class="info-label">Bộ môn</label>
+                  <p class="info-value">{{ selected.tenBoMon || '-' }}</p>
+                </div>
               </div>
-            </div>
-            <div class="mb-3">
-              <label class="fw-bold">Tên đề tài</label>
-              <p class="mb-0">{{ selected.tenDeTai }}</p>
-            </div>
-            <div class="mb-3">
-              <label class="fw-bold">Nội dung đề tài</label>
-              <p class="mb-0" style="white-space: pre-wrap;">{{ selected.noiDungDuKien || 'Không có thông tin' }}</p>
-            </div>
-            <div class="mb-3">
-              <label class="fw-bold">Công nghệ sử dụng</label>
-              <p class="mb-0">{{ selected.congNgheSuDung || 'Không có thông tin' }}</p>
-            </div>
-            <div class="row">
-              <div class="col-md-6">
-                <label class="fw-bold">GV Hướng dẫn</label>
-                <p class="mb-0">{{ selected.hoTenGiangVien }}</p>
+              <div class="col-12">
+                <div class="info-group">
+                  <label class="info-label">Tên đề tài</label>
+                  <p class="info-title">{{ selected.tenDeTai }}</p>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="info-group">
+                  <label class="info-label">Nội dung đề tài</label>
+                  <p class="info-value" style="white-space: pre-line;">{{ selected.noiDungDuKien || 'Không có thông tin' }}</p>
+                </div>
               </div>
               <div class="col-md-6">
-                <label class="fw-bold">Trạng thái</label>
-                <p class="mb-0">
-                  <span *ngIf="selected.trangThai === 'CHO_DUYET'" class="badge bg-warning text-dark">Chờ duyệt</span>
-                  <span *ngIf="selected.trangThai === 'DUYET'" class="badge bg-success">Đã duyệt</span>
-                </p>
+                <div class="info-group">
+                  <label class="info-label">Công nghệ sử dụng</label>
+                  <p class="info-value">{{ selected.congNgheSuDung || 'Không có thông tin' }}</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="info-group">
+                  <label class="info-label">GV Hướng dẫn</label>
+                  <p class="info-value">{{ selected.hoTenGiangVien }}</p>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="info-group mb-0">
+                  <label class="info-label">Trạng thái</label>
+                  <p class="info-value">
+                    <span *ngIf="selected.trangThai === 'CHO_DUYET'" class="badge bg-warning text-dark">Chờ duyệt</span>
+                    <span *ngIf="selected.trangThai === 'DUYET'" class="badge bg-success">Đã duyệt</span>
+                  </p>
+                </div>
               </div>
             </div>
           </div>

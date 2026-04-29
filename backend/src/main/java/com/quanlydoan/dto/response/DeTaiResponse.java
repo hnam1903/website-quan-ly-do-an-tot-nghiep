@@ -39,6 +39,7 @@ public class DeTaiResponse {
     private BigDecimal diemHuongDan;
     private BigDecimal diemPhanBien;
     private BigDecimal diemBaoVe;
+    private BigDecimal diemTongBaoVe;
     private Boolean daChamDiemPB;
     private Boolean daChamDiemHD;
     private String nhanXetPhanBien;

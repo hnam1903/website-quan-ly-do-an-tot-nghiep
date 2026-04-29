@@ -8,6 +8,10 @@ import com.quanlydoan.exception.BadRequestException;
 import com.quanlydoan.exception.ResourceNotFoundException;
 import com.quanlydoan.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -18,6 +22,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -554,6 +559,86 @@ public class AdminService {
         }
     }
 
+    // ==================== Quản lý điểm ====================
+
+    public List<QuanLyDiemResponse> getQuanLyDiem(Long boMonId) {
+        List<DeTai> deTais;
+
+        if (boMonId != null) {
+            deTais = deTaiRepository.findAll().stream()
+                    .filter(dt -> dt.getSinhVien() != null &&
+                            dt.getSinhVien().getBoMon() != null &&
+                            dt.getSinhVien().getBoMon().getId().equals(boMonId))
+                    .collect(Collectors.toList());
+        } else {
+            deTais = deTaiRepository.findAll().stream()
+                    .filter(dt -> dt.getSinhVien() != null)
+                    .collect(Collectors.toList());
+        }
+
+        return deTais.stream()
+                .map(this::mapToQuanLyDiemResponse)
+                .collect(Collectors.toList());
+    }
+
+    private QuanLyDiemResponse mapToQuanLyDiemResponse(DeTai dt) {
+        SinhVien sv = dt.getSinhVien();
+
+        // Lấy điểm
+        BigDecimal diemHD = dt.getDiemHuongDan() != null ? dt.getDiemHuongDan().getDiem() : null;
+        BigDecimal diemPB = dt.getDiemPhanBien() != null ? dt.getDiemPhanBien().getDiem() : null;
+
+        // Tính điểm bảo vệ = tổng điểm 3 thành viên hội đồng
+        BigDecimal diemBV = null;
+        List<QuanLyDiemResponse.ThanhVienHoiDongDiem> thanhVienDiemList = null;
+        
+        if (dt.getHoiDongBaoVe() != null) {
+            HoiDongBaoVe hoiDong = dt.getHoiDongBaoVe();
+            BigDecimal sumDiemHoiDong = diemBaoVeRepository.calculateSumDiemByHoiDongId(hoiDong.getId());
+            if (sumDiemHoiDong != null && sumDiemHoiDong.compareTo(BigDecimal.ZERO) > 0) {
+                diemBV = sumDiemHoiDong.setScale(1, RoundingMode.HALF_UP);
+            }
+            
+            // Lấy điểm từng thành viên hội đồng
+            if (hoiDong.getThanhViens() != null && !hoiDong.getThanhViens().isEmpty()) {
+                // Map từ thanhViens và tìm điểm tương ứng
+                thanhVienDiemList = hoiDong.getThanhViens().stream()
+                    .map(tv -> {
+                        BigDecimal diem = null;
+                        if (hoiDong.getDiemBaoVes() != null) {
+                            diem = hoiDong.getDiemBaoVes().stream()
+                                .filter(dbv -> dbv.getGiangVien().getId().equals(tv.getGiangVien().getId()))
+                                .findFirst()
+                                .map(DiemBaoVe::getDiem)
+                                .orElse(null);
+                        }
+                        return QuanLyDiemResponse.ThanhVienHoiDongDiem.builder()
+                            .hoTen(tv.getGiangVien().getHoTen())
+                            .vaiTro(tv.getVaiTro() != null ? tv.getVaiTro().name() : null)
+                            .diem(diem)
+                            .build();
+                    })
+                    .collect(Collectors.toList());
+            }
+        }
+
+        return QuanLyDiemResponse.builder()
+                .sinhVienId(sv.getId())
+                .hoTen(sv.getHoTen())
+                .maSinhVien(sv.getMaSinhVien())
+                .lop(sv.getLop())
+                .tenBoMon(sv.getBoMon() != null ? sv.getBoMon().getTenBoMon() : null)
+                .boMonId(sv.getBoMon() != null ? sv.getBoMon().getId() : null)
+                .tenDeTai(dt.getTenDeTai())
+                .deTaiId(dt.getId())
+                .diemHuongDan(diemHD)
+                .diemPhanBien(diemPB)
+                .diemBaoVe(diemBV)
+                .diemTongBaoVe(dt.getDiemTongBaoVe())
+                .thanhVienHoiDongList(thanhVienDiemList)
+                .build();
+    }
+
     // ==================== Dashboard ====================
 
     public DashboardResponse getDashboard() {
@@ -654,14 +739,37 @@ public class AdminService {
             builder.diemPhanBien(dt.getDiemPhanBien().getDiem());
         }
 
-        // Điểm bảo vệ (từ hội đồng - trung bình từ bảng diem_bao_ve)
-        if (dt.getHoiDongBaoVe() != null) {
-            BigDecimal avgDiemBV = diemBaoVeRepository.calculateAverageDiemByHoiDongId(dt.getHoiDongBaoVe().getId());
-            if (avgDiemBV != null) {
-                avgDiemBV = avgDiemBV.setScale(2, RoundingMode.HALF_UP);
+        // Điểm bảo vệ - lấy chi tiết từng thành viên HĐ từ bảng DiemBaoVe
+        if (dt.getHoiDongBaoVe() != null && dt.getHoiDongBaoVe().getDiemBaoVes() != null) {
+            List<DiemBaoVe> diemBaoVes = dt.getHoiDongBaoVe().getDiemBaoVes();
+
+            // Lấy vai trò từ ThanhVienHoiDong (nếu có)
+            Map<Long, VaiTroHoiDong> vaiTroMap = new java.util.HashMap<>();
+            if (dt.getHoiDongBaoVe().getThanhViens() != null) {
+                dt.getHoiDongBaoVe().getThanhViens().forEach(tv -> {
+                    if (tv.getGiangVien() != null) {
+                        vaiTroMap.put(tv.getGiangVien().getId(), tv.getVaiTro());
+                    }
+                });
             }
-            builder.diemBaoVe(avgDiemBV);
+
+            // Chi tiết từng thành viên HĐ
+            List<DeTaiResponse.ThanhVienInfo> thanhViens = diemBaoVes.stream()
+                    .filter(d -> d.getGiangVien() != null)
+                    .map(d -> {
+                        VaiTroHoiDong vaiTro = vaiTroMap.get(d.getGiangVien().getId());
+                        return DeTaiResponse.ThanhVienInfo.builder()
+                                .hoTen(d.getGiangVien().getHoTen())
+                                .vaiTro(vaiTro != null ? vaiTro.name() : null)
+                                .diem(d.getDiem())
+                                .build();
+                    })
+                    .collect(Collectors.toList());
+            builder.thanhVienHoiDongList(thanhViens);
         }
+
+        // Điểm tổng bảo vệ
+        builder.diemTongBaoVe(dt.getDiemTongBaoVe());
 
         return builder.build();
     }

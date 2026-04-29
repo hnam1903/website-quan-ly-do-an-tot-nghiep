@@ -196,8 +196,8 @@ public class ImportExcelService {
             deTai = deTaiList.get(0);
         }
 
-        // Tìm hội đồng của đề tài
-        HoiDongBaoVe hoiDong = hoiDongBaoVeRepository.findByDeTaiId(deTai.getId())
+        // Tìm hội đồng của đề tài - fetch lại với thanh viên đầy đủ
+        HoiDongBaoVe hoiDong = hoiDongBaoVeRepository.findByDeTaiIdWithThanhViens(deTai.getId())
                 .orElseThrow(() -> new BadRequestException("Đề tài của SV " + msv + " chưa có hội đồng bảo vệ"));
 
         // Tìm các thành viên trong hội đồng theo vai trò
@@ -228,10 +228,6 @@ public class ImportExcelService {
 
         // Cập nhật điểm trung bình vào hội đồng
         updateHoiDongDiem(hoiDong);
-
-        // Cập nhật trạng thái đề tài thành HOAN_THANH
-        deTai.setTrangThai(com.quanlydoan.enums.TrangThaiDeTai.HOAN_THANH);
-        deTaiRepository.save(deTai);
     }
 
     private void processDiemForVaiTro(Row row, Map<String, Integer> columnIndex,
@@ -265,7 +261,7 @@ public class ImportExcelService {
                             .giangVien(thanhVien.getGiangVien())
                             .build());
 
-            diemBaoVe.setDiem(diem);
+            diemBaoVe.setDiem(diem.setScale(1, java.math.RoundingMode.HALF_UP));
             diemBaoVe.setTrangThai(TrangThaiDiem.DU_DIEU_KIEN);
 
             diemBaoVeRepository.save(diemBaoVe);
@@ -273,19 +269,41 @@ public class ImportExcelService {
     }
 
     private void updateHoiDongDiem(HoiDongBaoVe hoiDong) {
-        // Tính điểm trung bình từ bảng diem_bao_ve
+        // Tính tổng điểm hội đồng từ bảng diem_bao_ve
         List<DiemBaoVe> diemBaoVes = diemBaoVeRepository.findByHoiDongId(hoiDong.getId());
         long countWithDiem = diemBaoVes.stream().filter(d -> d.getDiem() != null).count();
 
         if (countWithDiem > 0) {
-            BigDecimal avgDiem = diemBaoVes.stream()
+            BigDecimal sumDiemHoiDong = diemBaoVes.stream()
                     .filter(d -> d.getDiem() != null)
                     .map(DiemBaoVe::getDiem)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add)
-                    .divide(BigDecimal.valueOf(countWithDiem), 2, java.math.RoundingMode.HALF_UP);
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             hoiDong.setTrangThai(TrangThaiHoiDong.DA_BAO_VE);
             hoiDongBaoVeRepository.save(hoiDong);
+
+            // Cập nhật diemTongBaoVe vào đề tài
+            DeTai deTai = deTaiRepository.findById(hoiDong.getDeTai().getId()).orElse(null);
+            if (deTai != null) {
+                // Tính điểm tổng bảo vệ = (tổng HĐ + PB) / (số TV + 1) nếu có PB, hoặc chỉ tổng HĐ
+                if (deTai.getDiemPhanBien() != null && deTai.getDiemPhanBien().getDiem() != null) {
+                    int soLuongThanhVien = hoiDong.getThanhViens() != null ? hoiDong.getThanhViens().size() : 3;
+                    BigDecimal tongDiem = sumDiemHoiDong.add(deTai.getDiemPhanBien().getDiem());
+                    BigDecimal diemTongBaoVe = tongDiem.divide(BigDecimal.valueOf(soLuongThanhVien + 1), 2, java.math.RoundingMode.HALF_UP);
+                    diemTongBaoVe = diemTongBaoVe.setScale(1, java.math.RoundingMode.HALF_UP);
+                    deTai.setDiemTongBaoVe(diemTongBaoVe);
+
+                    if (diemTongBaoVe.compareTo(BigDecimal.valueOf(5)) >= 0) {
+                        deTai.setTrangThai(com.quanlydoan.enums.TrangThaiDeTai.HOAN_THANH);
+                    } else {
+                        deTai.setTrangThai(com.quanlydoan.enums.TrangThaiDeTai.KHONG_DAT_BAO_VE);
+                    }
+                } else {
+                    // Chưa có điểm phản biện, lưu tổng điểm hội đồng
+                    deTai.setDiemTongBaoVe(sumDiemHoiDong.setScale(1, java.math.RoundingMode.HALF_UP));
+                }
+                deTaiRepository.save(deTai);
+            }
         }
     }
 

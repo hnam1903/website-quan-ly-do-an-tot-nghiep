@@ -11,51 +11,58 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
-      <h2>Danh sách sinh viên phản biện</h2>
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-info-subtle">
+          <i class="bi bi-chat-square-text text-info"></i>
+        </div>
+        <div>
+          <h2>Danh sách sinh viên phản biện</h2>
+          <p class="mb-0">Xem và chấm điểm phản biện</p>
+        </div>
+      </div>
     </div>
 
     <div class="card">
-      <div class="card-body">
+      <div class="card-body p-0">
         <div *ngIf="isLoading" class="text-center py-4">
-          <i class="fas fa-spinner fa-spin fa-2x"></i>
-          <p class="mt-2">Đang tải dữ liệu...</p>
+          <span class="spinner-border spinner-border-sm me-2"></span> Đang tải dữ liệu...
         </div>
 
-        <div *ngIf="deTaiList.length === 0 && !isLoading" class="alert alert-info">
+        <div *ngIf="!isLoading && deTaiList.length === 0" class="alert alert-info m-4">
           <i class="bi bi-info-circle"></i> Không có sinh viên nào được phân công phản biện
         </div>
 
-        <div class="table-responsive" *ngIf="deTaiList.length > 0">
-          <table class="table table-hover">
-            <thead class="table-light">
+        <div class="table-responsive" *ngIf="!isLoading && deTaiList.length > 0">
+          <table class="table table-hover mb-0">
+            <thead>
               <tr>
-                <th width="12%" class="text-center">Mã SV</th>
-                <th width="18%">Họ và tên</th>
-                <th width="10%">Lớp</th>
-                <th width="35%">Tên đề tài</th>
-                <th width="12%" class="text-center">Trạng thái</th>
-                <th width="13%" class="text-center">Chi tiết</th>
+                <th style="width: 100px" class="text-center">Mã SV</th>
+                <th style="width: 180px">Họ và tên</th>
+                <th style="width: 100px">Lớp</th>
+                <th>Tên đề tài</th>
+                <th style="width: 120px" class="text-center">Trạng thái</th>
+                <th style="width: 120px" class="text-center">Chi tiết</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let dt of deTaiList">
-                <td class="text-center"><strong>{{ dt.maSinhVien }}</strong></td>
-                <td>{{ dt.hoTenSinhVien }}</td>
+              <tr *ngFor="let dt of deTaiList" class="align-middle">
+                <td class="text-center"><code>{{ dt.maSinhVien }}</code></td>
+                <td><strong>{{ dt.hoTenSinhVien }}</strong></td>
                 <td>{{ dt.lopSinhVien || '-' }}</td>
                 <td class="text-truncate" style="max-width: 350px;" title="{{ dt.tenDeTai }}">
                   {{ dt.tenDeTai }}
                 </td>
                 <td class="text-center">
-                  <span *ngIf="dt.daChamDiemPB" class="badge bg-success">
-                    <i class="bi bi-check-circle me-1"></i>Đã chấm
+                  <span *ngIf="dt.daChamDiemPB" class="badge badge-success">
+                    <i class="bi bi-check-circle-fill me-1"></i>Đã chấm
                   </span>
-                  <span *ngIf="!dt.daChamDiemPB" class="badge bg-warning text-dark">
+                  <span *ngIf="!dt.daChamDiemPB" class="badge badge-warning text-dark">
                     <i class="bi bi-hourglass-split me-1"></i>Chưa chấm
                   </span>
                 </td>
                 <td class="text-center">
-                  <button class="btn btn-sm btn-primary" (click)="moModalChiTiet(dt)">
-                    <i class="bi bi-eye me-1"></i>Chi tiết
+                  <button class="btn btn-sm btn-primary btn-icon" (click)="moModalChiTiet(dt)" title="Chi tiết">
+                    <i class="bi bi-eye"></i>
                   </button>
                 </td>
               </tr>
@@ -70,30 +77,36 @@ import { ToastrService } from 'ngx-toastr';
       <div class="modal-dialog modal-lg">
         <div class="modal-content" *ngIf="deTaiChon">
           <div class="modal-header">
-            <h5 class="modal-title">Chi tiết phản biện</h5>
+            <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Chi tiết phản biện</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <div class="row mb-3">
+            <div class="row g-4">
               <div class="col-md-6">
-                <label class="form-label fw-bold">Sinh viên</label>
-                <p class="mb-1">{{ deTaiChon.hoTenSinhVien }}</p>
-                <small class="text-muted">Mã SV: {{ deTaiChon.maSinhVien }}</small>
+                <div class="info-group">
+                  <label class="info-label">Sinh viên</label>
+                  <p class="info-value">{{ deTaiChon.hoTenSinhVien }}</p>
+                  <small class="text-muted">Mã SV: {{ deTaiChon.maSinhVien }}</small>
+                </div>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold">Lớp</label>
-                <p>{{ deTaiChon.lopSinhVien || '-' }}</p>
+                <div class="info-group">
+                  <label class="info-label">Lớp</label>
+                  <p class="info-value">{{ deTaiChon.lopSinhVien || '-' }}</p>
+                </div>
               </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-bold">Tên đề tài</label>
-              <p class="mb-0">{{ deTaiChon.tenDeTai }}</p>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-bold">GV Hướng dẫn</label>
-              <p>{{ deTaiChon.hoTenGiangVienHuongDan || '-' }}</p>
+              <div class="col-12">
+                <div class="info-group">
+                  <label class="info-label">Tên đề tài</label>
+                  <p class="info-title">{{ deTaiChon.tenDeTai }}</p>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="info-group mb-0">
+                  <label class="info-label">GV Hướng dẫn</label>
+                  <p class="info-value">{{ deTaiChon.hoTenGiangVienHuongDan || '-' }}</p>
+                </div>
+              </div>
             </div>
 
             <hr>

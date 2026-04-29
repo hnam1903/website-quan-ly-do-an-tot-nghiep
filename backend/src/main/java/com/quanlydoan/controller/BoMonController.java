@@ -124,6 +124,13 @@ public class BoMonController {
         return ResponseEntity.ok(ApiResponse.success(boMonService.getDeTaiChoGVDuyet(boMonId)));
     }
 
+    @GetMapping("/danh-sach-gvhd")
+    public ResponseEntity<ApiResponse<List<PhanCongHuongDanResponse>>> getDanhSachGvhd() {
+        UserResponse currentUser = authService.getCurrentUser();
+        Long boMonId = currentUser.getBoMonId();
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getDanhSachGvhd(boMonId)));
+    }
+
     @PostMapping("/phan-cong-phan-bien")
     public ResponseEntity<ApiResponse<PhanCongPhanBienResponse>> phanCongPhanBien(
             @Valid @RequestBody PhanCongPhanBienRequest request) {
@@ -222,5 +229,12 @@ public class BoMonController {
         UserResponse currentUser = authService.getCurrentUser();
         Long boMonId = currentUser.getBoMonId();
         return ResponseEntity.ok(ApiResponse.success(boMonService.getThongKePhanCong(boMonId)));
+    }
+
+    @GetMapping("/quan-ly-diem")
+    public ResponseEntity<ApiResponse<List<QuanLyDiemResponse>>> getQuanLyDiem() {
+        UserResponse currentUser = authService.getCurrentUser();
+        Long boMonId = currentUser.getBoMonId();
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getQuanLyDiem(boMonId)));
     }
 }

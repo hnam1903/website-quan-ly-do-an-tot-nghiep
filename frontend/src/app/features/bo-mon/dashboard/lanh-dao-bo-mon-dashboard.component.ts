@@ -16,7 +16,6 @@ interface ThongKeDiem {
   diemHuongDanTrungBinh: number;
   diemPhanBienTrungBinh: number;
   diemBaoVeTrungBinh: number;
-  diemTongKetTrungBinh: number;
   diemHuongDanCaoNhat: number;
   diemPhanBienCaoNhat: number;
   diemBaoVeCaoNhat: number;

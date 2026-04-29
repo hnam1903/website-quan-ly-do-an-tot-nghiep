@@ -13,80 +13,90 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
-      <h2>Danh sách đề tài</h2>
-  
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-primary-subtle">
+          <span class="material-symbols-outlined">menu_book</span>
+        </div>
+        <div>
+          <h2>Danh sách đề tài</h2>
+          <p class="mb-0">Theo dõi và quản lý đề tài theo trạng thái</p>
+        </div>
+      </div>
     </div>
 
     <!-- Tab Navigation -->
-    <ul class="nav nav-tabs mb-3">
+    <ul class="nav nav-tabs mb-4">
       <li class="nav-item">
         <a class="nav-link" [class.active]="activeTab === 'dang-thuc-hien'" (click)="switchTab('dang-thuc-hien')">
-          <i class="bi bi-play-circle me-1"></i>Đang thực hiện ({{ deTaiDangThucHien.length }})
+          <span class="material-symbols-outlined me-1">play_circle</span>Đang thực hiện ({{ deTaiDangThucHien.length }})
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" [class.active]="activeTab === 'hoan-thanh'" (click)="switchTab('hoan-thanh')">
-          <i class="bi bi-check-circle me-1"></i>Hoàn thành ({{ deTaiHoanThanh.length }})
+          <span class="material-symbols-outlined me-1">check_circle</span>Hoàn thành ({{ deTaiHoanThanh.length }})
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" [class.active]="activeTab === 'khong-dat'" (click)="switchTab('khong-dat')">
-          <i class="bi bi-x-circle me-1"></i>Không đạt ({{ deTaiKhongDat.length }})
+          <span class="material-symbols-outlined me-1">cancel</span>Không đạt ({{ deTaiKhongDat.length }})
         </a>
       </li>
     </ul>
 
     <!-- Đang thực hiện -->
     <div *ngIf="activeTab === 'dang-thuc-hien'" class="card">
-      <div class="card-header bg-primary text-white">
-        <i class="bi bi-play-circle me-2"></i>Đề tài đang thực hiện
-      </div>
-      <div class="card-body">
+      <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-hover">
+          <table class="table table-hover mb-0">
             <thead>
               <tr>
-                <th>STT</th>
+                <th class="text-center" style="width: 60px">STT</th>
                 <th>Sinh viên</th>
                 <th>Tên đề tài</th>
-                <th>Đợt</th>
-                <th>Năm học</th>
-                <th>Trạng thái</th>
-                <th>Báo cáo</th>
-                <th>Chi tiết</th>
+                <th style="width: 140px">Đợt</th>
+                <th style="width: 120px">Trạng thái</th>
+                <th style="width: 100px" class="text-center">Báo cáo</th>
+                <th style="width: 100px" class="text-center">Chi tiết</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let dt of deTaiDangThucHien; let i = index">
-                <td>{{ i + 1 }}</td>
+              <tr *ngFor="let dt of deTaiDangThucHien; let i = index" class="align-middle">
+                <td class="text-center"><span class="stt-badge">{{ i + 1 }}</span></td>
                 <td>
                   <strong>{{ dt.hoTenSinhVien }}</strong><br>
-                  <small class="text-muted">{{ dt.maSinhVien }}</small>
+                  <small class="text-secondary"><code>{{ dt.maSinhVien }}</code></small>
                 </td>
-                <td>{{ dt.tenDeTai }}</td>
+                <td>
+                  <span class="text-truncate d-inline-block" style="max-width: 250px">{{ dt.tenDeTai }}</span>
+                </td>
                 <td>{{ dt.tenDotDangKy }}</td>
-                <td>{{ dt.namHoc }}</td>
                 <td>
                   <span [class]="getStatusClass(dt.trangThai)" class="badge">
                     {{ getStatusText(dt.trangThai) }}
                   </span>
                 </td>
-                <td>
-                  <button *ngIf="dt.coBaoCao" class="btn btn-sm btn-success" (click)="openBaoCao(dt.id)">
-                    <i class="bi bi-file-earmark-text"></i> Xem
+                <td class="text-center">
+                  <button *ngIf="dt.coBaoCao" class="btn btn-sm btn-success btn-icon" (click)="openBaoCao(dt.id)" title="Xem báo cáo">
+                    <i class="bi bi-file-earmark-text"></i>
                   </button>
-                  <span *ngIf="!dt.coBaoCao" class="badge bg-secondary">
-                    <i class="bi bi-hourglass-split"></i> Chưa nộp
+                  <span *ngIf="!dt.coBaoCao" class="badge badge-secondary">
+                    <i class="bi bi-hourglass-split"></i>
                   </span>
                 </td>
-                <td>
-                  <button class="btn btn-sm btn-outline-primary" (click)="openChiTiet(dt)">
-                    <i class="bi bi-eye"></i> Xem
+                <td class="text-center">
+                  <button class="btn btn-sm btn-outline-primary btn-icon" (click)="openChiTiet(dt)" title="Xem chi tiết">
+                    <span class="material-symbols-outlined">visibility</span>
                   </button>
                 </td>
               </tr>
               <tr *ngIf="deTaiDangThucHien.length === 0">
-                <td colspan="8" class="text-center text-muted py-4">Không có đề tài nào</td>
+                <td colspan="7" class="text-center py-5">
+                  <div class="empty-state">
+                    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                    <p class="mb-1 fw-semibold">Không có đề tài nào</p>
+                    <small class="text-muted">Đang thực hiện</small>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -96,53 +106,54 @@ import { ToastrService } from 'ngx-toastr';
 
     <!-- Hoàn thành -->
     <div *ngIf="activeTab === 'hoan-thanh'" class="card">
-      <div class="card-header bg-success text-white">
-        <i class="bi bi-check-circle me-2"></i>Đề tài đã hoàn thành
-      </div>
-      <div class="card-body">
+      <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-hover">
+          <table class="table table-hover mb-0">
             <thead>
               <tr>
-                <th>STT</th>
+                <th class="text-center" style="width: 60px">STT</th>
                 <th>Sinh viên</th>
                 <th>Tên đề tài</th>
-                <th>Đợt</th>
-                <th>Năm học</th>
-                <th>Trạng thái</th>
-                <th>Báo cáo</th>
-                <th>Chi tiết</th>
+                <th style="width: 140px">Đợt</th>
+                <th style="width: 120px">Trạng thái</th>
+                <th style="width: 100px" class="text-center">Báo cáo</th>
+                <th style="width: 100px" class="text-center">Chi tiết</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let dt of deTaiHoanThanh; let i = index">
-                <td>{{ i + 1 }}</td>
+              <tr *ngFor="let dt of deTaiHoanThanh; let i = index" class="align-middle">
+                <td class="text-center"><span class="stt-badge">{{ i + 1 }}</span></td>
                 <td>
                   <strong>{{ dt.hoTenSinhVien }}</strong><br>
-                  <small class="text-muted">{{ dt.maSinhVien }}</small>
+                  <small class="text-secondary"><code>{{ dt.maSinhVien }}</code></small>
                 </td>
-                <td>{{ dt.tenDeTai }}</td>
+                <td>
+                  <span class="text-truncate d-inline-block" style="max-width: 250px">{{ dt.tenDeTai }}</span>
+                </td>
                 <td>{{ dt.tenDotDangKy }}</td>
-                <td>{{ dt.namHoc }}</td>
-                <td>
-                  <span class="badge bg-success">Hoàn thành</span>
-                </td>
-                <td>
-                  <button *ngIf="dt.coBaoCao" class="btn btn-sm btn-success" (click)="openBaoCao(dt.id)">
-                    <i class="bi bi-file-earmark-text"></i> Xem
+                <td><span class="badge badge-success"><span class="material-symbols-outlined me-1">check_circle</span>Hoàn thành</span></td>
+                <td class="text-center">
+                  <button *ngIf="dt.coBaoCao" class="btn btn-sm btn-success btn-icon" (click)="openBaoCao(dt.id)" title="Xem báo cáo">
+                    <i class="bi bi-file-earmark-text"></i>
                   </button>
-                  <span *ngIf="!dt.coBaoCao" class="badge bg-secondary">
-                    <i class="bi bi-hourglass-split"></i> Chưa nộp
+                  <span *ngIf="!dt.coBaoCao" class="badge badge-secondary">
+                    <i class="bi bi-hourglass-split"></i>
                   </span>
                 </td>
-                <td>
-                  <button class="btn btn-sm btn-outline-success" (click)="openChiTiet(dt)">
-                    <i class="bi bi-eye"></i> Xem
+                <td class="text-center">
+                  <button class="btn btn-sm btn-outline-success btn-icon" (click)="openChiTiet(dt)" title="Xem chi tiết">
+                    <i class="bi bi-eye"></i>
                   </button>
                 </td>
               </tr>
               <tr *ngIf="deTaiHoanThanh.length === 0">
-                <td colspan="8" class="text-center text-muted py-4">Không có đề tài nào</td>
+                <td colspan="7" class="text-center py-5">
+                  <div class="empty-state">
+                    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                    <p class="mb-1 fw-semibold">Không có đề tài nào</p>
+                    <small class="text-muted">Hoàn thành</small>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -152,55 +163,58 @@ import { ToastrService } from 'ngx-toastr';
 
     <!-- Không đạt -->
     <div *ngIf="activeTab === 'khong-dat'" class="card">
-      <div class="card-header bg-danger text-white">
-        <i class="bi bi-x-circle me-2"></i>Sinh viên không đạt
-      </div>
-      <div class="card-body">
+      <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-hover">
+          <table class="table table-hover mb-0">
             <thead>
               <tr>
-                <th>STT</th>
+                <th class="text-center" style="width: 60px">STT</th>
                 <th>Sinh viên</th>
                 <th>Tên đề tài</th>
-                <th>Đợt</th>
-                <th>Năm học</th>
-                <th>Trạng thái</th>
-                <th>Báo cáo</th>
-                <th>Chi tiết</th>
+                <th style="width: 140px">Đợt</th>
+                <th style="width: 140px">Trạng thái</th>
+                <th style="width: 100px" class="text-center">Báo cáo</th>
+                <th style="width: 100px" class="text-center">Chi tiết</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let dt of deTaiKhongDat; let i = index">
-                <td>{{ i + 1 }}</td>
+              <tr *ngFor="let dt of deTaiKhongDat; let i = index" class="align-middle">
+                <td class="text-center"><span class="stt-badge">{{ i + 1 }}</span></td>
                 <td>
                   <strong>{{ dt.hoTenSinhVien }}</strong><br>
-                  <small class="text-muted">{{ dt.maSinhVien }}</small>
+                  <small class="text-secondary"><code>{{ dt.maSinhVien }}</code></small>
                 </td>
-                <td>{{ dt.tenDeTai }}</td>
+                <td>
+                  <span class="text-truncate d-inline-block" style="max-width: 250px">{{ dt.tenDeTai }}</span>
+                </td>
                 <td>{{ dt.tenDotDangKy }}</td>
-                <td>{{ dt.namHoc }}</td>
                 <td>
                   <span [class]="getStatusClass(dt.trangThai)" class="badge">
                     {{ getStatusText(dt.trangThai) }}
                   </span>
                 </td>
-                <td>
-                  <button *ngIf="dt.coBaoCao" class="btn btn-sm btn-success" (click)="openBaoCao(dt.id)">
-                    <i class="bi bi-file-earmark-text"></i> Xem
+                <td class="text-center">
+                  <button *ngIf="dt.coBaoCao" class="btn btn-sm btn-success btn-icon" (click)="openBaoCao(dt.id)" title="Xem báo cáo">
+                    <i class="bi bi-file-earmark-text"></i>
                   </button>
-                  <span *ngIf="!dt.coBaoCao" class="badge bg-secondary">
-                    <i class="bi bi-hourglass-split"></i> Chưa nộp
+                  <span *ngIf="!dt.coBaoCao" class="badge badge-secondary">
+                    <i class="bi bi-hourglass-split"></i>
                   </span>
                 </td>
-                <td>
-                  <button class="btn btn-sm btn-outline-danger" (click)="openChiTiet(dt)">
-                    <i class="bi bi-eye"></i> Xem
+                <td class="text-center">
+                  <button class="btn btn-sm btn-outline-danger btn-icon" (click)="openChiTiet(dt)" title="Xem chi tiết">
+                    <i class="bi bi-eye"></i>
                   </button>
                 </td>
               </tr>
               <tr *ngIf="deTaiKhongDat.length === 0">
-                <td colspan="8" class="text-center text-muted py-4">Không có sinh viên nào không đạt</td>
+                <td colspan="7" class="text-center py-5">
+                  <div class="empty-state">
+                    <span class="material-symbols-outlined check_circle text-success fs-1 d-block mb-3"></span>
+                    <p class="mb-1 fw-semibold">Không có sinh viên nào không đạt</p>
+                    <small class="text-muted">Tất cả đều đạt yêu cầu</small>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -212,125 +226,80 @@ import { ToastrService } from 'ngx-toastr';
     <div class="modal fade" id="chiTietModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" *ngIf="chiTietDeTai">
-          <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title">
-              <i class="bi bi-info-circle me-2"></i>Chi tiết đề tài
-            </h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Chi tiết đề tài</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <div class="row mb-3">
-              <div class="col-md-12">
-                <label class="fw-bold text-primary">Tên đề tài</label>
-                <p class="mb-2">{{ chiTietDeTai.tenDeTai }}</p>
-              </div>
-            </div>
-
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label class="fw-bold text-primary">Sinh viên</label>
-                <p class="mb-1">{{ chiTietDeTai.hoTenSinhVien }}</p>
-                <small class="text-muted">{{ chiTietDeTai.maSinhVien }}</small>
+            <div class="row g-4">
+              <div class="col-12">
+                <div class="info-group">
+                  <label class="info-label">Tên đề tài</label>
+                  <p class="info-title">{{ chiTietDeTai.tenDeTai }}</p>
+                </div>
               </div>
               <div class="col-md-6">
-                <label class="fw-bold text-primary">Trạng thái</label>
-                <p class="mb-0">
-                  <span [class]="getStatusClass(chiTietDeTai.trangThai)" class="badge">
-                    {{ getStatusText(chiTietDeTai.trangThai) }}
-                  </span>
-                </p>
+                <div class="info-group">
+                  <label class="info-label">Sinh viên</label>
+                  <p class="info-value">{{ chiTietDeTai.hoTenSinhVien }}</p>
+                  <small class="text-muted"><code>{{ chiTietDeTai.maSinhVien }}</code></small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="info-group">
+                  <label class="info-label">Trạng thái</label>
+                  <p class="info-value">
+                    <span [class]="getStatusClass(chiTietDeTai.trangThai)" class="badge">
+                      {{ getStatusText(chiTietDeTai.trangThai) }}
+                    </span>
+                  </p>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="info-group">
+                  <label class="info-label">Nội dung đề tài</label>
+                  <p class="info-value" style="white-space: pre-line;">{{ chiTietDeTai.noiDungDuKien || 'Chưa có nội dung' }}</p>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="info-group mb-0">
+                  <label class="info-label">Công nghệ sử dụng</label>
+                  <p class="info-value">{{ chiTietDeTai.congNgheSuDung || 'Chưa có thông tin' }}</p>
+                </div>
               </div>
             </div>
-
-            <div class="row mb-3">
-              <div class="col-md-12">
-                <label class="fw-bold text-primary">Nội dung đề tài</label>
-                <p class="mb-0" style="white-space: pre-line;">{{ chiTietDeTai.noiDungDuKien || 'Chưa có nội dung' }}</p>
-              </div>
-            </div>
-
-            <div class="row mb-3">
-              <div class="col-md-12">
-                <label class="fw-bold text-primary">Công nghệ sử dụng</label>
-                <p class="mb-0">{{ chiTietDeTai.congNgheSuDung || 'Chưa có thông tin' }}</p>
-              </div>
-            </div>
-
             <hr>
-            <h6 class="text-primary mb-3"><i class="bi bi-people me-1"></i>Giảng viên &amp; Điểm</h6>
-
-            <div class="row">
-              <!-- GV Hướng dẫn -->
-              <div class="col-md-4 mb-3">
-                <div class="card h-100 border-start border-4 border-primary">
-                  <div class="card-body">
-                    <h6 class="card-title text-primary">
-                      <i class="bi bi-person-check me-1"></i>GV Hướng dẫn
-                    </h6>
-                    <p class="card-text mb-1">{{ chiTietDeTai.hoTenGiangVienHuongDan || 'Chưa phân công' }}</p>
-                    <div class="mt-2">
-                      <span class="fw-bold">Điểm:</span>
-                      <span *ngIf="chiTietDeTai.diemHuongDan != null" class="badge bg-primary ms-1">
-                        {{ chiTietDeTai.diemHuongDan }}/10
-                      </span>
-                      <span *ngIf="chiTietDeTai.diemHuongDan == null" class="badge bg-secondary ms-1">
-                        Chưa chấm
-                      </span>
-                    </div>
-                  </div>
+            <h6 class="mb-3"><i class="bi bi-people me-2"></i>Giảng viên &amp; Điểm</h6>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="info-card border-start border-4 border-primary">
+                  <h6 class="text-primary mb-2"><i class="bi bi-person-check me-2"></i>GV Hướng dẫn</h6>
+                  <p class="mb-1">{{ chiTietDeTai.hoTenGiangVienHuongDan || 'Chưa phân công' }}</p>
+                  <span class="badge" [class]="chiTietDeTai.diemHuongDan != null ? 'badge-primary' : 'badge-secondary'">
+                    {{ chiTietDeTai.diemHuongDan != null ? 'Điểm: ' + chiTietDeTai.diemHuongDan + '/10' : 'Chưa chấm' }}
+                  </span>
                 </div>
               </div>
-
-              <!-- GV Phản biện -->
-              <div class="col-md-4 mb-3">
-                <div class="card h-100 border-start border-4 border-warning">
-                  <div class="card-body">
-                    <h6 class="card-title text-warning">
-                      <i class="bi bi-person-dash me-1"></i>GV Phản biện
-                    </h6>
-                    <p class="card-text mb-1">{{ chiTietDeTai.hoTenGiangVienPhanBien || 'Chưa phân công' }}</p>
-                    <div class="mt-2">
-                      <span class="fw-bold">Điểm:</span>
-                      <span *ngIf="chiTietDeTai.diemPhanBien != null" class="badge bg-warning text-dark ms-1">
-                        {{ chiTietDeTai.diemPhanBien }}/10
-                      </span>
-                      <span *ngIf="chiTietDeTai.diemPhanBien == null" class="badge bg-secondary ms-1">
-                        Chưa chấm
-                      </span>
-                    </div>
-                  </div>
+              <div class="col-md-4">
+                <div class="info-card border-start border-4 border-warning">
+                  <h6 class="text-warning mb-2"><i class="bi bi-person-dash me-2"></i>GV Phản biện</h6>
+                  <p class="mb-1">{{ chiTietDeTai.hoTenGiangVienPhanBien || 'Chưa phân công' }}</p>
+                  <span class="badge" [class]="chiTietDeTai.diemPhanBien != null ? 'badge-warning text-dark' : 'badge-secondary'">
+                    {{ chiTietDeTai.diemPhanBien != null ? 'Điểm: ' + chiTietDeTai.diemPhanBien + '/10' : 'Chưa chấm' }}
+                  </span>
                 </div>
               </div>
-
-              <!-- GV Hội đồng bảo vệ -->
-              <div class="col-md-4 mb-3">
-                <div class="card h-100 border-start border-4 border-success">
-                  <div class="card-body">
-                    <h6 class="card-title text-success">
-                      <i class="bi bi-shield-check me-1"></i>GV Hội đồng
-                    </h6>
-                    <ul class="list-unstyled mb-1" *ngIf="chiTietDeTai.thanhVienHoiDongList?.length">
-                      <li *ngFor="let tv of chiTietDeTai.thanhVienHoiDongList" class="mb-1">
-                        <i class="bi bi-person-fill me-1"></i>{{ tv.hoTen }}
-                        <span class="badge bg-success ms-1" style="font-size: 0.7rem;">{{ tv.vaiTro }}</span>
-                        <span *ngIf="tv.diem != null" class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;">
-                          {{ tv.diem }}/10
-                        </span>
-                      </li>
-                    </ul>
-                    <p class="card-text text-muted" *ngIf="!chiTietDeTai.thanhVienHoiDongList?.length">
-                      Chưa có hội đồng
-                    </p>
-                    <div class="mt-2">
-                      <span class="fw-bold">TB:</span>
-                      <span *ngIf="chiTietDeTai.diemBaoVe != null" class="badge bg-success ms-1">
-                        {{ chiTietDeTai.diemBaoVe }}/10
-                      </span>
-                      <span *ngIf="chiTietDeTai.diemBaoVe == null" class="badge bg-secondary ms-1">
-                        Chưa chấm
-                      </span>
-                    </div>
-                  </div>
+              <div class="col-md-4">
+                <div class="info-card border-start border-4 border-success">
+                  <h6 class="text-success mb-2"><i class="bi bi-shield-check me-2"></i>GV Hội đồng</h6>
+                  <ul class="list-unstyled mb-0" *ngIf="chiTietDeTai.thanhVienHoiDongList?.length">
+                    <li *ngFor="let tv of chiTietDeTai.thanhVienHoiDongList" class="mb-1">
+                      <i class="bi bi-person-fill me-1 text-muted"></i>{{ tv.hoTen }}
+                      <span class="badge badge-success ms-1" style="font-size: 0.65rem;">{{ tv.vaiTro }}</span>
+                      <span *ngIf="tv.diem != null" class="badge badge-warning text-dark ms-1" style="font-size: 0.65rem;">{{ tv.diem }}/10</span>
+                    </li>
+                  </ul>
+                  <p class="text-muted mb-0" *ngIf="!chiTietDeTai.thanhVienHoiDongList?.length">Chưa có hội đồng</p>
                 </div>
               </div>
             </div>
@@ -347,53 +316,40 @@ import { ToastrService } from 'ngx-toastr';
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" *ngIf="chiTietBaoCao">
           <div class="modal-header bg-success text-white">
-            <h5 class="modal-title">
-              <i class="bi bi-file-earmark-text me-2"></i>Báo cáo đề tài
-            </h5>
+            <h5 class="modal-title"><i class="bi bi-file-earmark-text me-2"></i>Báo cáo đề tài</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <div class="row mb-3">
-              <div class="col-md-12">
-                <label class="fw-bold text-primary">Tên đề tài</label>
-                <p class="mb-2">{{ chiTietBaoCao.tenDeTai }}</p>
-              </div>
-            </div>
-
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label class="fw-bold text-primary">Sinh viên</label>
-                <p class="mb-1">{{ chiTietBaoCao.hoTenSinhVien }}</p>
-                <small class="text-muted">{{ chiTietBaoCao.maSinhVien }}</small>
-              </div>
-              <div class="col-md-6">
-                <label class="fw-bold text-primary">Ngày nộp</label>
-                <p class="mb-0">{{ chiTietBaoCao.ngayNop | date:'dd/MM/yyyy HH:mm' }}</p>
-              </div>
-            </div>
-
-            <hr>
-
-            <div class="row">
-              <!-- File Báo cáo -->
-              <div class="col-md-6 mb-3">
-                <div class="card h-100 border-start border-4 border-primary">
-                  <div class="card-body text-center">
-                    <h6 class="card-title text-primary">
-                      <i class="bi bi-file-earmark-pdf me-1"></i>Báo cáo
-                    </h6>
-                    <div class="mb-3">
-                      <i class="bi bi-file-earmark-text" style="font-size: 3rem; color: #dc3545;"></i>
-                    </div>
-                    <button *ngIf="chiTietBaoCao.fileBaoCao" 
-                            class="btn btn-primary" 
-                            (click)="downloadFile(chiTietBaoCao.fileBaoCao)">
-                      <i class="bi bi-download me-1"></i>Tải xuống
-                    </button>
-                    <p *ngIf="!chiTietBaoCao.fileBaoCao" class="text-muted mb-0">Chưa có file</p>
-                  </div>
+            <div class="row g-4">
+              <div class="col-12">
+                <div class="info-group">
+                  <label class="info-label">Tên đề tài</label>
+                  <p class="info-title">{{ chiTietBaoCao.tenDeTai }}</p>
                 </div>
               </div>
+              <div class="col-md-6">
+                <div class="info-group">
+                  <label class="info-label">Sinh viên</label>
+                  <p class="info-value">{{ chiTietBaoCao.hoTenSinhVien }}</p>
+                  <small class="text-muted"><code>{{ chiTietBaoCao.maSinhVien }}</code></small>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="info-group mb-0">
+                  <label class="info-label">Ngày nộp</label>
+                  <p class="info-value">{{ chiTietBaoCao.ngayNop | date:'dd/MM/yyyy HH:mm' }}</p>
+                </div>
+              </div>
+            </div>
+            <hr>
+            <div class="text-center">
+              <div class="mb-3">
+                <i class="bi bi-file-earmark-text" style="font-size: 4rem; color: var(--danger);"></i>
+              </div>
+              <button *ngIf="chiTietBaoCao.fileBaoCao" class="btn btn-success" (click)="downloadFile(chiTietBaoCao.fileBaoCao)">
+                <i class="bi bi-download me-2"></i>Tải xuống báo cáo
+              </button>
+              <p *ngIf="!chiTietBaoCao.fileBaoCao" class="text-muted mb-0">Chưa có file</p>
             </div>
           </div>
           <div class="modal-footer">
@@ -449,13 +405,6 @@ export class DeTaiBoMonComponent implements OnInit {
       }
     });
     this.boMonService.getDeTai('DAT_GVHD').subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.deTaiDangThucHien = [...this.deTaiDangThucHien, ...res.data];
-        }
-      }
-    });
-    this.boMonService.getDeTai('CHO_PHAN_BIEN').subscribe({
       next: (res) => {
         if (res.success) {
           this.deTaiDangThucHien = [...this.deTaiDangThucHien, ...res.data];
@@ -528,8 +477,6 @@ export class DeTaiBoMonComponent implements OnInit {
 
   getStatusClass(status: string): string {
     const map: any = {
-      'CHO_GV_DUYET': 'bg-warning',
-      'CHO_GV_DUYET_LAI': 'bg-warning',
       'DANG_THUC_HIEN': 'bg-info',
       'DA_NOP_BAO_CAO': 'bg-primary',
       'DAT_GVHD': 'bg-success',
@@ -538,6 +485,7 @@ export class DeTaiBoMonComponent implements OnInit {
       'DAT_PHAN_BIEN': 'bg-success',
       'KHONG_DAT_PHAN_BIEN': 'bg-danger',
       'DANG_BAO_VE': 'bg-primary',
+      'HOAN_THANH': 'bg-success',
       'KHONG_DAT_BAO_VE': 'bg-danger'
     };
     return map[status] || 'bg-secondary';
@@ -545,8 +493,6 @@ export class DeTaiBoMonComponent implements OnInit {
 
   getStatusText(status: string): string {
     const map: any = {
-      'CHO_GV_DUYET': 'Chờ GV duyệt',
-      'CHO_GV_DUYET_LAI': 'Chờ GV duyệt lại',
       'DANG_THUC_HIEN': 'Đang thực hiện',
       'DA_NOP_BAO_CAO': 'Đã nộp báo cáo',
       'DAT_GVHD': 'Đạt GVHD',
@@ -554,8 +500,8 @@ export class DeTaiBoMonComponent implements OnInit {
       'CHO_PHAN_BIEN': 'Chờ phản biện',
       'DAT_PHAN_BIEN': 'Đạt phản biện',
       'KHONG_DAT_PHAN_BIEN': 'Không đạt phản biện',
-      'DANG_BAO_VE': 'Đã gặp hội đồng',
-      'KHONG_DAT': 'Không đạt bảo vệ',
+      'DANG_BAO_VE': 'Đang bảo vệ',
+      'HOAN_THANH': 'Hoàn thành',
       'KHONG_DAT_BAO_VE': 'Không đạt bảo vệ'
     };
     return map[status] || status;

@@ -13,7 +13,7 @@ import * as XLSX from 'xlsx';
   template: `
     <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
       <div>
-        <h2>Thống kê tổng hợp</h2>
+        <h2>Thống kê danh sách đề tài</h2>
        
       </div>
       <div class="d-flex gap-2">
@@ -32,7 +32,7 @@ import * as XLSX from 'xlsx';
       <div class="card-header d-flex justify-content-between align-items-center">
         <span>Danh sách thống kê ({{ thongKeList.length }} đề tài)</span>
         <button class="btn btn-success btn-sm" (click)="exportExcel()">
-          <i class="bi bi-file-excel me-1"></i>Xuất Excel
+          <span class="material-symbols-outlined me-1">table_chart</span>Xuất Excel
         </button>
       </div>
       <div class="card-body">
@@ -73,12 +73,12 @@ import * as XLSX from 'xlsx';
                 </td>
                 <td class="text-center">
                   <button class="btn btn-outline-primary btn-sm" (click)="chiTietDeTai = dt" data-bs-toggle="modal" data-bs-target="#chiTietModal">
-                    <i class="bi bi-eye"></i>
+                    <span class="material-symbols-outlined">visibility</span>
                   </button>
                 </td>
                 <td class="text-center">
                   <button class="btn btn-outline-danger btn-sm" (click)="xoaDeTai(dt)" title="Xóa đề tài">
-                    <i class="bi bi-trash"></i>
+                    <span class="material-symbols-outlined">delete</span>
                   </button>
                 </td>
               </tr>
@@ -104,7 +104,7 @@ import * as XLSX from 'xlsx';
           <div class="modal-body">
             <!-- Thông tin sinh viên -->
             <div class="mb-4">
-              <h6 class="border-bottom pb-2 mb-3"><i class="bi bi-person me-2"></i>Sinh viên</h6>
+              <h6 class="border-bottom pb-2 mb-3"><span class="material-symbols-outlined me-2">person</span>Sinh viên</h6>
               <div class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label fw-bold">Họ tên</label>
@@ -127,7 +127,7 @@ import * as XLSX from 'xlsx';
 
             <!-- Thông tin đề tài -->
             <div class="mb-4">
-              <h6 class="border-bottom pb-2 mb-3"><i class="bi bi-journal-text me-2"></i>Đề tài</h6>
+              <h6 class="border-bottom pb-2 mb-3"><span class="material-symbols-outlined me-2">menu_book</span>Đề tài</h6>
               <div class="row g-3">
                 <div class="col-12">
                   <label class="form-label fw-bold">Tên đề tài</label>
@@ -154,7 +154,7 @@ import * as XLSX from 'xlsx';
 
             <!-- Giảng viên -->
             <div class="mb-4">
-              <h6 class="border-bottom pb-2 mb-3"><i class="bi bi-mortarboard me-2"></i>Giảng viên</h6>
+              <h6 class="border-bottom pb-2 mb-3"><span class="material-symbols-outlined me-2">school</span>Giảng viên</h6>
               <div class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label fw-bold">GV Hướng dẫn</label>
@@ -169,9 +169,9 @@ import * as XLSX from 'xlsx';
 
             <!-- Điểm số -->
             <div>
-              <h6 class="border-bottom pb-2 mb-3"><i class="bi bi-graph-up me-2"></i>Kết quả chấm điểm</h6>
+              <h6 class="border-bottom pb-2 mb-3"><span class="material-symbols-outlined me-2">analytics</span>Kết quả chấm điểm</h6>
               <div class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                   <div class="card bg-light">
                     <div class="card-body text-center">
                       <label class="form-label fw-bold d-block">Điểm Hướng dẫn</label>
@@ -179,7 +179,7 @@ import * as XLSX from 'xlsx';
                     </div>
                   </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                   <div class="card bg-light">
                     <div class="card-body text-center">
                       <label class="form-label fw-bold d-block">Điểm Phản biện</label>
@@ -187,11 +187,21 @@ import * as XLSX from 'xlsx';
                     </div>
                   </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                   <div class="card bg-light">
                     <div class="card-body text-center">
                       <label class="form-label fw-bold d-block">Điểm Bảo vệ</label>
-                      <h3 class="mb-0 text-warning">{{ chiTietDeTai.diemBaoVe || '-' }}</h3>
+                      <div *ngFor="let tv of chiTietDeTai.thanhVienHoiDongList" class="d-flex justify-content-center gap-3">
+                        <span>{{ getVaiTroLabel(tv.vaiTro) }}: <strong>{{ tv.diem ?? '-' }}</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="card bg-light">
+                    <div class="card-body text-center">
+                      <label class="form-label fw-bold d-block">Tổng Bảo vệ</label>
+                      <h3 class="mb-0 text-warning">{{ chiTietDeTai.diemTongBaoVe || '-' }}</h3>
                     </div>
                   </div>
                 </div>
@@ -321,6 +331,16 @@ export class ThongKeComponent implements OnInit {
       'KHONG_DAT_BAO_VE': 'Không đạt bảo vệ'
     };
     return statusMap[trangThai] || trangThai;
+  }
+
+  getVaiTroLabel(vaiTro: string | undefined): string {
+    const vaiTroMap: { [key: string]: string } = {
+      'CHU_TICH': 'Chủ tịch',
+      'THU_KY': 'Thư ký',
+      'UY_VIEN': 'Ủy viên',
+      'PHAN_BIEN': 'Phản biện'
+    };
+    return vaiTro ? (vaiTroMap[vaiTro] || vaiTro) : '-';
   }
 
   exportExcel(): void {

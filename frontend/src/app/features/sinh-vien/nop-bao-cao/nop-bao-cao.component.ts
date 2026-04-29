@@ -12,28 +12,37 @@ import { AuthService } from '../../../core/services/auth.service';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
-      <h2>Nộp báo cáo</h2>
-    
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-primary-subtle">
+          <i class="bi bi-file-earmark-arrow-up text-primary"></i>
+        </div>
+        <div>
+          <h2>Nộp báo cáo</h2>
+          <p class="mb-0">Nộp báo cáo cuối kỳ cho đồ án</p>
+        </div>
+      </div>
     </div>
 
     <div *ngIf="!deTaiCuaToi" class="alert alert-warning">
-      Bạn chưa đăng ký đề tài hoặc đề tài chưa được duyệt.
+      <i class="bi bi-exclamation-triangle me-2"></i>Bạn chưa đăng ký đề tài hoặc đề tài chưa được duyệt.
     </div>
 
     <div *ngIf="deTaiCuaToi" class="card">
       <div class="card-body">
         <div *ngIf="deTaiCuaToi && deTaiCuaToi.trangThai === 'DANG_THUC_HIEN' && !baoCao">
-          <div class="alert alert-warning">
+          <div class="alert alert-info mb-4">
+            <i class="bi bi-info-circle me-2"></i>
             <strong>Lưu ý:</strong> Bạn chỉ được nộp báo cáo một lần duy nhất. Vui lòng kiểm tra kỹ trước khi nộp.
           </div>
 
           <form (ngSubmit)="nopBaoCao()">
-            <div class="mb-3">
-              <label class="form-label">File báo cáo (Word) *</label>
+            <div class="mb-4">
+              <label class="form-label">File báo cáo (Word) <span class="text-danger">*</span></label>
               <input type="file" class="form-control" (change)="onFileChange($event)" accept=".doc,.docx" required>
-              <small class="text-muted">Chấp nhận file .doc, .docx</small>
+              <small class="text-muted d-block mt-1">Chấp nhận file .doc, .docx</small>
             </div>
             <button type="submit" class="btn btn-primary" [disabled]="!fileBaoCao || isSubmitting">
+              <i class="bi bi-upload me-2"></i>
               <span *ngIf="isSubmitting">Đang nộp...</span>
               <span *ngIf="!isSubmitting">Nộp báo cáo</span>
             </button>
@@ -41,36 +50,35 @@ import { AuthService } from '../../../core/services/auth.service';
         </div>
 
         <div *ngIf="deTaiCuaToi && deTaiCuaToi.trangThai === 'DA_NOP_BAO_CAO' && baoCao" class="alert alert-success">
+          <i class="bi bi-check-circle-fill me-2"></i>
           <strong>Đã nộp báo cáo!</strong> File của bạn đã được nộp thành công. Vui lòng chờ GVHD chấm điểm.
         </div>
 
         <div *ngIf="baoCao" class="mt-4">
-          <h5>Thông tin báo cáo đã nộp</h5>
+          <h5 class="mb-4"><i class="bi bi-file-earmark-text me-2"></i>Thông tin báo cáo đã nộp</h5>
           <table class="table table-bordered">
-            <tr>
-              <th width="30%">Ngày nộp:</th>
-              <td>{{ baoCao.ngayNop | date:'dd/MM/yyyy HH:mm' }}</td>
-            </tr>
-            <tr>
-              <th>Trạng thái:</th>
-              <td><span class="badge bg-success">Đã nộp</span></td>
-            </tr>
-            <tr>
-              <th>Tên đề tài:</th>
-              <td>{{ baoCao.tenDeTai }}</td>
-            </tr>
+            <tbody>
+              <tr>
+                <th width="30%" class="bg-light">Ngày nộp:</th>
+                <td>{{ baoCao.ngayNop | date:'dd/MM/yyyy HH:mm' }}</td>
+              </tr>
+              <tr>
+                <th class="bg-light">Trạng thái:</th>
+                <td><span class="badge badge-success">Đã nộp</span></td>
+              </tr>
+              <tr>
+                <th class="bg-light">Tên đề tài:</th>
+                <td>{{ baoCao.tenDeTai }}</td>
+              </tr>
+            </tbody>
           </table>
 
-          <div class="mt-3">
-            <h6>Tài liệu đã nộp:</h6>
-            <div class="d-flex gap-2 flex-wrap">
-              <button *ngIf="baoCao.fileBaoCao" (click)="downloadFile(baoCao.fileBaoCao)" class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-download me-1"></i> Tải báo cáo
-              </button>
-            </div>
+          <div class="mt-4" *ngIf="baoCao.fileBaoCao">
+            <h6 class="mb-3"><i class="bi bi-paperclip me-2"></i>Tài liệu đã nộp:</h6>
+            <button (click)="downloadFile(baoCao.fileBaoCao)" class="btn btn-outline-primary">
+              <i class="fas fa-download me-2"></i>Tải báo cáo
+            </button>
           </div>
-
-          
         </div>
       </div>
     </div>

@@ -25,6 +25,9 @@ public interface DiemBaoVeRepository extends JpaRepository<DiemBaoVe, Long> {
     @Query("SELECT ROUND(AVG(d.diem), 2) FROM DiemBaoVe d WHERE d.hoiDong.id = :hoiDongId AND d.diem IS NOT NULL")
     BigDecimal calculateAverageDiemByHoiDongId(@Param("hoiDongId") Long hoiDongId);
 
+    @Query("SELECT COALESCE(SUM(d.diem), 0) FROM DiemBaoVe d WHERE d.hoiDong.id = :hoiDongId AND d.diem IS NOT NULL")
+    BigDecimal calculateSumDiemByHoiDongId(@Param("hoiDongId") Long hoiDongId);
+
     @Query("SELECT COUNT(d) FROM DiemBaoVe d WHERE d.hoiDong.id = :hoiDongId AND d.trangThai = 'CHUA_CHAM'")
     long countChuaChamByHoiDongId(@Param("hoiDongId") Long hoiDongId);
 }

@@ -27,13 +27,13 @@ import { ToastrService } from 'ngx-toastr';
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span>
-          <i class="bi bi-send me-1"></i>Danh sách đăng ký chờ gửi Bộ môn
+          <span class="material-symbols-outlined me-1">send</span>Danh sách đăng ký chờ gửi Bộ môn
           <span class="badge bg-primary ms-2">{{ deTaiList.length }}</span>
         </span>
         <button *ngIf="selectedDeTais.length > 0"
                 class="btn btn-primary btn-sm"
                 (click)="guiLenBoMon()">
-          <i class="bi bi-send me-1"></i>Gửi {{ selectedDeTais.length }} đăng ký lên Bộ môn
+          <span class="material-symbols-outlined me-1">send</span>Gửi {{ selectedDeTais.length }} đăng ký lên Bộ môn
         </button>
       </div>
       <div class="card-body">
@@ -72,7 +72,7 @@ import { ToastrService } from 'ngx-toastr';
                 <td>{{ dt.tenBoMon }}</td>
                 <td class="text-center">
                   <button class="btn btn-outline-primary btn-sm" (click)="chiTietDeTai = dt" data-bs-toggle="modal" data-bs-target="#chiTietModal">
-                    <i class="bi bi-eye"></i>
+                    <span class="material-symbols-outlined">visibility</span>
                   </button>
                 </td>
               </tr>

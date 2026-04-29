@@ -12,40 +12,61 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
-      <h2>Thành lập hội đồng bảo vệ</h2>
-
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-success-subtle">
+          <i class="bi bi-people-fill text-success"></i>
+        </div>
+        <div>
+          <h2>Thành lập hội đồng bảo vệ</h2>
+          <p class="mb-0">Thiết lập hội đồng cho sinh viên bảo vệ</p>
+        </div>
+      </div>
     </div>
 
-    <div class="card mb-4">
-     
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table">
+    <div class="card">
+      <div class="card-body p-0">
+        <div *ngIf="svDatPB.length === 0" class="alert alert-info m-4">
+          <i class="bi bi-info-circle me-2"></i>Không có sinh viên đủ điều kiện
+        </div>
+
+        <div class="table-responsive" *ngIf="svDatPB.length > 0">
+          <table class="table table-hover mb-0">
             <thead>
               <tr>
-                <th>STT</th>
+                <th class="text-center" style="width: 60px">STT</th>
                 <th>Sinh viên</th>
                 <th>Đề tài</th>
-                <th>GVHD</th>
-                <th>GVPB</th>
-                <th>Thao tác</th>
+                <th style="width: 160px">GVHD</th>
+                <th style="width: 160px">GVPB</th>
+                <th style="width: 120px" class="text-center">Thao tác</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let dt of svDatPB; let i = index">
-                <td>{{ i + 1 }}</td>
-                <td>{{ dt.hoTenSinhVien }}</td>
-                <td>{{ dt.tenDeTai }}</td>
-                <td>{{ dt.hoTenGiangVienHuongDan || '-' }}</td>
-                <td>{{ dt.hoTenGiangVienPhanBien || '-' }}</td>
+              <tr *ngFor="let dt of svDatPB; let i = index" class="align-middle">
+                <td class="text-center">
+                  <span class="stt-badge">{{ i + 1 }}</span>
+                </td>
+                <td><strong>{{ dt.hoTenSinhVien }}</strong></td>
                 <td>
+                  <span class="text-truncate d-inline-block" style="max-width: 250px">{{ dt.tenDeTai }}</span>
+                </td>
+                <td>
+                  <span *ngIf="dt.hoTenGiangVienHuongDan; else noGvhd" class="text-muted">
+                    <i class="bi bi-person me-1"></i>{{ dt.hoTenGiangVienHuongDan }}
+                  </span>
+                  <ng-template #noGvhd><span class="text-muted fst-italic">-</span></ng-template>
+                </td>
+                <td>
+                  <span *ngIf="dt.hoTenGiangVienPhanBien; else noGvpb" class="text-muted">
+                    <i class="bi bi-person me-1"></i>{{ dt.hoTenGiangVienPhanBien }}
+                  </span>
+                  <ng-template #noGvpb><span class="text-muted fst-italic">-</span></ng-template>
+                </td>
+                <td class="text-center">
                   <button class="btn btn-sm btn-primary" (click)="showHoiDongModal(dt)">
-                    Lập HĐ
+                    <i class="bi bi-plus-circle me-1"></i>Lập HĐ
                   </button>
                 </td>
-              </tr>
-              <tr *ngIf="svDatPB.length === 0">
-                <td colspan="6" class="text-center text-muted">Không có sinh viên đủ điều kiện</td>
               </tr>
             </tbody>
           </table>
@@ -54,20 +75,22 @@ import { ToastrService } from 'ngx-toastr';
     </div>
 
     <!-- Modal -->
-    <div class="modal show d-block" *ngIf="showModal" tabindex="-1" style="background: rgba(0,0,0,0.5);">
-      <div class="modal-dialog modal-lg">
+    <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+      <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Thành lập hội đồng</h5>
+            <h5 class="modal-title"><i class="bi bi-people me-2"></i>Thành lập hội đồng</h5>
             <button type="button" class="btn-close" (click)="closeModal()"></button>
           </div>
           <div class="modal-body">
-            <p><strong>Sinh viên:</strong> {{ selectedDeTai?.hoTenSinhVien }}</p>
-            <p><strong>Đề tài:</strong> {{ selectedDeTai?.tenDeTai }}</p>
-            
-            <div class="row mb-3">
+            <div class="alert alert-info mb-4">
+              <strong>Sinh viên:</strong> {{ selectedDeTai?.hoTenSinhVien }}<br>
+              <strong>Đề tài:</strong> {{ selectedDeTai?.tenDeTai }}
+            </div>
+
+            <div class="row g-3 mb-4">
               <div class="col-md-6">
-                <label class="form-label">Ngày bảo vệ</label>
+                <label class="form-label">Ngày bảo vệ <span class="text-danger">*</span></label>
                 <input type="date" class="form-control" [(ngModel)]="formData.ngayBaoVe">
               </div>
               <div class="col-md-6">
@@ -76,8 +99,8 @@ import { ToastrService } from 'ngx-toastr';
               </div>
             </div>
 
-            <h6>Thành viên hội đồng (3 người)</h6>
-            <div *ngFor="let tv of thanhVien; let i = index" class="row mb-2">
+            <h6 class="mb-3"><i class="bi bi-persons me-2"></i>Thành viên hội đồng (3 người)</h6>
+            <div *ngFor="let tv of thanhVien; let i = index" class="row g-3 mb-3">
               <div class="col-md-8">
                 <select class="form-select" [(ngModel)]="tv.giangVienId">
                   <option [value]="null">Chọn giảng viên</option>
@@ -97,7 +120,9 @@ import { ToastrService } from 'ngx-toastr';
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" (click)="closeModal()">Hủy</button>
-            <button type="button" class="btn btn-primary" (click)="taoHoiDong()">Tạo hội đồng</button>
+            <button type="button" class="btn btn-primary" (click)="taoHoiDong()">
+              <i class="bi bi-check2 me-1"></i>Tạo hội đồng
+            </button>
           </div>
         </div>
       </div>

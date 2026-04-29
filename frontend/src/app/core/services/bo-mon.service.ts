@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiResponse, DeTaiResponse, GiangVienResponse, SinhVienResponse, PhanCongHuongDanResponse, PhanCongPhanBienResponse, HoiDongBaoVeResponse, BoMonResponse, BaoCaoResponse, DotBaoCaoTienDoResponse, ThongKePhanCongResponse } from '../models/models';
+import { ApiResponse, DeTaiResponse, GiangVienResponse, SinhVienResponse, PhanCongHuongDanResponse, PhanCongPhanBienResponse, HoiDongBaoVeResponse, BoMonResponse, BaoCaoResponse, DotBaoCaoTienDoResponse, ThongKePhanCongResponse, QuanLyDiemResponse } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -75,6 +75,10 @@ export class BoMonService {
     return this.http.get<ApiResponse<PhanCongHuongDanResponse[]>>(`${this.apiUrl}/de-tai/cho-gv-duyet`);
   }
 
+  getDanhSachGvhd(): Observable<ApiResponse<PhanCongHuongDanResponse[]>> {
+    return this.http.get<ApiResponse<PhanCongHuongDanResponse[]>>(`${this.apiUrl}/danh-sach-gvhd`);
+  }
+
   phanCongPhanBien(deTaiId: number, giangVienId: number): Observable<ApiResponse<PhanCongPhanBienResponse>> {
     return this.http.post<ApiResponse<PhanCongPhanBienResponse>>(`${this.apiUrl}/phan-cong-phan-bien`, {
       deTaiId,
@@ -141,5 +145,9 @@ export class BoMonService {
 
   getThongKePhanCong(): Observable<ApiResponse<ThongKePhanCongResponse>> {
     return this.http.get<ApiResponse<ThongKePhanCongResponse>>(`${this.apiUrl}/thong-ke-phan-cong`);
+  }
+
+  getQuanLyDiem(): Observable<ApiResponse<QuanLyDiemResponse[]>> {
+    return this.http.get<ApiResponse<QuanLyDiemResponse[]>>(`${this.apiUrl}/quan-ly-diem`);
   }
 }

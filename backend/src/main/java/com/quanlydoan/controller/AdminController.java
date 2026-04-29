@@ -191,4 +191,11 @@ public class AdminController {
             @RequestParam(required = false) Long boMonId) {
         return ResponseEntity.ok(ApiResponse.success(adminService.getThongKeTongHop(dotDangKyId, boMonId)));
     }
+
+    // Quản lý điểm
+    @GetMapping("/quan-ly-diem")
+    public ResponseEntity<ApiResponse<List<QuanLyDiemResponse>>> getQuanLyDiem(
+            @RequestParam(required = false) Long boMonId) {
+        return ResponseEntity.ok(ApiResponse.success(adminService.getQuanLyDiem(boMonId)));
+    }
 }

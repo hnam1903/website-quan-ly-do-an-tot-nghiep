@@ -28,6 +28,7 @@ public class PhanCongHuongDanResponse {
     private String maSinhVien;
     private String lopSinhVien;
     private String tenBoMon;
+    private String deTaiTrangThai;
     private Boolean daChamDiem;
     private BigDecimal diemCham;
     private String nhanXetCham;

@@ -19,8 +19,7 @@ public class ThongKeDiemResponse {
     private double diemHuongDanTrungBinh;
     private double diemPhanBienTrungBinh;
     private double diemBaoVeTrungBinh;
-    private double diemTongKetTrungBinh;
-    
+
     private double diemHuongDanCaoNhat;
     private double diemPhanBienCaoNhat;
     private double diemBaoVeCaoNhat;

@@ -1,22 +1,24 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="login-page">
       <div class="login-panel">
         <div class="logo-wrap" aria-hidden="true">
-          <img src="/assets/images/Picture1.png" alt="Logo" class="logo-img" />
+          <a routerLink="/">
+            <img src="/assets/images/Picture1.png" alt="Logo" class="logo-img" />
+          </a>
         </div>
 
         <h1 class="uni-name">Trường Đại học Mỏ Địa Chất</h1>
-     
+        <p class="system-name">Hệ thống Quản lý Đồ án Tốt nghiệp</p>
 
         <form (ngSubmit)="onLogin()">
           <input
@@ -40,8 +42,6 @@ import { AuthService } from '../../../core/services/auth.service';
             placeholder="Mật khẩu"
             required
           />
-
-        
 
           <div *ngIf="errorMessage" class="alert-error">{{ errorMessage }}</div>
 
@@ -113,7 +113,7 @@ export class LoginComponent {
         this.router.navigate(['/admin']);
         break;
       case 'LANH_DAO_BO_MON':
-        this.router.navigate(['/bo-mon']);
+        this.router.navigate(['/bo-mon/ld-dashboard']);
         break;
       case 'GIANG_VIEN':
         this.router.navigate(['/giang-vien']);

@@ -5,7 +5,11 @@ import { roleGuard } from './core/guards/role.guard';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'login',
+    loadComponent: () => import('./features/landing-page/landing-page.component').then(m => m.LandingPageComponent)
+  },
+  {
+    path: 'landing',
+    redirectTo: '/',
     pathMatch: 'full'
   },
   {
@@ -26,7 +30,9 @@ export const routes: Routes = [
       { path: 'bo-mon', loadComponent: () => import('./features/admin/bo-mon/bo-mon.component').then(m => m.BoMonComponent) },
       { path: 'giang-vien', loadComponent: () => import('./features/admin/giang-vien/giang-vien.component').then(m => m.GiangVienComponent) },
       { path: 'sinh-vien', loadComponent: () => import('./features/admin/sinh-vien/sinh-vien.component').then(m => m.SinhVienComponent) },
-      { path: 'thong-ke', loadComponent: () => import('./features/admin/thong-ke/thong-ke.component').then(m => m.ThongKeComponent) }
+      { path: 'thong-bao', loadComponent: () => import('./features/admin/thong-bao/thong-bao.component').then(m => m.ThongBaoComponent) },
+      { path: 'thong-ke', loadComponent: () => import('./features/admin/thong-ke/thong-ke.component').then(m => m.ThongKeComponent) },
+      { path: 'quan-ly-diem', loadComponent: () => import('./features/admin/quan-ly-diem/quan-ly-diem.component').then(m => m.QuanLyDiemComponent) }
     ]
   },
   {
@@ -45,6 +51,7 @@ export const routes: Routes = [
       { path: 'phan-cong', loadComponent: () => import('./features/bo-mon/phan-cong/phan-cong.component').then(m => m.PhanCongComponent) },
       { path: 'danh-sach-gvhd', loadComponent: () => import('./features/bo-mon/danh-sach-gvhd/danh-sach-gvhd.component').then(m => m.DanhSachGvhdComponent) },
       { path: 'danh-sach-gvpb', loadComponent: () => import('./features/bo-mon/danh-sach-gvpb/danh-sach-gvpb.component').then(m => m.DanhSachGvpbComponent) },
+      { path: 'quan-ly-diem', loadComponent: () => import('./features/bo-mon/quan-ly-diem/quan-ly-diem.component').then(m => m.QuanLyDiemBoMonComponent) },
       { path: 'hoi-dong', redirectTo: 'hoi-dong/thanh-lap', pathMatch: 'full' },
       {
         path: 'hoi-dong',

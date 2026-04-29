@@ -11,105 +11,77 @@ import { ActivatedRoute } from '@angular/router';
   imports: [CommonModule],
   template: `
     <!-- Page Header -->
-    <div class="dsdd-header">
-      <div class="header-content">
-        <h2 class="header-title">
-          <i class="bi bi-calendar3"></i>
-          Quản lý đợt đăng ký
-        </h2>
-        <p class="header-subtitle">Quản lý và theo dõi sinh viên đăng ký theo từng đợt</p>
-      </div>
-      <div class="header-stats" *ngIf="dotList.length > 0">
-        <div class="stat-item">
-          <span class="stat-label">Tổng đợt</span>
-          <span class="stat-value">{{ dotList.length }}</span>
+    <div class="page-header">
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-info-subtle">
+          <span class="material-symbols-outlined">event</span>
         </div>
-        <div class="stat-item">
-          <span class="stat-label">Đang mở</span>
-          <span class="stat-value text-success">{{ getOpenCount() }}</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-label">Đã kết thúc</span>
-          <span class="stat-value text-muted">{{ getClosedCount() }}</span>
+        <div>
+          <h2>Danh sách đợt đăng ký</h2>
+          <p class="mb-0">Quản lý và theo dõi sinh viên đăng ký theo từng đợt</p>
         </div>
       </div>
     </div>
 
     <!-- Main Content -->
-    <div class="dsdd-container">
+    <div class="container-fluid">
       <!-- Batch List Section -->
-      <section class="section batch-section">
-        <div class="section-header">
-          <h3>
-            <i class="bi bi-list-ul"></i>
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>
+            <span class="material-symbols-outlined me-1">list</span>
             Danh sách các đợt đăng ký
-          </h3>
-          <span class="badge bg-primary">{{ dotList.length }} đợt</span>
+            <span class="badge bg-primary ms-2">{{ dotList.length }} đợt</span>
+          </span>
         </div>
-
-        <div class="card batch-card">
-          <div class="table-wrapper">
-            <table class="table batch-table">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
               <thead>
                 <tr>
-                  <th class="col-stt">STT</th>
-                  <th class="col-name">Tên đợt</th>
-                  <th class="col-year">Năm học</th>
-                  <th class="col-semester">Học kỳ</th>
-                  <th class="col-date">Ngày bắt đầu</th>
-                  <th class="col-date">Ngày kết thúc</th>
-                  <th class="col-status">Trạng thái</th>
-                  <th class="col-action">Thao tác</th>
+                  <th class="text-center" style="width: 60px">STT</th>
+                  <th>Tên đợt</th>
+                  <th style="width: 120px">Năm học</th>
+                  <th style="width: 100px">Học kỳ</th>
+                  <th style="width: 130px">Ngày bắt đầu</th>
+                  <th style="width: 130px">Ngày kết thúc</th>
+                  <th style="width: 120px">Trạng thái</th>
+                  <th style="width: 100px">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 @if (dotList.length === 0) {
                   <tr>
-                    <td colspan="8" class="empty-state">
-                      <div class="empty-content">
-                        <i class="bi bi-calendar-x empty-icon"></i>
-                        <p>Chưa có đợt đăng ký nào</p>
+                    <td colspan="8" class="text-center py-5">
+                      <div class="empty-state">
+                        <span class="material-symbols-outlined fs-1 d-block mb-3">event_busy</span>
+                        <p class="mb-1 fw-semibold">Chưa có đợt đăng ký nào</p>
                         <small class="text-muted">Vui lòng tạo đợt đăng ký mới</small>
                       </div>
                     </td>
                   </tr>
                 } @else {
-@for (dot of dotList; track dot.id; let i = $index) {
-  <tr
-    [class.selected]="selectedDot?.id === dot.id"
-    (click)="selectDot(dot)"
-    [attr.aria-current]="selectedDot?.id === dot.id ? 'page' : null"
-  >
-    <td class="text-center">
-      <span class="stt-badge">{{ i + 1 }}</span>
-    </td>
-                      <td>
-                        <div class="dot-name">
-                          <strong>{{ dot.tenDot }}</strong>
-                        </div>
+                  @for (dot of dotList; track dot.id; let i = $index) {
+                    <tr [class.table-active]="selectedDot?.id === dot.id" (click)="selectDot(dot)" style="cursor: pointer;">
+                      <td class="text-center">
+                        <span class="stt-badge">{{ i + 1 }}</span>
                       </td>
                       <td>
-                        <span class="year-tag">{{ dot.namHoc }}</span>
+                        <strong class="text-dark">{{ dot.tenDot }}</strong>
                       </td>
+                      <td>{{ dot.namHoc }}</td>
+                      <td>{{ getHocKyText(dot.hocKy) }}</td>
+                      <td>{{ dot.ngayBatDau | date:'dd/MM/yyyy' }}</td>
+                      <td>{{ dot.ngayKetThuc | date:'dd/MM/yyyy' }}</td>
                       <td>
-                        <span class="semester-tag">{{ getHocKyText(dot.hocKy) }}</span>
-                      </td>
-                      <td>
-                        <span class="date-text">{{ dot.ngayBatDau | date:'dd/MM/yyyy' }}</span>
-                      </td>
-                      <td>
-                        <span class="date-text">{{ dot.ngayKetThuc | date:'dd/MM/yyyy' }}</span>
-                      </td>
-                      <td>
-                        <span [class]="getStatusClass(dot.trangThai)" class="status-badge">
-                          <i class="bi" [class]="dot.trangThai === 'DANG_MO' ? 'bi-circle-fill' : 'bi-circle'"></i>
+                        <span [class]="getStatusClass(dot.trangThai)" class="badge">
+                          <span class="material-symbols-outlined" style="font-size: 14px;">{{ dot.trangThai === 'DANG_MO' ? 'check_circle' : 'schedule' }}</span>
                           {{ dot.trangThai === 'DANG_MO' ? 'Đang mở' : 'Đã kết thúc' }}
                         </span>
                       </td>
                       <td>
-                        <button class="btn-action btn-view" (click)="selectDot(dot); $event.stopPropagation()" title="Xem danh sách sinh viên">
-                          <i class="bi bi-eye"></i>
-                          <span>Xem</span>
+                        <button class="btn btn-sm btn-outline-primary btn-icon" (click)="selectDot(dot); $event.stopPropagation()" title="Xem danh sách sinh viên">
+                          <span class="material-symbols-outlined">visibility</span>
                         </button>
                       </td>
                     </tr>
@@ -119,173 +91,148 @@ import { ActivatedRoute } from '@angular/router';
             </table>
           </div>
         </div>
-      </section>
+      </div>
 
       <!-- Student Lists Section -->
       @if (selectedDot && svData) {
-        <section class="section student-section animate-fade-in">
-          <!-- Section Header -->
-          <div class="student-section-header">
-            <div class="selected-info">
-              <h3>
-                <i class="bi bi-people-fill"></i>
-                Danh sách sinh viên
-              </h3>
-              <div class="selected-batch">
-                <span class="batch-label">Đợt:</span>
-                <span class="batch-name">{{ selectedDot.tenDot }}</span>
-                <span class="batch-meta">
-                  {{ selectedDot.namHoc }} · {{ getHocKyText(selectedDot.hocKy) }}
-                </span>
-              </div>
+        <div class="card animate-fade-in">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+              <span class="material-symbols-outlined text-primary">group</span>
+              <span>Danh sách sinh viên - <strong>{{ selectedDot.tenDot }}</strong></span>
             </div>
-            <button class="btn-close-section" (click)="clearSelection()" title="Đóng">
-              <i class="bi bi-x-lg"></i>
+            <button class="btn btn-sm btn-outline-secondary btn-icon" (click)="clearSelection()" title="Đóng">
+              <span class="material-symbols-outlined">close</span>
             </button>
           </div>
-
-          <!-- Summary Cards -->
-          <div class="summary-cards">
-            <div class="summary-card total-card">
-              <div class="card-icon">
-                <i class="bi bi-people"></i>
+          <div class="card-body">
+            <!-- Summary Cards -->
+            <div class="summary-cards mb-4">
+              <div class="summary-card total-card">
+                <div class="card-icon">
+                  <span class="material-symbols-outlined">groups</span>
+                </div>
+                <div class="card-content">
+                  <span class="card-label">Tổng số sinh viên</span>
+                  <span class="card-value">{{ svData.tongSoSinhVien }}</span>
+                </div>
               </div>
-              <div class="card-content">
-                <span class="card-label">Tổng số sinh viên</span>
-                <span class="card-value">{{ svData.tongSoSinhVien }}</span>
+
+              <div class="summary-card registered-card">
+                <div class="card-icon">
+                  <span class="material-symbols-outlined">check_circle</span>
+                </div>
+                <div class="card-content">
+                  <span class="card-label">Đã đăng ký</span>
+                  <span class="card-value">{{ svData.soLuongDaDangKy }}</span>
+                  <span class="card-percent">{{ getPercentRegistered() }}%</span>
+                </div>
+              </div>
+
+              <div class="summary-card unregistered-card">
+                <div class="card-icon">
+                  <span class="material-symbols-outlined">schedule</span>
+                </div>
+                <div class="card-content">
+                  <span class="card-label">Chưa đăng ký</span>
+                  <span class="card-value">{{ svData.soLuongChuaDangKy }}</span>
+                  <span class="card-percent">{{ getPercentUnregistered() }}%</span>
+                </div>
               </div>
             </div>
 
-            <div class="summary-card registered-card">
-              <div class="card-icon">
-                <i class="bi bi-check-circle"></i>
+            <!-- Student Tables -->
+            <div class="row g-4">
+              <!-- Registered Students -->
+              <div class="col-md-6">
+                <div class="table-card registered">
+                  <div class="table-card-header">
+                    <h4>
+                      <span class="material-symbols-outlined text-success me-2">task_alt</span>
+                      Sinh viên đã đăng ký
+                    </h4>
+                    <span class="count-badge">{{ svData.sinhVienDaDangKy.length }}</span>
+                  </div>
+                  <div class="table-card-body">
+                    @if (svData.sinhVienDaDangKy.length === 0) {
+                      <div class="empty-table">
+                        <span class="material-symbols-outlined">inbox</span>
+                        <p>Chưa có sinh viên đăng ký</p>
+                      </div>
+                    } @else {
+                      <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th class="text-center" style="width: 50px">#</th>
+                            <th>Mã SV</th>
+                            <th>Họ tên</th>
+                            <th>Lớp</th>
+                            <th>Bộ môn</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (sv of svData.sinhVienDaDangKy; track sv.id; let i = $index) {
+                            <tr>
+                              <td class="text-center">{{ i + 1 }}</td>
+                              <td><code>{{ sv.maSinhVien }}</code></td>
+                              <td>{{ sv.hoTen }}</td>
+                              <td>{{ sv.lop || '-' }}</td>
+                              <td>{{ sv.tenBoMon || 'Chưa phân' }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    }
+                  </div>
+                </div>
               </div>
-              <div class="card-content">
-                <span class="card-label">Đã đăng ký</span>
-                <span class="card-value">{{ svData.soLuongDaDangKy }}</span>
-                <span class="card-percent">{{ getPercentRegistered() }}%</span>
-              </div>
-            </div>
 
-            <div class="summary-card unregistered-card">
-              <div class="card-icon">
-                <i class="bi bi-clock-history"></i>
-              </div>
-              <div class="card-content">
-                <span class="card-label">Chưa đăng ký</span>
-                <span class="card-value">{{ svData.soLuongChuaDangKy }}</span>
-                <span class="card-percent">{{ getPercentUnregistered() }}%</span>
+              <!-- Unregistered Students -->
+              <div class="col-md-6">
+                <div class="table-card unregistered">
+                  <div class="table-card-header">
+                    <h4>
+                      <span class="material-symbols-outlined text-warning me-2">warning</span>
+                      Sinh viên chưa đăng ký
+                    </h4>
+                    <span class="count-badge">{{ svData.sinhVienChuaDangKy.length }}</span>
+                  </div>
+                  <div class="table-card-body">
+                    @if (svData.sinhVienChuaDangKy.length === 0) {
+                      <div class="empty-table success">
+                        <span class="material-symbols-outlined">done_all</span>
+                        <p>Tất cả sinh viên đã đăng ký!</p>
+                      </div>
+                    } @else {
+                      <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th class="text-center" style="width: 50px">#</th>
+                            <th>Mã SV</th>
+                            <th>Họ tên</th>
+                            <th>Lớp</th>
+                            <th>Bộ môn</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (sv of svData.sinhVienChuaDangKy; track sv.id; let i = $index) {
+                            <tr>
+                              <td class="text-center">{{ i + 1 }}</td>
+                              <td><code>{{ sv.maSinhVien }}</code></td>
+                              <td>{{ sv.hoTen }}</td>
+                              <td>{{ sv.lop || '-' }}</td>
+                              <td>{{ sv.tenBoMon || 'Chưa phân' }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    }
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
-          <!-- Student Tables -->
-          <div class="tables-grid">
-            <!-- Registered Students -->
-            <div class="table-card registered">
-              <div class="table-card-header">
-                <div class="header-left">
-                  <i class="bi bi-check-circle-fill"></i>
-                  <h4>Sinh viên đã đăng ký</h4>
-                </div>
-                <span class="count-badge">{{ svData.sinhVienDaDangKy.length }}</span>
-              </div>
-              <div class="table-card-body">
-                @if (svData.sinhVienDaDangKy.length === 0) {
-                  <div class="empty-table">
-                    <i class="bi bi-inbox"></i>
-                    <p>Chưa có sinh viên đăng ký</p>
-                  </div>
-                } @else {
-                  <table class="table student-table">
-                    <thead>
-                      <tr>
-                        <th class="col-number">#</th>
-                        <th>Mã sinh viên</th>
-                        <th>Họ tên</th>
-                        <th>Lớp</th>
-                        <th>Bộ môn</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-@for (sv of svData.sinhVienDaDangKy; track sv.id; let i = $index) {
-  <tr>
-    <td class="text-center">
-      <span class="row-number">{{ i + 1 }}</span>
-    </td>
-                          <td>
-                            <span class="student-id">{{ sv.maSinhVien }}</span>
-                          </td>
-                          <td>
-                            <span class="student-name">{{ sv.hoTen }}</span>
-                          </td>
-                          <td>
-                            <span class="student-class">{{ sv.lop || '-' }}</span>
-                          </td>
-                          <td>
-                            <span class="department-tag">{{ sv.tenBoMon || 'Chưa phân bộ' }}</span>
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                }
-              </div>
-            </div>
-
-            <!-- Unregistered Students -->
-            <div class="table-card unregistered">
-              <div class="table-card-header">
-                <div class="header-left">
-                  <i class="bi bi-exclamation-circle-fill"></i>
-                  <h4>Sinh viên chưa đăng ký</h4>
-                </div>
-                <span class="count-badge">{{ svData.sinhVienChuaDangKy.length }}</span>
-              </div>
-              <div class="table-card-body">
-                @if (svData.sinhVienChuaDangKy.length === 0) {
-                  <div class="empty-table success">
-                    <i class="bi bi-check-all"></i>
-                    <p>Tất cả sinh viên đã đăng ký!</p>
-                  </div>
-                } @else {
-                  <table class="table student-table">
-                    <thead>
-                      <tr>
-                        <th class="col-number">#</th>
-                        <th>Mã sinh viên</th>
-                        <th>Họ tên</th>
-                        <th>Lớp</th>
-                        <th>Bộ môn</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-@for (sv of svData.sinhVienChuaDangKy; track sv.id; let i = $index) {
-  <tr>
-    <td class="text-center">
-      <span class="row-number">{{ i + 1 }}</span>
-    </td>
-                          <td>
-                            <span class="student-id">{{ sv.maSinhVien }}</span>
-                          </td>
-                          <td>
-                            <span class="student-name">{{ sv.hoTen }}</span>
-                          </td>
-                          <td>
-                            <span class="student-class">{{ sv.lop || '-' }}</span>
-                          </td>
-                          <td>
-                            <span class="department-tag">{{ sv.tenBoMon || 'Chưa phân bộ' }}</span>
-                          </td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                }
-              </div>
-            </div>
-          </div>
-        </section>
+        </div>
       }
 
       <!-- Loading Overlay -->
@@ -298,7 +245,7 @@ import { ActivatedRoute } from '@angular/router';
     </div>
   `,
   styles: [`
-    /* 所有样式已移至全局 styles.scss，使用 .dsdd- 前缀 */
+    :host { display: block; }
   `]
 })
 export class DanhSachDotDangKyComponent implements OnInit {

@@ -118,7 +118,7 @@ public class GiangVienService {
         DiemHuongDan diem = diemHuongDanRepository.findByDeTaiId(deTai.getId())
                 .orElse(DiemHuongDan.builder().deTai(deTai).build());
 
-        diem.setDiem(request.getDiem());
+        diem.setDiem(request.getDiem().setScale(1, RoundingMode.HALF_UP));
         diem.setNhanXet(request.getNhanXet());
         diem.setNgayCham(LocalDateTime.now());
 
@@ -154,17 +154,33 @@ public class GiangVienService {
         DiemPhanBien diem = diemPhanBienRepository.findByDeTaiId(deTai.getId())
                 .orElse(DiemPhanBien.builder().deTai(deTai).build());
 
-        diem.setDiem(request.getDiem());
+        diem.setDiem(request.getDiem().setScale(1, RoundingMode.HALF_UP));
         diem.setNhanXet(request.getNhanXet());
         diem.setNgayCham(LocalDateTime.now());
 
-        // Kiểm tra điều kiện
+        // Kiểm tra điều kiện và cập nhật diemTongBaoVe nếu đạt
         if (request.getDiem().compareTo(BigDecimal.valueOf(5)) >= 0) {
             diem.setTrangThai(TrangThaiDiem.DU_DIEU_KIEN);
             deTai.setTrangThai(TrangThaiDeTai.DAT_PHAN_BIEN);
+
+            // Chỉ tính diemTongBaoVe khi PB >= 5 và điểm hội đồng đã có
+            if (deTai.getHoiDongBaoVe() != null) {
+                java.math.BigDecimal sumDiemHoiDong = diemBaoVeRepository.calculateSumDiemByHoiDongId(deTai.getHoiDongBaoVe().getId());
+                if (sumDiemHoiDong != null && sumDiemHoiDong.compareTo(java.math.BigDecimal.ZERO) > 0) {
+                    // Tổng điểm hội đồng + điểm phản biện, chia cho (số TV hội đồng + 1)
+                    int soLuongTV = deTai.getHoiDongBaoVe().getThanhViens() != null
+                            ? deTai.getHoiDongBaoVe().getThanhViens().size() : 3;
+                    java.math.BigDecimal tongDiem = sumDiemHoiDong.add(request.getDiem());
+                    java.math.BigDecimal diemTongBaoVe = tongDiem.divide(
+                            java.math.BigDecimal.valueOf(soLuongTV + 1), 2, RoundingMode.HALF_UP);
+                    diemTongBaoVe = diemTongBaoVe.setScale(1, RoundingMode.HALF_UP);
+                    deTai.setDiemTongBaoVe(diemTongBaoVe);
+                }
+            }
         } else {
             diem.setTrangThai(TrangThaiDiem.KHONG_DU_DIEU_KIEN);
             deTai.setTrangThai(TrangThaiDeTai.KHONG_DAT_PHAN_BIEN);
+            deTai.setDiemTongBaoVe(null); // Reset nếu không đạt
         }
 
         diem = diemPhanBienRepository.save(diem);

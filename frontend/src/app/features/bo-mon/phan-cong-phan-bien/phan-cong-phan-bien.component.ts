@@ -12,37 +12,52 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
-      <h2>Phân công Giảng viên phản biện</h2>
-    
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-warning-subtle">
+          <i class="bi bi-person-check text-warning"></i>
+        </div>
+        <div>
+          <h2>Phân công Giảng viên phản biện</h2>
+          <p class="mb-0">Gán giảng viên phản biện cho sinh viên</p>
+        </div>
+      </div>
     </div>
 
     <div class="card">
-    
-      <div class="card-body">
-        <div *ngIf="svDatGVHD.length === 0" class="alert alert-info">
-          Không có sinh viên nào cần phân công phản biện.
+      <div class="card-body p-0">
+        <div *ngIf="svDatGVHD.length === 0" class="alert alert-info m-4">
+          <i class="bi bi-info-circle me-2"></i>Không có sinh viên nào cần phân công phản biện.
         </div>
 
         <div class="table-responsive" *ngIf="svDatGVHD.length > 0">
-          <table class="table table-hover">
+          <table class="table table-hover mb-0">
             <thead>
               <tr>
-                <th>STT</th>
+                <th class="text-center" style="width: 60px">STT</th>
                 <th>Sinh viên</th>
-                <th>Mã SV</th>
+                <th style="width: 120px">Mã SV</th>
                 <th>Tên đề tài</th>
-                <th>GV Hướng dẫn</th>
-                <th>Chọn GVPB</th>
-                <th>Thao tác</th>
+                <th style="width: 160px">GV Hướng dẫn</th>
+                <th style="width: 200px">Chọn GVPB</th>
+                <th style="width: 140px">Thao tác</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let dt of svDatGVHD; let i = index">
-                <td>{{ i + 1 }}</td>
-                <td>{{ dt.hoTenSinhVien }}</td>
-                <td>{{ dt.maSinhVien }}</td>
-                <td>{{ dt.tenDeTai }}</td>
-                <td>{{ dt.hoTenGiangVienHuongDan || 'Chưa có' }}</td>
+              <tr *ngFor="let dt of svDatGVHD; let i = index" class="align-middle">
+                <td class="text-center">
+                  <span class="stt-badge">{{ i + 1 }}</span>
+                </td>
+                <td><strong>{{ dt.hoTenSinhVien }}</strong></td>
+                <td><code>{{ dt.maSinhVien }}</code></td>
+                <td>
+                  <span class="text-truncate d-inline-block" style="max-width: 200px">{{ dt.tenDeTai }}</span>
+                </td>
+                <td>
+                  <span *ngIf="dt.hoTenGiangVienHuongDan; else noGvhd" class="text-muted">
+                    <i class="bi bi-person me-1"></i>{{ dt.hoTenGiangVienHuongDan }}
+                  </span>
+                  <ng-template #noGvhd><span class="text-muted fst-italic">Chưa có</span></ng-template>
+                </td>
                 <td>
                   <select class="form-select form-select-sm" [(ngModel)]="selectedGvPbMap[dt.id]">
                     <option [value]="null">Chọn GVPB</option>
@@ -53,7 +68,7 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
                 <td>
                   <button class="btn btn-sm btn-primary" (click)="phanCongPB(dt.id)">
-                    <i class="fas fa-check"></i> Phân công
+                    <i class="bi bi-check2 me-1"></i> Phân công
                   </button>
                 </td>
               </tr>

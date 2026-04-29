@@ -16,7 +16,7 @@ import { ToastrService } from 'ngx-toastr';
        
       </div>
       <button class="btn btn-primary" (click)="openModal()">
-        <i class="bi bi-plus-circle me-2"></i>Thêm Bộ môn
+        <span class="material-symbols-outlined me-2">add_circle</span>Thêm Bộ môn
       </button>
     </div>
 
@@ -33,12 +33,14 @@ import { ToastrService } from 'ngx-toastr';
             <p><strong>Sinh viên:</strong> {{ bm.soLuongSinhVien || 0 }}</p>
           </div>
           <div class="card-footer">
-            <button class="btn btn-sm btn-outline-primary me-1" (click)="editBoMon(bm)">
-              <i class="bi bi-pencil"></i> Sửa
-            </button>
-            <button class="btn btn-sm btn-outline-danger" (click)="deleteBoMon(bm.id)">
-              <i class="bi bi-trash"></i> Xóa
-            </button>
+            <div class="action-buttons">
+              <button class="btn btn-sm btn-outline-primary" (click)="editBoMon(bm)">
+                <span class="material-symbols-outlined me-1">edit</span>Sửa
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="deleteBoMon(bm.id)">
+                <span class="material-symbols-outlined me-1">delete</span>Xóa
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -11,60 +11,79 @@ import { ToastrService } from 'ngx-toastr';
   providers: [],
   template: `
     <div class="page-header">
-      <h2>Duyệt Giảng viên hướng dẫn</h2>
-   
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-warning-subtle">
+          <i class="bi bi-person-check text-warning"></i>
+        </div>
+        <div>
+          <h2>Duyệt Giảng viên hướng dẫn</h2>
+          <p class="mb-0">Xem xét và phê duyệt yêu cầu hướng dẫn</p>
+        </div>
+      </div>
+      <span class="badge bg-warning text-dark">
+        <i class="bi bi-hourglass-split me-1"></i>{{ choDuyetList.length }} sinh viên chờ duyệt
+      </span>
     </div>
 
     <div class="card">
-      <div class="card-body">
-        <table class="table table-hover" *ngIf="choDuyetList.length > 0">
-          <thead class="table-light">
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0" *ngIf="choDuyetList.length > 0">
+          <thead>
             <tr>
-              <th>STT</th>
-              <th>Mã SV</th>
-              <th>Họ tên SV</th>
-              <th>Lớp</th>
+              <th class="text-center" style="width: 60px">STT</th>
+              <th style="width: 120px">Mã SV</th>
+              <th style="width: 160px">Họ tên SV</th>
+              <th style="width: 100px">Lớp</th>
               <th>Tên đề tài</th>
-              <th>Bộ môn</th>
-              <th class="text-center">Chi tiết</th>
-              <th>Thao tác</th>
+              <th style="width: 140px">Bộ môn</th>
+              <th style="width: 100px" class="text-center">Chi tiết</th>
+              <th style="width: 200px">Thao tác</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let sv of choDuyetList; let i = index">
-              <td>{{ i + 1 }}</td>
-              <td>{{ sv.maSinhVien || '-' }}</td>
-              <td>{{ sv.hoTenSinhVien || '-' }}</td>
-              <td>{{ sv.lopSinhVien || '-' }}</td>
-              <td>{{ sv.tenDeTai }}</td>
-              <td>{{ sv.tenBoMon }}</td>
+            <tr *ngFor="let sv of choDuyetList; let i = index" class="align-middle">
               <td class="text-center">
-                <button class="btn btn-outline-primary btn-sm" (click)="xemChiTiet(sv)" data-bs-toggle="modal" data-bs-target="#chiTietModal">
-                  <i class="bi bi-eye"></i> Xem
+                <span class="stt-badge">{{ i + 1 }}</span>
+              </td>
+              <td><code>{{ sv.maSinhVien || '-' }}</code></td>
+              <td><strong>{{ sv.hoTenSinhVien || '-' }}</strong></td>
+              <td>{{ sv.lopSinhVien || '-' }}</td>
+              <td>
+                <span class="text-truncate d-inline-block" style="max-width: 250px">{{ sv.tenDeTai }}</span>
+              </td>
+              <td><span class="badge badge-secondary">{{ sv.tenBoMon }}</span></td>
+              <td class="text-center">
+                <button class="btn btn-sm btn-outline-primary btn-icon" (click)="xemChiTiet(sv)" title="Xem chi tiết">
+                  <i class="bi bi-eye"></i>
                 </button>
               </td>
               <td>
-                <button class="btn btn-sm btn-success me-2" (click)="duyet(sv)">
-                  <i class="bi bi-check-circle"></i> Đồng ý
-                </button>
-                <button class="btn btn-sm btn-danger" (click)="tuChoi(sv)">
-                  <i class="bi bi-x-circle"></i> Từ chối
-                </button>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-sm btn-success btn-icon" (click)="duyet(sv)" title="Đồng ý hướng dẫn">
+                    <i class="bi bi-check-circle"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger btn-icon" (click)="tuChoi(sv)" title="Từ chối">
+                    <i class="bi bi-x-circle"></i>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
         </table>
 
         <div *ngIf="choDuyetList.length === 0" class="text-center py-5">
-          <i class="bi bi-check-circle" style="font-size: 3rem; color: #28a745;"></i>
-          <p class="text-muted mt-2">Không có sinh viên nào chờ duyệt hướng dẫn</p>
+          <div class="empty-state">
+            <i class="bi bi-check-circle text-success fs-1 d-block mb-3"></i>
+            <p class="mb-1 fw-semibold">Không có sinh viên nào chờ duyệt hướng dẫn</p>
+            <small class="text-muted">Tất cả yêu cầu đã được xử lý</small>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Modal xác nhận -->
     <div class="modal fade" id="xacNhanModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" *ngIf="selected">
           <div class="modal-header bg-primary text-white">
             <h5 class="modal-title">{{ actionType === 'duyet' ? 'Xác nhận đồng ý hướng dẫn' : 'Xác nhận từ chối hướng dẫn' }}</h5>
@@ -73,25 +92,25 @@ import { ToastrService } from 'ngx-toastr';
           <div class="modal-body">
             <div *ngIf="actionType === 'duyet'">
               <p>Bạn xác nhận <strong>đồng ý</strong> nhận hướng dẫn sinh viên:</p>
-              <ul>
-                <li><strong>Tên:</strong> {{ selected.hoTenSinhVien }}</li>
+              <ul class="list-unstyled">
+                <li class="mb-2"><strong>Tên:</strong> {{ selected.hoTenSinhVien }}</li>
                 <li><strong>Đề tài:</strong> {{ selected.tenDeTai }}</li>
               </ul>
-              <p class="text-muted">Sau khi xác nhận, sinh viên sẽ được thông báo và đề tài sẽ chuyển sang trạng thái "Đang thực hiện".</p>
+              <p class="text-muted small">Sau khi xác nhận, sinh viên sẽ được thông báo và đề tài sẽ chuyển sang trạng thái "Đang thực hiện".</p>
             </div>
             <div *ngIf="actionType === 'tuchoi'">
               <p>Bạn xác nhận <strong>từ chối</strong> nhận hướng dẫn sinh viên:</p>
-              <ul>
-                <li><strong>Tên:</strong> {{ selected.hoTenSinhVien }}</li>
+              <ul class="list-unstyled">
+                <li class="mb-2"><strong>Tên:</strong> {{ selected.hoTenSinhVien }}</li>
                 <li><strong>Đề tài:</strong> {{ selected.tenDeTai }}</li>
               </ul>
-              <p class="text-muted">Sau khi từ chối, Bộ môn sẽ phân công giảng viên khác.</p>
+              <p class="text-muted small">Sau khi từ chối, Bộ môn sẽ phân công giảng viên khác.</p>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
             <button type="button" class="btn" [class.btn-success]="actionType === 'duyet'" [class.btn-danger]="actionType === 'tuchoi'" (click)="confirmAction()">
-              Xác nhận
+              <i class="bi bi-check2 me-1"></i>Xác nhận
             </button>
           </div>
         </div>
@@ -103,47 +122,63 @@ import { ToastrService } from 'ngx-toastr';
       <div class="modal-dialog modal-lg">
         <div class="modal-content" *ngIf="chiTietDeTai">
           <div class="modal-header bg-info text-white">
-            <h5 class="modal-title">Chi tiết đề tài đăng ký</h5>
+            <h5 class="modal-title"><i class="bi bi-eye me-2"></i>Chi tiết đề tài đăng ký</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <div class="row g-3">
+            <div class="row g-4">
               <div class="col-md-6">
-                <label class="form-label fw-bold">Sinh viên</label>
-                <p class="mb-1">{{ chiTietDeTai.hoTenSinhVien }}</p>
-                <small class="text-muted">{{ chiTietDeTai.maSinhVien }} - {{ chiTietDeTai.lopSinhVien }}</small>
+                <div class="info-group">
+                  <label class="info-label">Sinh viên</label>
+                  <p class="info-value">{{ chiTietDeTai.hoTenSinhVien }}</p>
+                  <small class="text-muted">{{ chiTietDeTai.maSinhVien }} - {{ chiTietDeTai.lopSinhVien }}</small>
+                </div>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold">Bộ môn</label>
-                <p>{{ chiTietDeTai.tenBoMon }}</p>
+                <div class="info-group">
+                  <label class="info-label">Bộ môn</label>
+                  <p class="info-value">{{ chiTietDeTai.tenBoMon }}</p>
+                </div>
               </div>
               <div class="col-12">
-                <label class="form-label fw-bold">Tên đề tài</label>
-                <p>{{ chiTietDeTai.tenDeTai }}</p>
+                <div class="info-group">
+                  <label class="info-label">Tên đề tài</label>
+                  <p class="info-title">{{ chiTietDeTai.tenDeTai }}</p>
+                </div>
               </div>
               <div class="col-12">
-                <label class="form-label fw-bold">Nội dung dự kiến</label>
-                <p class="text-muted">{{ chiTietDeTai.noiDungDuKien || 'Chưa có' }}</p>
+                <div class="info-group">
+                  <label class="info-label">Nội dung dự kiến</label>
+                  <p class="info-value">{{ chiTietDeTai.noiDungDuKien || 'Chưa có' }}</p>
+                </div>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold">Công nghệ sử dụng</label>
-                <p class="text-muted">{{ chiTietDeTai.congNgheSuDung || 'Chưa có' }}</p>
+                <div class="info-group">
+                  <label class="info-label">Công nghệ sử dụng</label>
+                  <p class="info-value">{{ chiTietDeTai.congNgheSuDung || 'Chưa có' }}</p>
+                </div>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold">Giảng viên hướng dẫn</label>
-                <p>{{ chiTietDeTai.hoTenGiangVien || 'Chưa phân công' }}</p>
+                <div class="info-group">
+                  <label class="info-label">Giảng viên hướng dẫn</label>
+                  <p class="info-value">{{ chiTietDeTai.hoTenGiangVien || 'Chưa phân công' }}</p>
+                </div>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold">Trạng thái phân công</label>
-                <p>
-                  <span [class]="getTrangThaiPhanCongClass(chiTietDeTai.trangThai)">
-                    {{ getTrangThaiPhanCongText(chiTietDeTai.trangThai) }}
-                  </span>
-                </p>
+                <div class="info-group">
+                  <label class="info-label">Trạng thái phân công</label>
+                  <p class="info-value">
+                    <span [class]="getTrangThaiPhanCongClass(chiTietDeTai.trangThai)">
+                      {{ getTrangThaiPhanCongText(chiTietDeTai.trangThai) }}
+                    </span>
+                  </p>
+                </div>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold">Ngày phân công</label>
-                <p>{{ chiTietDeTai.ngayPhanCong | date:'dd/MM/yyyy HH:mm' }}</p>
+                <div class="info-group mb-0">
+                  <label class="info-label">Ngày phân công</label>
+                  <p class="info-value">{{ chiTietDeTai.ngayPhanCong | date:'dd/MM/yyyy HH:mm' }}</p>
+                </div>
               </div>
             </div>
           </div>

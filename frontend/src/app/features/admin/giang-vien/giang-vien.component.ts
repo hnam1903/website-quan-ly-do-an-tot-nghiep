@@ -14,18 +14,19 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header d-flex justify-content-between align-items-center">
       <div>
         <h2>Quản lý Giảng viên</h2>
-       
       </div>
       <div class="d-flex align-items-center">
-        <select class="form-select me-3" [(ngModel)]="selectedBoMonId" (change)="loadGiangVien()" style="width: 200px;">
+        <select class="form-select me-3" [(ngModel)]="selectedBoMonId" (change)="onFilterChange()" style="width: 200px;">
           <option [ngValue]="undefined">-- Tất cả bộ môn --</option>
           <option *ngFor="let bm of boMonList" [ngValue]="bm.id">{{ bm.tenBoMon }}</option>
         </select>
+        <input type="text" class="form-control me-3" placeholder="Tìm kiếm..." 
+               [(ngModel)]="searchKeyword" (input)="onSearch()" style="width: 200px;">
         <button class="btn btn-success me-2" (click)="showImportModal = true">
-          <i class="bi bi-upload me-2"></i>Import Excel
+          <span class="material-symbols-outlined me-2">upload</span>Import Excel
         </button>
         <button class="btn btn-primary" (click)="openModal()">
-          <i class="bi bi-plus-circle me-2"></i>Thêm Giảng viên
+          <span class="material-symbols-outlined me-2">add_circle</span>Thêm Giảng viên
         </button>
       </div>
     </div>
@@ -58,15 +59,27 @@ import { ToastrService } from 'ngx-toastr';
                   </span>
                 </td>
                 <td>
-                  <button class="btn btn-sm btn-primary me-1" (click)="editGiangVien(gv)">
-                    <i class="bi bi-pencil me-1"></i>Sửa
-                  </button>
-                  <button class="btn btn-sm btn-warning me-1" (click)="toggleLanhDao(gv)">
-                    <i class="bi bi-person-check me-1"></i>{{ gv.laLanhDao ? 'Hủy LĐ' : 'Đặt LĐ' }}
-                  </button>
-                  <button class="btn btn-sm btn-danger" (click)="deleteGiangVien(gv.id)">
-                    <i class="bi bi-trash me-1"></i>Xóa
-                  </button>
+                  <div class="action-buttons">
+                    <button class="btn btn-sm btn-outline-primary" (click)="editGiangVien(gv)">
+                      <span class="material-symbols-outlined me-1">edit</span>Sửa
+                    </button>
+                    <button class="btn btn-sm btn-outline-warning" (click)="toggleLanhDao(gv)">
+                      <span class="material-symbols-outlined me-1">person_check</span>{{ gv.laLanhDao ? 'Hủy LĐ' : 'Đặt LĐ' }}
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" (click)="deleteGiangVien(gv.id)">
+                      <span class="material-symbols-outlined me-1">delete</span>Xóa
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="giangVienList.length === 0 && !isLoading">
+                <td colspan="7" class="text-center py-4 text-muted">
+                  Không có dữ liệu
+                </td>
+              </tr>
+              <tr *ngIf="isLoading">
+                <td colspan="7" class="text-center py-4">
+                  <span class="spinner-border spinner-border-sm me-2"></span> Đang tải...
                 </td>
               </tr>
             </tbody>
@@ -110,7 +123,7 @@ import { ToastrService } from 'ngx-toastr';
               <label class="form-label">Bộ môn</label>
               <select class="form-select" [(ngModel)]="formData.boMonId">
                 <option [value]="null">Chọn bộ môn</option>
-                <option *ngFor="let bm of boMonList" [value]="bm.id">{{ bm.tenBoMon }}</option>
+                <option *ngFor="let bm of boMonList" [ngValue]="bm.id">{{ bm.tenBoMon }}</option>
               </select>
             </div>
           </div>
@@ -149,7 +162,7 @@ import { ToastrService } from 'ngx-toastr';
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" (click)="showImportModal = false; importFile = null;">Đóng</button>
             <button type="button" class="btn btn-success" (click)="importGiangVien()" [disabled]="!importFile || importing">
-              <i class="bi bi-upload me-2"></i>{{ importing ? 'Đang import...' : 'Import' }}
+              <span class="material-symbols-outlined me-2">upload</span>{{ importing ? 'Đang import...' : 'Import' }}
             </button>
           </div>
         </div>
@@ -158,9 +171,9 @@ import { ToastrService } from 'ngx-toastr';
   `
 })
 export class GiangVienComponent implements OnInit {
-  giangVienList: GiangVienResponse[] = [];
   boMonList: BoMonResponse[] = [];
   selectedBoMonId?: number;
+  searchKeyword = '';
   showModal = false;
   showImportModal = false;
   isEditing = false;
@@ -170,6 +183,9 @@ export class GiangVienComponent implements OnInit {
   importing = false;
   importResult: any = null;
 
+  giangVienList: GiangVienResponse[] = [];
+  isLoading = false;
+
   constructor(
     private adminService: AdminService,
     private http: HttpClient,
@@ -177,16 +193,22 @@ export class GiangVienComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadGiangVien();
     this.loadBoMon();
+    this.loadGiangVien();
   }
 
   loadGiangVien(): void {
+    this.isLoading = true;
     this.adminService.getAllGiangVien(this.selectedBoMonId).subscribe({
       next: (res) => {
         if (res.success) {
           this.giangVienList = res.data;
         }
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+        this.toastr.error('Không thể tải dữ liệu');
       }
     });
   }
@@ -199,6 +221,14 @@ export class GiangVienComponent implements OnInit {
         }
       }
     });
+  }
+
+  onFilterChange(): void {
+    this.loadGiangVien();
+  }
+
+  onSearch(): void {
+    this.loadGiangVien();
   }
 
   openModal(): void {

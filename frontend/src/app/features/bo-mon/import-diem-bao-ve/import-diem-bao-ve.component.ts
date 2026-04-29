@@ -9,39 +9,54 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule],
   template: `
     <div class="page-header">
-      <div>
-        <h2>Import điểm bảo vệ từ Excel</h2>
-        <p class="text-muted mb-0">Upload file Excel để nhập điểm bảo vệ cho các hội đồng</p>
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-success-subtle">
+          <i class="bi bi-file-earmark-arrow-up text-success"></i>
+        </div>
+        <div>
+          <h2>Import điểm bảo vệ từ Excel</h2>
+          <p class="mb-0">Upload file Excel để nhập điểm bảo vệ cho các hội đồng</p>
+        </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-body">
-        <div class="mb-4">
-          <button class="btn btn-success me-2" (click)="downloadTemplate()">
-            <i class="bi bi-download"></i> Tải template
-          </button>
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="mb-4"><i class="bi bi-download me-2 text-success"></i>Tải template</h5>
+            <button class="btn btn-success w-100" (click)="downloadTemplate()">
+              <i class="bi bi-file-earmark-excel me-2"></i>Tải file template Excel
+            </button>
+          </div>
         </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="mb-4"><i class="bi bi-upload me-2 text-primary"></i>Upload file điểm</h5>
+            <div class="alert alert-info mb-4">
+              <strong><i class="bi bi-info-circle me-2"></i>Hướng dẫn:</strong>
+              <ul class="mb-0 mt-2">
+                <li>Tải template Excel về máy</li>
+                <li>Điền thông tin điểm bảo vệ theo đúng định dạng</li>
+                <li>Upload file đã điền lên hệ thống</li>
+              </ul>
+            </div>
 
-        <div class="alert alert-info">
-          <strong>Hướng dẫn:</strong>
-          <ul class="mb-0 mt-2">
-            <li>Tải template Excel về máy</li>
-            <li>Điền thông tin điểm bảo vệ theo đúng định dạng</li>
-            <li>Upload file đã điền lên hệ thống</li>
-          </ul>
-        </div>
+            <label class="btn btn-primary">
+              <i class="bi bi-upload me-2"></i>Chọn file Excel
+              <input type="file" accept=".xlsx,.xls" (change)="onFileSelected($event)" style="display: none;">
+            </label>
+            <span class="ms-3 text-muted" *ngIf="selectedFile">
+              <i class="bi bi-file-earmark-check text-success me-1"></i>{{ selectedFile.name }}
+            </span>
 
-        <div class="mt-4">
-          <label class="btn btn-primary">
-            <i class="bi bi-upload"></i> Chọn file Excel
-            <input type="file" accept=".xlsx,.xls" (change)="onFileSelected($event)" style="display: none;">
-          </label>
-          <span class="ms-3" *ngIf="selectedFile">{{ selectedFile.name }}</span>
-        </div>
-
-        <div *ngIf="message" class="alert mt-3" [ngClass]="success ? 'alert-success' : 'alert-danger'">
-          {{ message }}
+            <div *ngIf="message" class="alert mt-3" [ngClass]="success ? 'alert-success' : 'alert-danger'">
+              <i class="bi me-2" [class.bi-check-circle-fill]="success" [class.bi-exclamation-triangle-fill]="!success"></i>
+              {{ message }}
+            </div>
+          </div>
         </div>
       </div>
     </div>

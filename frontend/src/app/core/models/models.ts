@@ -87,6 +87,7 @@ export interface DeTaiResponse {
   tenBoMon?: string;
   giangVienHuongDanId?: number;
   hoTenGiangVienHuongDan?: string;
+  deTaiTrangThai?: string;
   giangVienDuKienId?: number;
   hoTenGiangVienDuKien?: string;
   giangVienPhanBienId?: number;
@@ -94,6 +95,7 @@ export interface DeTaiResponse {
   diemHuongDan?: number;
   diemPhanBien?: number;
   diemBaoVe?: number;
+  diemTongBaoVe?: number;
   daChamDiemPB?: boolean;
   daChamDiemHD?: boolean;
   nhanXetPhanBien?: string;
@@ -131,6 +133,7 @@ export interface PhanCongHuongDanResponse {
   maSinhVien?: string;
   lopSinhVien?: string;
   tenBoMon?: string;
+  deTaiTrangThai?: string;
   // Điểm hướng dẫn
   daChamDiem?: boolean;
   diemCham?: number;
@@ -283,4 +286,46 @@ export interface ThongKePhanCongResponse {
   svDaPhanCongPhanBien: number;
   svChuaPhanCongPhanBien: number;
   svChoLapHoiDong: number;
+}
+
+export interface ThongBaoResponse {
+  id: number;
+  tieuDe: string;
+  noiDung: string;
+  ngayDang: string;
+  trangThai: boolean;
+}
+
+// Quản lý điểm
+export interface QuanLyDiemResponse {
+  sinhVienId: number;
+  hoTen: string;
+  maSinhVien: string;
+  lop?: string;
+  tenBoMon?: string;
+  boMonId?: number;
+  tenDeTai: string;
+  deTaiId: number;
+  diemHuongDan?: number;
+  diemPhanBien?: number;
+  diemBaoVe?: number;
+  diemTongBaoVe?: number;
+  thanhVienHoiDongList?: ThanhVienHoiDongDiem[];
+}
+
+export interface ThanhVienHoiDongDiem {
+  hoTen: string;
+  vaiTro: string;
+  diem?: number;
+}
+
+// Phân trang
+export interface PageResponse<T> {
+  content: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
 }

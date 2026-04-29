@@ -73,6 +73,9 @@ public class DeTai {
     @OneToOne(mappedBy = "deTai", cascade = CascadeType.ALL)
     private HoiDongBaoVe hoiDongBaoVe;
 
+    @Column(name = "diem_tong_bao_ve", precision = 4, scale = 2)
+    private BigDecimal diemTongBaoVe;
+
     @OneToMany(mappedBy = "deTai", cascade = CascadeType.ALL)
     private List<BaoCaoTienDo> danhSachBaoCaoTienDo;
 

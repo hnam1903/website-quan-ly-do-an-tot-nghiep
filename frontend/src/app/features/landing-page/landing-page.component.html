@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ thống Quản lý Đồ án - Khoa CNTT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- TopAppBar Navigation Shell -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <img src="assets/images/Picture1.png" alt="Logo" class="logo-img">
+        <span class="logo-text">Trường Đại học Mỏ - Địa Chất</span>
+      </div>
+      <div class="header-actions">
+        <ng-container *ngIf="currentUser; else loginBtn">
+          <div class="user-menu">
+            <span class="user-role">{{ getRoleLabel(currentUser.role) }}</span>
+            <span *ngIf="currentUser.role !== 'ADMIN'" class="user-name">: {{ currentUser.hoTen }}</span>
+            <button class="btn-text logout-btn" (click)="logout()">
+              <i class="bi bi-box-arrow-right"></i>
+              Đăng xuất
+            </button>
+          </div>
+        </ng-container>
+        <ng-template #loginBtn>
+          <button class="btn-text" routerLink="/login">Đăng nhập</button>
+        </ng-template>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- 1. Hero Section -->
+    <section class="hero-section">
+      <div class="hero-bg-overlay"></div>
+      <div class="container hero-container">
+        <div class="hero-text">
+          <h1>Quản lý đồ án tốt nghiệp cho khoa công nghệ thông tin</h1>
+          <p>Nền tảng hỗ trợ sinh viên, giảng viên và quản trị viên trong việc quản lý, đăng ký, và theo dõi tiến độ đồ án tốt nghiệp một cách hiệu quả.</p>
+        </div>
+        <div class="hero-image-wrapper">
+          <div class="hero-image-glow"></div>
+          <img class="hero-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC619gUPYm5ekSLy0KQbmdW4KVQKaAWCtoEjlCCyQyVhOTy_obBEsLUWnBDGjNxWLiTp82dQmSWIyTyRhiXuRwwdT63LT_NVprP4E1-dfEeXvkA5hQt9l65FEfoGyQWnz5DmITkGmOBcX7a3KW3a0CNQjVW99MT8NZF0lRwr2otzZBXpyqjsiofNaBUad5DaY-4DjGLoOCOt_owPmeLvx9iKUqNV3neSEpUZfypSx_E8FQqQnzVOalnjDye1P5Yj73efmKaZ123Pc3Q" alt="Students collaborating in a high-tech modern computer lab">
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Latest Notifications Section -->
+    <section class="notifications-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-label">Tin tức & Cập nhật</span>
+          <h2>Thông báo mới nhất</h2>
+        </div>
+
+        <div class="notifications-grid">
+          <!-- Notification Card -->
+          <div class="notification-card" *ngFor="let tb of thongBaos; let i = index" (click)="viewDetail(tb)">
+            <div class="card-top">
+              <div class="notification-icon" [ngClass]="getNotificationColor(i)">
+                <span class="material-symbols-outlined">{{ getNotificationIcon(i) }}</span>
+              </div>
+              <span class="notification-date">
+                <span class="material-symbols-outlined">schedule</span>
+                {{ formatDate(tb.ngayDang) }}
+              </span>
+            </div>
+            <h4 class="card-title">{{ tb.tieuDe }}</h4>
+            <p class="card-content">{{ tb.noiDung }}</p>
+            <div class="card-footer">
+              <span class="read-more">
+                Xem chi tiết
+                <span class="material-symbols-outlined">arrow_forward</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <div class="notification-card empty-card" *ngIf="thongBaos.length === 0">
+            <div class="empty-icon">
+              <span class="material-symbols-outlined">inbox</span>
+            </div>
+            <h4>Chưa có thông báo nào</h4>
+            <p>Hệ thống sẽ cập nhật thông báo mới nhất tại đây.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Process Section -->
+    <section class="process-section">
+      <div class="container">
+        <div class="section-header text-center">
+          <h2>Quy trình thực hiện chuẩn hóa</h2>
+          <p class="section-subtitle">Quy trình 9 bước khép kín giúp quản lý đồ án chuyên nghiệp và minh bạch</p>
+        </div>
+
+        <div class="process-grid">
+          <!-- Step 1 -->
+          <div class="process-card">
+            <div class="process-icon">
+              <span class="material-symbols-outlined">calendar_add_on</span>
+            </div>
+            <div class="process-content">
+              <span class="step-label">Bước 1</span>
+              <h4>Khoa tạo đợt đăng ký</h4>
+              <p>Mở đợt đăng ký đồ án tốt nghiệp.</p>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="process-card">
+            <div class="process-icon">
+              <span class="material-symbols-outlined">app_registration</span>
+            </div>
+            <div class="process-content">
+              <span class="step-label">Bước 2</span>
+              <h4>Sinh viên đăng ký đề tài</h4>
+              <p>sinh viên đăng ký đề tài mong muốn.</p>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="process-card">
+            <div class="process-icon">
+              <span class="material-symbols-outlined">fact_check</span>
+            </div>
+            <div class="process-content">
+              <span class="step-label">Bước 3</span>
+              <h4>Duyệt đề tài</h4>
+              <p>Bộ môn xét duyệt đề tài đăng ký.</p>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="process-card">
+            <div class="process-icon">
+              <span class="material-symbols-outlined">assignment_ind</span>
+            </div>
+            <div class="process-content">
+              <span class="step-label">Bước 4</span>
+              <h4>Phân công giảng viên</h4>
+              <p>Bộ môn phân công giảng viên hướng dẫn theo yêu cầu của sinh viên.</p>
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="process-card">
+            <div class="process-icon">
+              <span class="material-symbols-outlined">pending_actions</span>
+            </div>
+            <div class="process-content">
+              <span class="step-label">Bước 5</span>
+              <h4>Thực hiện đồ án</h4>
+              <p>Sinh viên tập trung nghiên cứu và phát triển sản phẩm trong 10 tuần.</p>
+            </div>
+          </div>
+
+          <!-- Step 6 -->
+          <div class="process-card">
+            <div class="process-icon">
+              <span class="material-symbols-outlined">monitoring</span>
+            </div>
+            <div class="process-content">
+              <span class="step-label">Bước 6</span>
+              <h4>Kiểm tra & theo dõi tiến độ</h4>
+              <p>Giảng viên hướng dẫn kiểm tra và đánh giá sinh viên có qua GVHD không.</p>
+            </div>
+          </div>
+
+          <!-- Step 7 -->
+          <div class="process-card">
+            <div class="process-icon">
+              <span class="material-symbols-outlined">rate_review</span>
+            </div>
+            <div class="process-content">
+              <span class="step-label">Bước 7</span>
+              <h4>Phân công & đánh giá phản biện</h4>
+              <p>Bộ môn phân công GV phản biện và đánh giá sinh viên có qua GVPB không.</p>
+            </div>
+          </div>
+
+          <!-- Step 8 -->
+          <div class="process-card">
+            <div class="process-icon">
+              <span class="material-symbols-outlined">groups</span>
+            </div>
+            <div class="process-content">
+              <span class="step-label">Bước 8</span>
+              <h4>Thành lập hội đồng</h4>
+              <p>Thành lập hội đồng chấm đồ án tốt nghiệp.</p>
+            </div>
+          </div>
+
+          <!-- Step 9 -->
+          <div class="process-card">
+            <div class="process-icon">
+              <span class="material-symbols-outlined">workspace_premium</span>
+            </div>
+            <div class="process-content">
+              <span class="step-label">Bước 9</span>
+              <h4>Lễ bảo vệ đồ án</h4>
+              <p>Trình bày kết quả nghiên cứu trước hội đồng chuyên môn.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-left">
+        <div class="logo">
+          <img src="/assets/images/Picture1.png" alt="Logo" class="logo-img" />
+        </div>
+        <span class="logo-text">Trường Đại học Mỏ - Địa chất</span>
+      </div>
+      <div class="footer-right">
+        <div class="contact-info">
+          <h3 class="contact-title">Thông tin liên hệ</h3>
+          <p><strong>Khoa Công nghệ thông tin</strong></p>
+          <p><span class="label">Địa chỉ:</span> Tầng 7 nhà C12 tầng, Trường Đại học Mỏ - Địa chất</p>
+          <p><span class="label">Số điện thoại:</span> (84-24) 3838-7570</p>
+          <p><span class="label">Email:</span> congnghethongtin&#64;humg.edu.vn</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal Chi tiết Thông báo -->
+  <div class="modal-overlay" *ngIf="showDetailModal" (click)="closeDetailModal()">
+    <div class="modal-content-detail" (click)="$event.stopPropagation()">
+      <div class="modal-header-detail">
+        <div class="header-info">
+          <span class="badge-modal">
+            <span class="material-symbols-outlined">campaign</span>
+            Thông báo
+          </span>
+        </div>
+        <button class="modal-close-btn" (click)="closeDetailModal()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body-detail" *ngIf="selectedThongBao">
+        <h3 class="detail-title">{{ selectedThongBao.tieuDe }}</h3>
+        <div class="detail-meta">
+          <span class="detail-date">
+            <span class="material-symbols-outlined">calendar_today</span>
+            {{ formatDate(selectedThongBao.ngayDang) }}
+          </span>
+        </div>
+        <div class="detail-content">
+          <p>{{ selectedThongBao.noiDung }}</p>
+        </div>
+        <div class="detail-actions">
+          <button class="btn-back" (click)="closeDetailModal()">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Quay lại
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

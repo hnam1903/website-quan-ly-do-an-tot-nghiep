@@ -10,55 +10,62 @@ import { ToastrService } from 'ngx-toastr';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="page-header d-flex justify-content-between align-items-center">
-      <div>
-        <h2>Quản lý Giảng viên</h2>
-       
+    <div class="page-header">
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-primary-subtle">
+          <i class="bi bi-person-badge text-primary"></i>
+        </div>
+        <div>
+          <h2>Quản lý Giảng viên</h2>
+          <p class="mb-0">Xem danh sách giảng viên theo bộ môn</p>
+        </div>
       </div>
-      <div class="d-flex align-items-center">
-        <span class="badge bg-primary me-3">{{ giangVienList.length }} giảng viên</span>
-        
-      </div>
+      <span class="badge bg-primary">{{ giangVienList.length }} giảng viên</span>
     </div>
 
     <div class="card">
       <div class="card-body">
-        <div class="row mb-3">
+        <div class="row g-3 mb-4">
           <div class="col-md-4">
             <input type="text" class="form-control" placeholder="Tìm kiếm theo tên, email..."
                    [(ngModel)]="searchText" (input)="filterGiangVien()">
           </div>
         </div>
         <div class="table-responsive">
-          <table class="table table-hover">
-            <thead class="table-light">
+          <table class="table table-hover mb-0">
+            <thead>
               <tr>
-                <th>STT</th>
+                <th class="text-center" style="width: 60px">STT</th>
                 <th>Họ tên</th>
-                <th>Học vị</th>
-                <th>Bộ môn</th>
+                <th style="width: 100px">Học vị</th>
+                <th style="width: 160px">Bộ môn</th>
                 <th>Email</th>
-                <th>Vai trò</th>
+                <th style="width: 120px">Vai trò</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let gv of filteredGiangVienList; let i = index">
-                <td>{{ i + 1 }}</td>
+              <tr *ngFor="let gv of filteredGiangVienList; let i = index" class="align-middle">
+                <td class="text-center">
+                  <span class="stt-badge">{{ i + 1 }}</span>
+                </td>
                 <td>
                   <strong>{{ gv.hoTen }}</strong>
                 </td>
                 <td>{{ gv.hocVi || '-' }}</td>
-                <td>{{ gv.tenBoMon || '-' }}</td>
-                <td>{{ gv.email }}</td>
+                <td><span class="badge badge-secondary">{{ gv.tenBoMon || '-' }}</span></td>
+                <td class="text-muted">{{ gv.email }}</td>
                 <td>
-                  <span *ngIf="gv.laLanhDao" class="badge bg-danger">Lãnh đạo BM</span>
-                  <span *ngIf="!gv.laLanhDao" class="badge bg-secondary">Giảng viên</span>
+                  <span *ngIf="gv.laLanhDao" class="badge badge-danger">Lãnh đạo BM</span>
+                  <span *ngIf="!gv.laLanhDao" class="badge badge-secondary">Giảng viên</span>
                 </td>
               </tr>
               <tr *ngIf="filteredGiangVienList.length === 0">
-                <td colspan="6" class="text-center text-muted py-4">
-                  <i class="bi bi-person-badge fs-1 d-block mb-2"></i>
-                  Không có giảng viên nào
+                <td colspan="6" class="text-center py-5">
+                  <div class="empty-state">
+                    <i class="bi bi-person-badge fs-1 d-block mb-3"></i>
+                    <p class="mb-1 fw-semibold">Không có giảng viên nào</p>
+                    <small class="text-muted">Thử thay đổi bộ lọc</small>
+                  </div>
                 </td>
               </tr>
             </tbody>

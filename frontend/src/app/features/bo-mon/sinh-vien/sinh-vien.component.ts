@@ -11,20 +11,22 @@ import { ToastrService } from 'ngx-toastr';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="page-header d-flex justify-content-between align-items-center">
-      <div>
-        <h2>Quản lý Sinh viên</h2>
-        
+    <div class="page-header">
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-success-subtle">
+          <i class="bi bi-people-fill text-success"></i>
+        </div>
+        <div>
+          <h2>Quản lý Sinh viên</h2>
+          <p class="mb-0">Xem danh sách sinh viên theo bộ môn</p>
+        </div>
       </div>
-      <div class="d-flex align-items-center">
-        <span class="badge bg-primary me-3">{{ filteredSinhVienList.length }} sinh viên</span>
-        
-      </div>
+      <span class="badge bg-success">{{ filteredSinhVienList.length }} sinh viên</span>
     </div>
 
     <div class="card">
       <div class="card-body">
-        <div class="row mb-3">
+        <div class="row g-3 mb-4">
           <div class="col-md-4" *ngIf="isAdmin">
             <select class="form-select" [(ngModel)]="selectedBoMonId" (change)="loadSinhVien()">
               <option [ngValue]="null">-- Tất cả bộ môn --</option>
@@ -37,30 +39,35 @@ import { ToastrService } from 'ngx-toastr';
           </div>
         </div>
         <div class="table-responsive">
-          <table class="table table-hover">
-            <thead class="table-light">
+          <table class="table table-hover mb-0">
+            <thead>
               <tr>
-                <th>STT</th>
-                <th>Mã SV</th>
+                <th class="text-center" style="width: 60px">STT</th>
+                <th style="width: 120px">Mã SV</th>
                 <th>Họ tên</th>
-                <th>Lớp</th>
-                <th>Bộ môn</th>
+                <th style="width: 100px">Lớp</th>
+                <th style="width: 160px">Bộ môn</th>
                 <th>Email</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let sv of filteredSinhVienList; let i = index">
-                <td>{{ i + 1 }}</td>
-                <td><strong>{{ sv.maSinhVien }}</strong></td>
-                <td>{{ sv.hoTen }}</td>
+              <tr *ngFor="let sv of filteredSinhVienList; let i = index" class="align-middle">
+                <td class="text-center">
+                  <span class="stt-badge">{{ i + 1 }}</span>
+                </td>
+                <td><code>{{ sv.maSinhVien }}</code></td>
+                <td><strong>{{ sv.hoTen }}</strong></td>
                 <td>{{ sv.lop || '-' }}</td>
-                <td>{{ sv.tenBoMon || '-' }}</td>
-                <td>{{ sv.email }}</td>
+                <td><span class="badge badge-secondary">{{ sv.tenBoMon || '-' }}</span></td>
+                <td class="text-muted">{{ sv.email }}</td>
               </tr>
               <tr *ngIf="filteredSinhVienList.length === 0">
-                <td colspan="6" class="text-center text-muted py-4">
-                  <i class="bi bi-people fs-1 d-block mb-2"></i>
-                  Không có sinh viên nào
+                <td colspan="6" class="text-center py-5">
+                  <div class="empty-state">
+                    <i class="bi bi-people fs-1 d-block mb-3"></i>
+                    <p class="mb-1 fw-semibold">Không có sinh viên nào</p>
+                    <small class="text-muted">Thử thay đổi bộ lọc</small>
+                  </div>
                 </td>
               </tr>
             </tbody>

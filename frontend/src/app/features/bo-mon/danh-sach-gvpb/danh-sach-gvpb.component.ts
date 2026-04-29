@@ -11,8 +11,15 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule],
   template: `
     <div class="page-header">
-      <h2>Danh sách GVPB</h2>
-      <p class="text-muted mb-0">Xem danh sách phân công giảng viên phản biện theo từng GV</p>
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-warning-subtle">
+          <i class="bi bi-person-check text-warning"></i>
+        </div>
+        <div>
+          <h2>Danh sách GVPB</h2>
+          <p class="mb-0">Xem danh sách phân công giảng viên phản biện</p>
+        </div>
+      </div>
     </div>
 
     <div class="card">
@@ -21,45 +28,47 @@ import { ToastrService } from 'ngx-toastr';
           <span class="spinner-border spinner-border-sm me-2"></span> Đang tải...
         </div>
         <div *ngIf="!loading && gvpbGroups.length === 0" class="alert alert-info">
-          Chưa có đề tài nào được phân công GVPB.
+          <i class="bi bi-info-circle me-2"></i>Chưa có đề tài nào được phân công GVPB.
         </div>
 
         <div *ngIf="!loading && gvpbGroups.length > 0">
           <div class="mb-3" *ngFor="let gvpb of gvpbGroups">
-            <div class="card gvpb-card" [class.active]="expandedGvpb === gvpb.hoTenGvpb" (click)="toggleGvpb(gvpb.hoTenGvpb)">
-              <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                  <i class="bi bi-person-badge me-2"></i>
-                  <strong>{{ gvpb.hoTenGvpb }}</strong>
-                  <span class="badge bg-primary ms-2">{{ gvpb.soLuong }} sinh viên</span>
+            <div class="gvpb-card pb-card" [class.active]="expandedGvpb === gvpb.hoTenGvpb" (click)="toggleGvpb(gvpb.hoTenGvpb)">
+              <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="pb-icon">
+                      <i class="bi bi-person-check"></i>
+                    </div>
+                    <div>
+                      <strong>{{ gvpb.hoTenGvpb }}</strong>
+                      <span class="badge bg-warning text-dark ms-2">{{ gvpb.soLuong }} sinh viên</span>
+                    </div>
+                  </div>
+                  <i class="bi" [ngClass]="expandedGvpb === gvpb.hoTenGvpb ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
                 </div>
-                <i class="bi" [ngClass]="expandedGvpb === gvpb.hoTenGvpb ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
               </div>
             </div>
             <div class="table-responsive mt-2" *ngIf="expandedGvpb === gvpb.hoTenGvpb">
-              <table class="table table-hover table-sm">
-                <thead class="table-light">
+              <table class="table table-hover">
+                <thead>
                   <tr>
-                    <th class="text-center" style="width: 50px;">STT</th>
+                    <th class="text-center" style="width: 60px">STT</th>
                     <th>Sinh viên</th>
-                    <th>Mã SV</th>
-                    <th>Lớp</th>
+                    <th style="width: 100px">Mã SV</th>
+                    <th style="width: 100px">Lớp</th>
                     <th>Tên đề tài</th>
-                    <th>Trạng thái</th>
+                    <th style="width: 140px">Trạng thái</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let dt of gvpb.deTaiList; let i = index">
-                    <td class="text-center">{{ i + 1 }}</td>
-                    <td>{{ dt.hoTenSinhVien }}</td>
-                    <td>{{ dt.maSinhVien }}</td>
+                    <td class="text-center"><span class="stt-badge">{{ i + 1 }}</span></td>
+                    <td><strong>{{ dt.hoTenSinhVien }}</strong></td>
+                    <td><code>{{ dt.maSinhVien }}</code></td>
                     <td>{{ dt.lopSinhVien }}</td>
                     <td>{{ dt.tenDeTai }}</td>
-                    <td>
-                      <span class="badge" [ngClass]="getBadgeClass(dt.trangThai)">
-                        {{ dt.trangThai }}
-                      </span>
-                    </td>
+                    <td><span class="badge" [ngClass]="getBadgeClass(dt.trangThai)">{{ dt.trangThai }}</span></td>
                   </tr>
                 </tbody>
               </table>
@@ -74,12 +83,16 @@ import { ToastrService } from 'ngx-toastr';
       cursor: pointer;
       transition: all 0.2s;
     }
-    .gvpb-card:hover {
-      background-color: #f8f9fa;
-    }
-    .gvpb-card.active {
-      background-color: #fff3cd;
-      border-color: #ffc107;
+    .pb-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--warning-light);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--warning);
+      font-size: 1.25rem;
     }
   `]
 })

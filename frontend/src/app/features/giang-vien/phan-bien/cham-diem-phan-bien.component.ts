@@ -11,67 +11,84 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
-      <h2>Chấm điểm phản biện</h2>
-    
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-warning-subtle">
+          <i class="bi bi-chat-square-text text-warning"></i>
+        </div>
+        <div>
+          <h2>Chấm điểm phản biện</h2>
+          <p class="mb-0">Nhập điểm và nhận xét phản biện cho sinh viên</p>
+        </div>
+      </div>
     </div>
 
     <div class="card">
-      <div class="card-body">
-        <table class="table table-hover" *ngIf="phanBienList.length > 0">
-          <thead class="table-light">
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0" *ngIf="phanBienList.length > 0">
+          <thead>
             <tr>
-              <th>STT</th>
-              <th>Họ tên SV</th>
-              <th>Mã SV</th>
+              <th class="text-center" style="width: 60px">STT</th>
+              <th style="width: 160px">Họ tên SV</th>
+              <th style="width: 100px">Mã SV</th>
               <th>Tên đề tài</th>
-              <th>GVHD</th>
-              <th>Điểm</th>
-              <th>Trạng thái</th>
-              <th>Hành động</th>
+              <th style="width: 140px">GVHD</th>
+              <th style="width: 80px" class="text-center">Điểm</th>
+              <th style="width: 100px">Trạng thái</th>
+              <th style="width: 140px" class="text-center">Hành động</th>
             </tr>
           </thead>
           <tbody>
             <ng-container *ngFor="let dt of phanBienList; let i = index">
-              <tr>
-                <td>{{ i + 1 }}</td>
-                <td>{{ dt.hoTenSinhVien || '-' }}</td>
-                <td>{{ dt.maSinhVien || '-' }}</td>
-                <td>{{ dt.tenDeTai }}</td>
-                <td>{{ dt.hoTenGiangVienHuongDan || '-' }}</td>
-                <td>{{ dt.diemPhanBien || '-' }}</td>
+              <tr class="align-middle">
+                <td class="text-center"><span class="stt-badge">{{ i + 1 }}</span></td>
+                <td><strong>{{ dt.hoTenSinhVien || '-' }}</strong></td>
+                <td><code>{{ dt.maSinhVien || '-' }}</code></td>
                 <td>
-                  <span *ngIf="dt.daChamDiemPB" class="badge bg-success">Đã chấm</span>
-                  <span *ngIf="!dt.daChamDiemPB" class="badge bg-warning text-dark">Chưa chấm</span>
+                  <span class="text-truncate d-inline-block" style="max-width: 250px">{{ dt.tenDeTai }}</span>
+                </td>
+                <td>{{ dt.hoTenGiangVienHuongDan || '-' }}</td>
+                <td class="text-center">
+                  <strong [class.text-success]="dt.diemPhanBien" [class.text-warning]="!dt.diemPhanBien">
+                    {{ dt.diemPhanBien || '-' }}
+                  </strong>
                 </td>
                 <td>
-                  <button class="btn btn-sm btn-primary" (click)="showForm(dt)">
-                    <i class="bi bi-pencil"></i> {{ dt.daChamDiemPB ? 'Sửa điểm' : 'Chấm điểm' }}
+                  <span *ngIf="dt.daChamDiemPB" class="badge badge-success">
+                    <i class="bi bi-check-circle-fill me-1"></i>Đã chấm
+                  </span>
+                  <span *ngIf="!dt.daChamDiemPB" class="badge badge-warning text-dark">
+                    <i class="bi bi-hourglass-split me-1"></i>Chưa chấm
+                  </span>
+                </td>
+                <td class="text-center">
+                  <button class="btn btn-sm" [class.btn-outline-warning]="!dt.daChamDiemPB" [class.btn-outline-secondary]="dt.daChamDiemPB" (click)="showForm(dt)">
+                    <i class="bi bi-pencil me-1"></i>{{ dt.daChamDiemPB ? 'Sửa' : 'Chấm điểm' }}
                   </button>
                 </td>
               </tr>
-              <!-- Form chấm điểm -->
-              <tr *ngIf="activeFormId === dt.id" class="table-secondary">
+              <tr *ngIf="activeFormId === dt.id" class="table-active">
                 <td colspan="8">
-                  <div class="row g-2 align-items-end">
-                    <div class="col-md-2">
-                      <label class="form-label">Điểm (0 - 10)</label>
-                      <input type="number" class="form-control" [(ngModel)]="diemMap[dt.id]"
-                             placeholder="0-10" min="0" max="10">
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label">Nhận xét</label>
-                      <input type="text" class="form-control" [(ngModel)]="nhanXetMap[dt.id]"
-                             placeholder="Nhận xét về đồ án...">
-                    </div>
-                    <div class="col-md-2">
-                      <button class="btn btn-success w-100" (click)="chamDiem(dt)">
-                        <i class="bi bi-check-lg"></i> Lưu
-                      </button>
-                    </div>
-                    <div class="col-md-2">
-                      <button class="btn btn-secondary w-100" (click)="cancelForm()">
-                        <i class="bi bi-x-lg"></i> Hủy
-                      </button>
+                  <div class="p-4 bg-light rounded">
+                    <h6 class="mb-3"><i class="bi bi-chat-square-text me-2"></i>Chấm điểm phản biện cho: {{ dt.hoTenSinhVien }}</h6>
+                    <div class="row g-3">
+                      <div class="col-md-3">
+                        <label class="form-label">Điểm (0 - 10)</label>
+                        <input type="number" class="form-control" [(ngModel)]="diemMap[dt.id]"
+                               placeholder="0-10" min="0" max="10">
+                      </div>
+                      <div class="col-md-6">
+                        <label class="form-label">Nhận xét</label>
+                        <input type="text" class="form-control" [(ngModel)]="nhanXetMap[dt.id]"
+                               placeholder="Nhận xét về đồ án...">
+                      </div>
+                      <div class="col-md-3 d-flex align-items-end gap-2">
+                        <button class="btn btn-success flex-grow-1" (click)="chamDiem(dt)">
+                          <i class="bi bi-check-lg me-1"></i>Lưu
+                        </button>
+                        <button class="btn btn-secondary" (click)="cancelForm()">
+                          <i class="bi bi-x-lg"></i>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -81,8 +98,11 @@ import { ToastrService } from 'ngx-toastr';
         </table>
 
         <div *ngIf="phanBienList.length === 0" class="text-center py-5">
-          <i class="bi bi-check-circle" style="font-size: 3rem; color: #ccc;"></i>
-          <p class="text-muted mt-2">Không có sinh viên cần chấm điểm phản biện</p>
+          <div class="empty-state">
+            <i class="bi bi-check-circle text-success fs-1 d-block mb-3"></i>
+            <p class="mb-1 fw-semibold">Không có sinh viên cần chấm điểm phản biện</p>
+            <small class="text-muted">Danh sách sẽ được cập nhật khi có sinh viên</small>
+          </div>
         </div>
       </div>
     </div>
@@ -116,7 +136,6 @@ export class ChamDiemPhanBienComponent implements OnInit {
 
   showForm(dt: DeTaiResponse): void {
     this.activeFormId = dt.id;
-    // Pre-fill dữ liệu nếu đã chấm
     if (dt.daChamDiemPB) {
       this.diemMap[dt.id] = dt.diemPhanBien;
       this.nhanXetMap[dt.id] = dt.nhanXetPhanBien;

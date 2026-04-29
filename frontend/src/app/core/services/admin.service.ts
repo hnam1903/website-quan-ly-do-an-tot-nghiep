@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiResponse, DotDangKyResponse, BoMonResponse, GiangVienResponse, SinhVienResponse, DeTaiResponse, DashboardResponse, DanhSachSinhVienDotDangKyResponse } from '../models/models';
+import { ApiResponse, DotDangKyResponse, BoMonResponse, GiangVienResponse, SinhVienResponse, DeTaiResponse, DashboardResponse, DanhSachSinhVienDotDangKyResponse, ThongBaoResponse, QuanLyDiemResponse } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -166,5 +166,35 @@ export class AdminService {
     return this.http.get<ApiResponse<DanhSachSinhVienDotDangKyResponse>>(
       `${this.apiUrl}/dot-dang-ky/${dotDangKyId}/sinh-vien`
     );
+  }
+
+  // Thông báo
+  getAllThongBao(): Observable<ApiResponse<ThongBaoResponse[]>> {
+    return this.http.get<ApiResponse<ThongBaoResponse[]>>(`${this.apiUrl}/thong-bao`);
+  }
+
+  createThongBao(data: any): Observable<ApiResponse<ThongBaoResponse>> {
+    return this.http.post<ApiResponse<ThongBaoResponse>>(`${this.apiUrl}/thong-bao`, data);
+  }
+
+  updateThongBao(id: number, data: any): Observable<ApiResponse<ThongBaoResponse>> {
+    return this.http.put<ApiResponse<ThongBaoResponse>>(`${this.apiUrl}/thong-bao/${id}`, data);
+  }
+
+  deleteThongBao(id: number): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/thong-bao/${id}`);
+  }
+
+  toggleTrangThaiThongBao(id: number): Observable<ApiResponse<ThongBaoResponse>> {
+    return this.http.put<ApiResponse<ThongBaoResponse>>(`${this.apiUrl}/thong-bao/${id}/trang-thai`, {});
+  }
+
+  // Quản lý điểm
+  getQuanLyDiem(boMonId?: number): Observable<ApiResponse<QuanLyDiemResponse[]>> {
+    let params = new HttpParams();
+    if (boMonId) {
+      params = params.set('boMonId', boMonId.toString());
+    }
+    return this.http.get<ApiResponse<QuanLyDiemResponse[]>>(`${this.apiUrl}/quan-ly-diem`, { params });
   }
 }

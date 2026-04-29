@@ -40,12 +40,6 @@ public class SinhVienService {
         return dots.stream().map(this::mapToDotDangKyResponse).collect(Collectors.toList());
     }
 
-    public List<GiangVienResponse> getGiangVienList() {
-        return giangVienRepository.findAll().stream()
-                .map(this::mapToGiangVienResponse)
-                .collect(Collectors.toList());
-    }
-
     public List<GiangVienResponse> getGiangVienByBoMon(String email) {
         Optional<SinhVien> sinhVienOpt = sinhVienRepository.findByTaiKhoanEmail(email);
 

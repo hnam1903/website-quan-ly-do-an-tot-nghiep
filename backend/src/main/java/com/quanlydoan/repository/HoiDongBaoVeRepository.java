@@ -11,7 +11,10 @@ import java.util.Optional;
 @Repository
 public interface HoiDongBaoVeRepository extends JpaRepository<HoiDongBaoVe, Long> {
     Optional<HoiDongBaoVe> findByDeTaiId(Long deTaiId);
-    
+
+    @Query("SELECT hd FROM HoiDongBaoVe hd LEFT JOIN FETCH hd.thanhViens tv LEFT JOIN FETCH tv.giangVien WHERE hd.deTai.id = :deTaiId")
+    Optional<HoiDongBaoVe> findByDeTaiIdWithThanhViens(@Param("deTaiId") Long deTaiId);
+
     @Query("SELECT hd FROM HoiDongBaoVe hd JOIN hd.thanhViens tv WHERE tv.giangVien.id = :gvId")
     List<HoiDongBaoVe> findAllByGiangVienId(@Param("gvId") Long gvId);
 }
