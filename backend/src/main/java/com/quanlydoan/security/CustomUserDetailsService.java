@@ -22,6 +22,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         TaiKhoan taiKhoan = taiKhoanRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy tài khoản: " + email));
 
+        if (taiKhoan.getTrangThai() == null || !taiKhoan.getTrangThai()) {
+            throw new UsernameNotFoundException("Tài khoản đã bị khóa");
+        }
+
         return new User(
                 taiKhoan.getEmail(),
                 taiKhoan.getPassword(),

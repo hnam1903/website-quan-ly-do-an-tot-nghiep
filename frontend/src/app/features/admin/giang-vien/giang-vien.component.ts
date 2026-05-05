@@ -43,6 +43,7 @@ import { ToastrService } from 'ngx-toastr';
                 <th>Email</th>
                 <th>Bộ môn</th>
                 <th>Lãnh đạo</th>
+                <th>Tài khoản</th>
                 <th>Thao tác</th>
               </tr>
             </thead>
@@ -59,12 +60,22 @@ import { ToastrService } from 'ngx-toastr';
                   </span>
                 </td>
                 <td>
+                  <span [class]="gv.trangThaiTaiKhoan ? 'bg-success' : 'bg-danger'" class="badge">
+                    {{ gv.trangThaiTaiKhoan ? 'Hoạt động' : 'Bị khóa' }}
+                  </span>
+                </td>
+                <td>
                   <div class="action-buttons">
                     <button class="btn btn-sm btn-outline-primary" (click)="editGiangVien(gv)">
                       <span class="material-symbols-outlined me-1">edit</span>Sửa
                     </button>
                     <button class="btn btn-sm btn-outline-warning" (click)="toggleLanhDao(gv)">
                       <span class="material-symbols-outlined me-1">person_check</span>{{ gv.laLanhDao ? 'Hủy LĐ' : 'Đặt LĐ' }}
+                    </button>
+                    <button class="btn btn-sm" [class.btn-outline-success]="!gv.trangThaiTaiKhoan" [class.btn-outline-danger]="gv.trangThaiTaiKhoan"
+                            (click)="toggleTaiKhoan(gv)">
+                      <span class="material-symbols-outlined me-1">{{ gv.trangThaiTaiKhoan ? 'lock' : 'lock_open' }}</span>
+                      {{ gv.trangThaiTaiKhoan ? 'Khóa' : 'Mở' }}
                     </button>
                     <button class="btn btn-sm btn-outline-danger" (click)="deleteGiangVien(gv.id)">
                       <span class="material-symbols-outlined me-1">delete</span>Xóa
@@ -73,12 +84,12 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
               </tr>
               <tr *ngIf="giangVienList.length === 0 && !isLoading">
-                <td colspan="7" class="text-center py-4 text-muted">
+                <td colspan="8" class="text-center py-4 text-muted">
                   Không có dữ liệu
                 </td>
               </tr>
               <tr *ngIf="isLoading">
-                <td colspan="7" class="text-center py-4">
+                <td colspan="8" class="text-center py-4">
                   <span class="spinner-border spinner-border-sm me-2"></span> Đang tải...
                 </td>
               </tr>
@@ -283,6 +294,30 @@ export class GiangVienComponent implements OnInit {
         }
       }
     });
+  }
+
+  toggleTaiKhoan(gv: GiangVienResponse): void {
+    if (gv.trangThaiTaiKhoan) {
+      if (confirm(`Bạn có chắc chắn muốn khóa tài khoản của "${gv.hoTen}"?`)) {
+        this.adminService.khoaTaiKhoan(gv.taiKhoanId!).subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.toastr.success('Đã khóa tài khoản!');
+              this.loadGiangVien();
+            }
+          }
+        });
+      }
+    } else {
+      this.adminService.moTaiKhoan(gv.taiKhoanId!).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.toastr.success('Đã mở tài khoản!');
+            this.loadGiangVien();
+          }
+        }
+      });
+    }
   }
 
   deleteGiangVien(id: number): void {

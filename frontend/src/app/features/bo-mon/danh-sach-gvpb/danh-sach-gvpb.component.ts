@@ -37,7 +37,7 @@ import { ToastrService } from 'ngx-toastr';
               <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                   <div class="d-flex align-items-center gap-3">
-                    <div class="pb-icon">
+                    <div >
                       <i class="bi bi-person-check"></i>
                     </div>
                     <div>

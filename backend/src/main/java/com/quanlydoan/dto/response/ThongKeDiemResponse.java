@@ -27,4 +27,9 @@ public class ThongKeDiemResponse {
     private double diemHuongDanThapNhat;
     private double diemPhanBienThapNhat;
     private double diemBaoVeThapNhat;
+
+    // Điểm tổng bảo vệ
+    private double diemTongBaoVeTrungBinh;
+    private double diemTongBaoVeCaoNhat;
+    private double diemTongBaoVeThapNhat;
 }

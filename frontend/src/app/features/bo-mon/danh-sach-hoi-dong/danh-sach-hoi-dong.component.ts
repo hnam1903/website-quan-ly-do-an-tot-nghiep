@@ -36,7 +36,7 @@ import { ToastrService } from 'ngx-toastr';
               <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
                   <div class="d-flex align-items-center gap-3">
-                    <div class="hd-icon">
+                    <div >
                       <i class="bi bi-people"></i>
                     </div>
                     <div>
@@ -66,7 +66,7 @@ import { ToastrService } from 'ngx-toastr';
                   <tr *ngFor="let tv of hd.thanhViens; let i = index">
                     <td class="text-center"><span class="stt-badge">{{ i + 2 }}</span></td>
                     <td><i class="bi bi-person me-2 text-muted"></i>{{ tv.hoTen || tv.hoTenGiangVien }}</td>
-                    <td><span class="badge" [ngClass]="getVaiTroBadge(tv.vaiTro)"><i class="bi me-1" [ngClass]="getVaiTroIcon(tv.vaiTro)"></i>{{ getVaiTroText(tv.vaiTro) }}</span></td>
+                    <td><span  [ngClass]="getVaiTroBadge(tv.vaiTro)"><i class="bi me-1" [ngClass]="getVaiTroIcon(tv.vaiTro)"></i>{{ getVaiTroText(tv.vaiTro) }}</span></td>
                   </tr>
                 </tbody>
               </table>

@@ -28,17 +28,17 @@ import { ToastrService } from 'ngx-toastr';
     <ul class="nav nav-tabs mb-4">
       <li class="nav-item">
         <a class="nav-link" [class.active]="activeTab === 'dang-thuc-hien'" (click)="switchTab('dang-thuc-hien')">
-          <span class="material-symbols-outlined me-1">play_circle</span>Đang thực hiện ({{ deTaiDangThucHien.length }})
+          <span class="material-symbols-outlined me-1 text-primary">play_circle</span>Đang thực hiện ({{ deTaiDangThucHien.length }})
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" [class.active]="activeTab === 'hoan-thanh'" (click)="switchTab('hoan-thanh')">
-          <span class="material-symbols-outlined me-1">check_circle</span>Hoàn thành ({{ deTaiHoanThanh.length }})
+          <span class="material-symbols-outlined me-1 text-success">check_circle</span>Hoàn thành ({{ deTaiHoanThanh.length }})
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" [class.active]="activeTab === 'khong-dat'" (click)="switchTab('khong-dat')">
-          <span class="material-symbols-outlined me-1">cancel</span>Không đạt ({{ deTaiKhongDat.length }})
+          <span class="material-symbols-outlined me-1 text-danger">cancel</span>Không đạt ({{ deTaiKhongDat.length }})
         </a>
       </li>
     </ul>
@@ -55,8 +55,8 @@ import { ToastrService } from 'ngx-toastr';
                 <th>Tên đề tài</th>
                 <th style="width: 140px">Đợt</th>
                 <th style="width: 120px">Trạng thái</th>
-                <th style="width: 100px" class="text-center">Báo cáo</th>
-                <th style="width: 100px" class="text-center">Chi tiết</th>
+                <th style="width: 100px" class="text-center"><span class="material-symbols-outlined me-1 text-primary" style="font-size: 16px;">description</span>Báo cáo</th>
+                <th style="width: 100px" class="text-center"><span ></span>Chi tiết</th>
               </tr>
             </thead>
             <tbody>
@@ -77,10 +77,10 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
                 <td class="text-center">
                   <button *ngIf="dt.coBaoCao" class="btn btn-sm btn-success btn-icon" (click)="openBaoCao(dt.id)" title="Xem báo cáo">
-                    <i class="bi bi-file-earmark-text"></i>
+                    <span class="material-symbols-outlined">description</span>
                   </button>
                   <span *ngIf="!dt.coBaoCao" class="badge badge-secondary">
-                    <i class="bi bi-hourglass-split"></i>
+                    <span class="material-symbols-outlined">hourglass_empty</span>
                   </span>
                 </td>
                 <td class="text-center">
@@ -116,8 +116,8 @@ import { ToastrService } from 'ngx-toastr';
                 <th>Tên đề tài</th>
                 <th style="width: 140px">Đợt</th>
                 <th style="width: 120px">Trạng thái</th>
-                <th style="width: 100px" class="text-center">Báo cáo</th>
-                <th style="width: 100px" class="text-center">Chi tiết</th>
+                <th style="width: 100px" class="text-center"><span class="material-symbols-outlined me-1 text-primary" style="font-size: 16px;">description</span>Báo cáo</th>
+                <th style="width: 100px" class="text-center"><span class="material-symbols-outlined me-1 text-primary" style="font-size: 16px;">visibility</span>Chi tiết</th>
               </tr>
             </thead>
             <tbody>
@@ -131,18 +131,18 @@ import { ToastrService } from 'ngx-toastr';
                   <span class="text-truncate d-inline-block" style="max-width: 250px">{{ dt.tenDeTai }}</span>
                 </td>
                 <td>{{ dt.tenDotDangKy }}</td>
-                <td><span class="badge badge-success"><span class="material-symbols-outlined me-1">check_circle</span>Hoàn thành</span></td>
+                <td><span class="badge bg-success text-dark"><span class="material-symbols-outlined me-1">check_circle</span>Hoàn thành</span></td>
                 <td class="text-center">
                   <button *ngIf="dt.coBaoCao" class="btn btn-sm btn-success btn-icon" (click)="openBaoCao(dt.id)" title="Xem báo cáo">
-                    <i class="bi bi-file-earmark-text"></i>
+                    <span class="material-symbols-outlined">description</span>
                   </button>
                   <span *ngIf="!dt.coBaoCao" class="badge badge-secondary">
-                    <i class="bi bi-hourglass-split"></i>
+                    <span class="material-symbols-outlined">hourglass_empty</span>
                   </span>
                 </td>
                 <td class="text-center">
-                  <button class="btn btn-sm btn-outline-success btn-icon" (click)="openChiTiet(dt)" title="Xem chi tiết">
-                    <i class="bi bi-eye"></i>
+                  <button class="btn btn-sm btn-success btn-icon" (click)="openChiTiet(dt)" title="Xem chi tiết">
+                    <span class="material-symbols-outlined">visibility</span>
                   </button>
                 </td>
               </tr>
@@ -173,8 +173,8 @@ import { ToastrService } from 'ngx-toastr';
                 <th>Tên đề tài</th>
                 <th style="width: 140px">Đợt</th>
                 <th style="width: 140px">Trạng thái</th>
-                <th style="width: 100px" class="text-center">Báo cáo</th>
-                <th style="width: 100px" class="text-center">Chi tiết</th>
+                <th style="width: 100px" class="text-center"><span class="material-symbols-outlined me-1 text-primary" style="font-size: 16px;">description</span>Báo cáo</th>
+                <th style="width: 100px" class="text-center"><span class="material-symbols-outlined me-1 text-primary" style="font-size: 16px;">visibility</span>Chi tiết</th>
               </tr>
             </thead>
             <tbody>
@@ -195,15 +195,15 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
                 <td class="text-center">
                   <button *ngIf="dt.coBaoCao" class="btn btn-sm btn-success btn-icon" (click)="openBaoCao(dt.id)" title="Xem báo cáo">
-                    <i class="bi bi-file-earmark-text"></i>
+                    <span class="material-symbols-outlined">description</span>
                   </button>
                   <span *ngIf="!dt.coBaoCao" class="badge badge-secondary">
-                    <i class="bi bi-hourglass-split"></i>
+                    <span class="material-symbols-outlined">hourglass_empty</span>
                   </span>
                 </td>
                 <td class="text-center">
                   <button class="btn btn-sm btn-outline-danger btn-icon" (click)="openChiTiet(dt)" title="Xem chi tiết">
-                    <i class="bi bi-eye"></i>
+                    <span class="material-symbols-outlined">visibility</span>
                   </button>
                 </td>
               </tr>
@@ -477,18 +477,20 @@ export class DeTaiBoMonComponent implements OnInit {
 
   getStatusClass(status: string): string {
     const map: any = {
-      'DANG_THUC_HIEN': 'bg-info',
-      'DA_NOP_BAO_CAO': 'bg-primary',
-      'DAT_GVHD': 'bg-success',
-      'KHONG_DAT_GVHD': 'bg-danger',
-      'CHO_PHAN_BIEN': 'bg-warning',
-      'DAT_PHAN_BIEN': 'bg-success',
-      'KHONG_DAT_PHAN_BIEN': 'bg-danger',
-      'DANG_BAO_VE': 'bg-primary',
-      'HOAN_THANH': 'bg-success',
-      'KHONG_DAT_BAO_VE': 'bg-danger'
+      'DANG_THUC_HIEN': 'badge bg-info',
+      'DA_NOP_BAO_CAO': 'badge bg-primary',
+      'DAT_GVHD': 'badge bg-success text-dark',
+      'KHONG_DAT_GVHD': 'badge bg-danger text-white',
+      'CHO_PHAN_BIEN': 'badge bg-warning text-dark',
+      'DAT_PHAN_BIEN': 'badge bg-success text-dark',
+      'KHONG_DAT_PHAN_BIEN': 'badge bg-danger text-white',
+      'DANG_BAO_VE': 'badge bg-primary',
+      'HOAN_THANH': 'badge bg-success text-dark',
+      'KHONG_DAT_BAO_VE': 'badge bg-danger text-white',
+      'CHO_GV_DUYET': 'badge bg-secondary',
+      'DANG_CHO_BV': 'badge bg-info'
     };
-    return map[status] || 'bg-secondary';
+    return map[status] || 'badge bg-secondary';
   }
 
   getStatusText(status: string): string {

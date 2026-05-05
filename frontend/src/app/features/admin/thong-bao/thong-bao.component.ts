@@ -54,7 +54,7 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
                 <td>{{ tb.ngayDang | date:'dd/MM/yyyy HH:mm' }}</td>
                 <td>
-                  <span class="badge" [ngClass]="tb.trangThai ? 'badge-success' : 'badge-secondary'">
+                  <span class="badge" [ngClass]="tb.trangThai ? 'bg-success' : 'bg-secondary'">
                     <span class="material-symbols-outlined" style="font-size: 14px;">{{ tb.trangThai ? 'check_circle' : 'visibility_off' }}</span>
                     {{ tb.trangThai ? 'Hiển thị' : 'Ẩn' }}
                   </span>

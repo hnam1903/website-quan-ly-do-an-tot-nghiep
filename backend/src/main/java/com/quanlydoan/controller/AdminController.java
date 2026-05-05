@@ -198,4 +198,26 @@ public class AdminController {
             @RequestParam(required = false) Long boMonId) {
         return ResponseEntity.ok(ApiResponse.success(adminService.getQuanLyDiem(boMonId)));
     }
+
+    // ==================== Quản lý Tài Khoản ====================
+
+    @GetMapping("/tai-khoan")
+    public ResponseEntity<ApiResponse<List<TaiKhoanResponse>>> getAllTaiKhoan() {
+        return ResponseEntity.ok(ApiResponse.success(adminService.getAllTaiKhoan()));
+    }
+
+    @GetMapping("/tai-khoan/{id}")
+    public ResponseEntity<ApiResponse<TaiKhoanResponse>> getTaiKhoanById(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(adminService.getTaiKhoanById(id)));
+    }
+
+    @PutMapping("/tai-khoan/{id}/khoa")
+    public ResponseEntity<ApiResponse<TaiKhoanResponse>> khoaTaiKhoan(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success("Đã khóa tài khoản thành công", adminService.khoaTaiKhoan(id)));
+    }
+
+    @PutMapping("/tai-khoan/{id}/mo")
+    public ResponseEntity<ApiResponse<TaiKhoanResponse>> moTaiKhoan(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success("Đã mở tài khoản thành công", adminService.moTaiKhoan(id)));
+    }
 }

@@ -51,7 +51,7 @@ import { AuthService } from '../../../core/services/auth.service';
           </button>
         </form>
 
-        <p class="copyright">Copyright 2026 © Đại học Mỏ - Địa chất</p>
+        
       </div>
     </div>
   `,

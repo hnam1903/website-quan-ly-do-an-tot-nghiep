@@ -91,16 +91,15 @@ import { DeTaiResponse, DiemHuongDanResponse, DiemPhanBienResponse } from '../..
             <div class="small text-muted mb-2">
               <i class="bi bi-pencil-square me-1"></i>Điểm Bảo vệ
             </div>
-            <div class="display-1 mb-3" [class.text-success]="ketQuaBV?.diemBaoVe && ketQuaBV!.diemBaoVe! >= 5" [class.text-danger]="ketQuaBV?.diemBaoVe && ketQuaBV!.diemBaoVe! < 5" [class.text-muted]="!ketQuaBV?.diemBaoVe">
-              {{ ketQuaBV?.diemBaoVe || '-' }}
+            <div class="display-1 mb-3" [class.text-success]="ketQuaBV?.diemTongBaoVe && ketQuaBV!.diemTongBaoVe! >= 5" [class.text-danger]="ketQuaBV?.diemTongBaoVe && ketQuaBV!.diemTongBaoVe! < 5" [class.text-muted]="!ketQuaBV?.diemTongBaoVe">
+              {{ ketQuaBV?.diemTongBaoVe || '-' }}
             </div>
-            <small class="text-muted d-block mb-3">Điểm trung bình hội đồng</small>
             <div *ngIf="ketQuaBV?.nhanXetCham" class="mt-3 p-3 bg-light rounded text-start">
               <small class="text-muted fw-bold d-block mb-1">Nhận xét hội đồng:</small>
               <p class="mb-0 text-secondary" style="font-size: 0.9rem; line-height: 1.5;">{{ ketQuaBV?.nhanXetCham }}</p>
             </div>
             
-            <div *ngIf="!ketQuaBV?.diemBaoVe" class="text-muted mt-3">
+            <div *ngIf="!ketQuaBV?.diemTongBaoVe" class="text-muted mt-3">
               <i class="bi bi-clock-history me-1"></i> Chưa có kết quả
             </div>
           </div>
@@ -147,7 +146,7 @@ export class KetQuaComponent implements OnInit {
   }
 
   tinhTongDiem(): number {
-    if (!this.ketQuaHD || !this.ketQuaPB || !this.ketQuaBV?.diemBaoVe) return 0;
-    return Number(this.ketQuaHD.diem) + Number(this.ketQuaPB.diem) + Number(this.ketQuaBV.diemBaoVe);
+    if (!this.ketQuaHD || !this.ketQuaPB || !this.ketQuaBV?.diemTongBaoVe) return 0;
+    return Number(this.ketQuaHD.diem) + Number(this.ketQuaPB.diem) + Number(this.ketQuaBV.diemTongBaoVe);
   }
 }

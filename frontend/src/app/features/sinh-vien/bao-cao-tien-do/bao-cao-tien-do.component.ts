@@ -57,7 +57,7 @@ import { AuthService } from '../../../core/services/auth.service';
       <i class="fas fa-info-circle me-2"></i>
       Hiện không có đợt báo cáo tiến độ nào đang mở. Vui lòng chờ GVHD tạo đợt báo cáo mới.
       <br>
-      <small class="text-muted"><em>(Chỉ hiển thị khi đề tài đã được GVHD duyệt)</em></small>
+      <small class="text-muted"><em></em></small>
     </div>
 
     <!-- Lịch sử báo cáo tiến độ -->

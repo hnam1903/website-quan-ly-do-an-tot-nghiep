@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { API_URL } from '../../core/constants/api.constants';
 import { AuthService } from '../../core/services/auth.service';
+import { ChatbotService, DeTaiGoiY } from '../../core/services/chatbot.service';
 
 interface ThongBao {
   id: number;
@@ -20,10 +22,16 @@ interface DashboardStats {
   deTaiHoanThanh: number;
 }
 
+interface ChatMessageItem {
+  role: 'user' | 'bot';
+  content: string;
+  deTaiList?: DeTaiGoiY[];
+}
+
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './landing-page.component.html',
   styleUrls: ['./landing-page.component.css']
 })
@@ -39,10 +47,17 @@ export class LandingPageComponent implements OnInit {
     deTaiHoanThanh: 0
   };
 
+  // Chatbot state
+  showChatbot = false;
+  userMessage = '';
+  chatMessages: ChatMessageItem[] = [];
+  isLoading = false;
+
   constructor(
     private http: HttpClient,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private chatbotService: ChatbotService
   ) {}
 
   ngOnInit(): void {
@@ -105,7 +120,7 @@ export class LandingPageComponent implements OnInit {
   }
 
   getNotificationIcon(index: number): string {
-    const icons = ['notifications_active', 'task_alt', 'event', 'assignment'];
+    const icons = ['campaign', 'task_alt', 'event', 'assignment'];
     return icons[index % icons.length];
   }
 
@@ -117,5 +132,51 @@ export class LandingPageComponent implements OnInit {
   closeDetailModal(): void {
     this.showDetailModal = false;
     this.selectedThongBao = null;
+  }
+
+  // Chatbot methods
+  toggleChatbot(): void {
+    this.showChatbot = !this.showChatbot;
+  }
+
+  sendMessage(): void {
+    if (!this.userMessage.trim() || this.isLoading) return;
+
+    const message = this.userMessage.trim();
+    this.chatMessages.push({
+      role: 'user',
+      content: message
+    });
+    this.userMessage = '';
+    this.isLoading = true;
+
+    this.chatbotService.goiYDeTai(message).subscribe({
+      next: (res) => {
+        this.chatMessages.push({
+          role: 'bot',
+          content: res.tinNhan || 'Dưới đây là gợi ý đề tài cho bạn:',
+          deTaiList: res.danhSachDeTai
+        });
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.chatMessages.push({
+          role: 'bot',
+          content: 'Xin lỗi, đã xảy ra lỗi khi xử lý yêu cầu. Vui lòng thử lại sau.'
+        });
+        this.isLoading = false;
+      }
+    });
+  }
+
+  onKeyPress(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.sendMessage();
+    }
+  }
+
+  closeChatbot(): void {
+    this.showChatbot = false;
   }
 }

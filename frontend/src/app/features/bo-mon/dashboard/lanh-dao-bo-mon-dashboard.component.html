@@ -102,74 +102,73 @@
     <!-- Row 2: Thống kê phân công cần xử lý -->
     <div class="row mb-4" *ngIf="thongKePhanCong">
       <div class="col-12">
-        <div class="card shadow-sm border-warning">
-          <div class="card-header bg-white">
-            <h5 class="card-title mb-0">
-              <i class="bi bi-exclamation-triangle me-2 text-warning"></i>Cần xử lý
-            </h5>
-          </div>
-          <div class="card-body">
-            <div class="row text-center">
-              <div class="col-md-4 col-6 mb-3">
-                <a routerLink="/bo-mon/phan-cong" class="text-decoration-none">
-                  <div class="p-3 bg-warning bg-opacity-10 rounded">
-                    <h3 class="mb-1 text-warning">{{ thongKePhanCong.svChuaPhanCongHuongDan }}</h3>
-                    <p class="mb-0 small text-muted">SV chưa phân công HD</p>
-                  </div>
-                </a>
-              </div>
-              <div class="col-md-4 col-6 mb-3">
-                <a routerLink="/bo-mon/phan-cong-phan-bien" class="text-decoration-none">
-                  <div class="p-3 bg-info bg-opacity-10 rounded">
-                    <h3 class="mb-1 text-info">{{ thongKePhanCong.svChuaPhanCongPhanBien }}</h3>
-                    <p class="mb-0 small text-muted">SV chưa phân công PB</p>
-                  </div>
-                </a>
-              </div>
-              <div class="col-md-4 col-6 mb-3">
-                <a routerLink="/bo-mon/hoi-dong/thanh-lap" class="text-decoration-none">
-                  <div class="p-3 bg-danger bg-opacity-10 rounded">
-                    <h3 class="mb-1 text-danger">{{ thongKePhanCong.svChoLapHoiDong }}</h3>
-                    <p class="mb-0 small text-muted">SV chờ lập hội đồng</p>
-                  </div>
-                </a>
-              </div>
+        <h5 class="mb-3">
+          <i class="bi bi-exclamation-triangle me-2 text-warning"></i>Cần xử lý
+        </h5>
+      </div>
+      <div class="col-md-4 mb-3">
+        <a routerLink="/bo-mon/phan-cong" class="text-decoration-none d-block">
+          <div class="card h-100 border-warning shadow-sm">
+            <div class="card-body text-center py-4">
+              <h2 class="display-5 fw-bold text-warning mb-1">{{ thongKePhanCong.svChuaPhanCongHuongDan }}</h2>
+              <p class="text-muted mb-0 fw-medium">SV chưa phân công HD</p>
             </div>
           </div>
-        </div>
+        </a>
+      </div>
+      <div class="col-md-4 mb-3">
+        <a routerLink="/bo-mon/phan-cong-phan-bien" class="text-decoration-none d-block">
+          <div class="card h-100 border-info shadow-sm">
+            <div class="card-body text-center py-4">
+              <h2 class="display-5 fw-bold text-info mb-1">{{ thongKePhanCong.svChuaPhanCongPhanBien }}</h2>
+              <p class="text-muted mb-0 fw-medium">SV chưa phân công PB</p>
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-4 mb-3">
+        <a routerLink="/bo-mon/hoi-dong/thanh-lap" class="text-decoration-none d-block">
+          <div class="card h-100 border-danger shadow-sm">
+            <div class="card-body text-center py-4">
+              <h2 class="display-5 fw-bold text-danger mb-1">{{ thongKePhanCong.svChoLapHoiDong }}</h2>
+              <p class="text-muted mb-0 fw-medium">SV chờ lập hội đồng</p>
+            </div>
+          </div>
+        </a>
       </div>
     </div>
 
     <!-- Row 3: Đề tài theo trạng thái -->
     <div class="row mb-4">
       <div class="col-12">
-        <div class="card shadow-sm">
-          <div class="card-header bg-white">
-            <h5 class="card-title mb-0">
-              <i class="bi bi-kanban me-2"></i>Tình trạng đề tài
-            </h5>
+        <h5 class="mb-3">
+          <i class="bi bi-kanban me-2"></i>Tình trạng đề tài
+        </h5>
+      </div>
+      <!-- Đang thực hiện -->
+      <div class="col-md-4 mb-3">
+        <div class="card h-100 border-primary shadow-sm">
+          <div class="card-body text-center py-4">
+            <h2 class="display-4 fw-bold text-primary mb-1">{{ deTaiDangThucHien }}</h2>
+            <p class="text-muted mb-0 fw-medium">Đang thực hiện</p>
           </div>
-          <div class="card-body">
-            <div class="row text-center">
-              <div class="col-md-4 col-6 mb-3">
-                <div class="p-3 bg-primary bg-opacity-10 rounded">
-                  <h3 class="mb-1 text-primary">{{ deTaiDangThucHien }}</h3>
-                  <p class="mb-0 small text-muted">Đang thực hiện</p>
-                </div>
-              </div>
-              <div class="col-md-4 col-6 mb-3">
-                <div class="p-3 bg-success bg-opacity-10 rounded">
-                  <h3 class="mb-1 text-success">{{ deTaiHoanThanh }}</h3>
-                  <p class="mb-0 small text-muted">Hoàn thành</p>
-                </div>
-              </div>
-              <div class="col-md-4 col-6 mb-3">
-                <div class="p-3 bg-danger bg-opacity-10 rounded">
-                  <h3 class="mb-1 text-danger">{{ deTaiKhongDat }}</h3>
-                  <p class="mb-0 small text-muted">Không đạt</p>
-                </div>
-              </div>
-            </div>
+        </div>
+      </div>
+      <!-- Hoàn thành -->
+      <div class="col-md-4 mb-3">
+        <div class="card h-100 border-success shadow-sm">
+          <div class="card-body text-center py-4">
+            <h2 class="display-4 fw-bold text-success mb-1">{{ deTaiHoanThanh }}</h2>
+            <p class="text-muted mb-0 fw-medium">Hoàn thành</p>
+          </div>
+        </div>
+      </div>
+      <!-- Không đạt -->
+      <div class="col-md-4 mb-3">
+        <div class="card h-100 border-danger shadow-sm">
+          <div class="card-body text-center py-4">
+            <h2 class="display-4 fw-bold text-danger mb-1">{{ deTaiKhongDat }}</h2>
+            <p class="text-muted mb-0 fw-medium">Không đạt</p>
           </div>
         </div>
       </div>
@@ -188,7 +187,7 @@
             <div class="mb-2">
               <span class="badge bg-secondary me-2">HD = Hướng dẫn</span>
               <span class="badge bg-secondary me-2">PB = Phản biện</span>
-              <span class="badge bg-secondary">BV = Bảo vệ</span>
+              <span class="badge bg-secondary">Tổng BV = Tổng bảo vệ</span>
             </div>
             <div style="height: 300px;">
               <canvas baseChart
@@ -230,11 +229,11 @@
                   <td class="text-primary text-end">{{ thongKeDiem.diemPhanBienTrungBinh | number:'1.1-1' }}</td>
                   <td class="text-warning text-end">{{ thongKeDiem.diemPhanBienThapNhat | number:'1.1-1' }}</td>
                 </tr>
-                <tr>
-                  <td><strong>BV</strong></td>
-                  <td class="text-success text-end">{{ thongKeDiem.diemBaoVeCaoNhat | number:'1.1-1' }}</td>
-                  <td class="text-primary text-end">{{ thongKeDiem.diemBaoVeTrungBinh | number:'1.1-1' }}</td>
-                  <td class="text-warning text-end">{{ thongKeDiem.diemBaoVeThapNhat | number:'1.1-1' }}</td>
+                <tr class="table-primary">
+                  <td><strong>Tổng BV</strong></td>
+                  <td class="text-success text-end">{{ thongKeDiem.diemTongBaoVeCaoNhat | number:'1.1-1' }}</td>
+                  <td class="text-primary text-end">{{ thongKeDiem.diemTongBaoVeTrungBinh | number:'1.1-1' }}</td>
+                  <td class="text-warning text-end">{{ thongKeDiem.diemTongBaoVeThapNhat | number:'1.1-1' }}</td>
                 </tr>
               </tbody>
             </table>

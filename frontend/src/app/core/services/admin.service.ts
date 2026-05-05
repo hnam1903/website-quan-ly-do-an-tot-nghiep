@@ -197,4 +197,13 @@ export class AdminService {
     }
     return this.http.get<ApiResponse<QuanLyDiemResponse[]>>(`${this.apiUrl}/quan-ly-diem`, { params });
   }
+
+  // Quản lý tài khoản
+  khoaTaiKhoan(id: number): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.apiUrl}/tai-khoan/${id}/khoa`, {});
+  }
+
+  moTaiKhoan(id: number): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.apiUrl}/tai-khoan/${id}/mo`, {});
+  }
 }

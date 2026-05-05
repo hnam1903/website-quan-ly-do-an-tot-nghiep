@@ -776,6 +776,44 @@ public class AdminService {
 
     // ==================== Mappers ====================
 
+    // ==================== Quản lý Tài Khoản ====================
+
+    public List<TaiKhoanResponse> getAllTaiKhoan() {
+        return taiKhoanRepository.findAll().stream()
+                .map(TaiKhoanResponse::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    public TaiKhoanResponse getTaiKhoanById(Long id) {
+        TaiKhoan taiKhoan = taiKhoanRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
+        return TaiKhoanResponse.fromEntity(taiKhoan);
+    }
+
+    @Transactional
+    public TaiKhoanResponse khoaTaiKhoan(Long id) {
+        TaiKhoan taiKhoan = taiKhoanRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
+
+        taiKhoan.setTrangThai(false);
+        taiKhoan = taiKhoanRepository.save(taiKhoan);
+
+        return TaiKhoanResponse.fromEntity(taiKhoan);
+    }
+
+    @Transactional
+    public TaiKhoanResponse moTaiKhoan(Long id) {
+        TaiKhoan taiKhoan = taiKhoanRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
+
+        taiKhoan.setTrangThai(true);
+        taiKhoan = taiKhoanRepository.save(taiKhoan);
+
+        return TaiKhoanResponse.fromEntity(taiKhoan);
+    }
+
+    // ==================== Mapping Methods ====================
+
     private DotDangKyResponse mapToDotDangKyResponse(DotDangKy dotDangKy) {
         return DotDangKyResponse.builder()
                 .id(dotDangKy.getId())
@@ -810,6 +848,8 @@ public class AdminService {
                 .boMonId(gv.getBoMon() != null ? gv.getBoMon().getId() : null)
                 .tenBoMon(gv.getBoMon() != null ? gv.getBoMon().getTenBoMon() : null)
                 .laLanhDao(gv.getLaLanhDao())
+                .taiKhoanId(gv.getTaiKhoan() != null ? gv.getTaiKhoan().getId() : null)
+                .trangThaiTaiKhoan(gv.getTaiKhoan() != null ? gv.getTaiKhoan().getTrangThai() : null)
                 .build();
     }
 
@@ -822,6 +862,8 @@ public class AdminService {
                 .email(sv.getTaiKhoan() != null ? sv.getTaiKhoan().getEmail() : null)
                 .boMonId(sv.getBoMon() != null ? sv.getBoMon().getId() : null)
                 .tenBoMon(sv.getBoMon() != null ? sv.getBoMon().getTenBoMon() : null)
+                .taiKhoanId(sv.getTaiKhoan() != null ? sv.getTaiKhoan().getId() : null)
+                .trangThaiTaiKhoan(sv.getTaiKhoan() != null ? sv.getTaiKhoan().getTrangThai() : null)
                 .build();
     }
 

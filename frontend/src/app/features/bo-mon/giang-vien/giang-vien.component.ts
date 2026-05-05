@@ -52,11 +52,11 @@ import { ToastrService } from 'ngx-toastr';
                   <strong>{{ gv.hoTen }}</strong>
                 </td>
                 <td>{{ gv.hocVi || '-' }}</td>
-                <td><span class="badge badge-secondary">{{ gv.tenBoMon || '-' }}</span></td>
+                <td><span >{{ gv.tenBoMon || '-' }}</span></td>
                 <td class="text-muted">{{ gv.email }}</td>
                 <td>
-                  <span *ngIf="gv.laLanhDao" class="badge badge-danger">Lãnh đạo BM</span>
-                  <span *ngIf="!gv.laLanhDao" class="badge badge-secondary">Giảng viên</span>
+                  <span *ngIf="gv.laLanhDao" >Lãnh đạo BM</span>
+                  <span *ngIf="!gv.laLanhDao" >Giảng viên</span>
                 </td>
               </tr>
               <tr *ngIf="filteredGiangVienList.length === 0">

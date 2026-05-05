@@ -22,6 +22,10 @@ interface ThongKeDiem {
   diemHuongDanThapNhat: number;
   diemPhanBienThapNhat: number;
   diemBaoVeThapNhat: number;
+  // Điểm tổng bảo vệ
+  diemTongBaoVeTrungBinh: number;
+  diemTongBaoVeCaoNhat: number;
+  diemTongBaoVeThapNhat: number;
 }
 
 @Component({
@@ -56,7 +60,7 @@ export class LanhDaoBoMonDashboardComponent implements OnInit {
   
   // Chart: Bar điểm trung bình
   public diemChartData: ChartData<'bar'> = {
-    labels: ['HD', 'PB', 'BV'],
+    labels: ['HD', 'PB', 'Tổng BV'],
     datasets: [
       { 
         data: [0, 0, 0], 
@@ -244,17 +248,17 @@ export class LanhDaoBoMonDashboardComponent implements OnInit {
     this.diemChartData.datasets[0].data = [
       this.thongKeDiem.diemHuongDanCaoNhat,
       this.thongKeDiem.diemPhanBienCaoNhat,
-      this.thongKeDiem.diemBaoVeCaoNhat
+      this.thongKeDiem.diemTongBaoVeCaoNhat
     ];
     this.diemChartData.datasets[1].data = [
       this.thongKeDiem.diemHuongDanTrungBinh,
       this.thongKeDiem.diemPhanBienTrungBinh,
-      this.thongKeDiem.diemBaoVeTrungBinh
+      this.thongKeDiem.diemTongBaoVeTrungBinh
     ];
     this.diemChartData.datasets[2].data = [
       this.thongKeDiem.diemHuongDanThapNhat,
       this.thongKeDiem.diemPhanBienThapNhat,
-      this.thongKeDiem.diemBaoVeThapNhat
+      this.thongKeDiem.diemTongBaoVeThapNhat
     ];
   }
 

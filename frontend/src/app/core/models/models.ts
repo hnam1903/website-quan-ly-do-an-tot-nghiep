@@ -54,6 +54,8 @@ export interface GiangVienResponse {
   boMonId?: number;
   tenBoMon?: string;
   laLanhDao?: boolean;
+  taiKhoanId?: number;
+  trangThaiTaiKhoan?: boolean;
 }
 
 export interface SinhVienResponse {
@@ -67,6 +69,8 @@ export interface SinhVienResponse {
   deTaiId?: number;
   deTaiTen?: string;
   deTaiTrangThai?: string;
+  taiKhoanId?: number;
+  trangThaiTaiKhoan?: boolean;
 }
 
 export interface DeTaiResponse {

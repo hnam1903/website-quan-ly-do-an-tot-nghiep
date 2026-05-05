@@ -707,7 +707,13 @@ public class BoMonService {
         double minDiemHD = 10;
         double minDiemPB = 10;
         double minDiemBV = 10;
-        
+
+        // Điểm tổng bảo vệ
+        long deTaiCoDiemTongBV = 0;
+        double sumDiemTongBV = 0;
+        double maxDiemTongBV = 0;
+        double minDiemTongBV = 10;
+
         for (DeTai dt : deTais) {
             // Điểm hướng dẫn
             if (dt.getDiemHuongDan() != null) {
@@ -743,8 +749,17 @@ public class BoMonService {
             if (dt.getTrangThai() == TrangThaiDeTai.HOAN_THANH) {
                 deTaiHoanThanh++;
             }
+
+            // Điểm tổng bảo vệ
+            if (dt.getDiemTongBaoVe() != null && dt.getDiemTongBaoVe().compareTo(BigDecimal.ZERO) > 0) {
+                double diem = dt.getDiemTongBaoVe().doubleValue();
+                deTaiCoDiemTongBV++;
+                sumDiemTongBV += diem;
+                maxDiemTongBV = Math.max(maxDiemTongBV, diem);
+                minDiemTongBV = Math.min(minDiemTongBV, diem);
+            }
         }
-        
+
         return ThongKeDiemResponse.builder()
                 .tongDeTai(tongDeTai)
                 .deTaiCoDiemHuongDan(deTaiCoDiemHD)
@@ -760,6 +775,9 @@ public class BoMonService {
                 .diemHuongDanThapNhat(minDiemHD == 10 ? 0 : minDiemHD)
                 .diemPhanBienThapNhat(minDiemPB == 10 ? 0 : minDiemPB)
                 .diemBaoVeThapNhat(minDiemBV == 10 ? 0 : minDiemBV)
+                .diemTongBaoVeTrungBinh(deTaiCoDiemTongBV > 0 ? Math.round(sumDiemTongBV / deTaiCoDiemTongBV * 100.0) / 100.0 : 0)
+                .diemTongBaoVeCaoNhat(maxDiemTongBV)
+                .diemTongBaoVeThapNhat(minDiemTongBV == 10 ? 0 : minDiemTongBV)
                 .build();
     }
 

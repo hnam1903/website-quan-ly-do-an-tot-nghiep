@@ -356,6 +356,7 @@ public class SinhVienService {
 
         if (dt.getDiemHuongDan() != null) builder.diemHuongDan(dt.getDiemHuongDan().getDiem());
         if (dt.getDiemPhanBien() != null) builder.diemPhanBien(dt.getDiemPhanBien().getDiem());
+        if (dt.getDiemTongBaoVe() != null) builder.diemTongBaoVe(dt.getDiemTongBaoVe());
 
         // Thông tin hội đồng bảo vệ
         if (dt.getHoiDongBaoVe() != null) {
@@ -409,12 +410,10 @@ public class SinhVienService {
                    .diaDiem(hd.getDiaDiem())
                    .nhanXetCham(hd.getNhanXetBaoVe());
 
-            // Tính điểm trung bình
-            BigDecimal avgDiem = diemBaoVeRepository.calculateAverageDiemByHoiDongId(hd.getId());
-            if (avgDiem != null) {
-                avgDiem = avgDiem.setScale(2, RoundingMode.HALF_UP);
+           
+            if (dt.getDiemTongBaoVe() != null) {
+                builder.diemTongBaoVe(dt.getDiemTongBaoVe().setScale(2, RoundingMode.HALF_UP));
             }
-            builder.diemBaoVe(avgDiem);
 
             if (hd.getThanhViens() != null && !hd.getThanhViens().isEmpty()) {
                 List<DeTaiResponse.ThanhVienInfo> tvList = hd.getThanhViens().stream()

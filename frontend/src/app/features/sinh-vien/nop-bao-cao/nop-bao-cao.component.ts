@@ -11,90 +11,228 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="page-header">
-      <div class="d-flex align-items-center gap-3">
-        <div class="page-icon bg-primary-subtle">
-          <i class="bi bi-file-earmark-arrow-up text-primary"></i>
-        </div>
-        <div>
-          <h2>Nộp báo cáo</h2>
-          <p class="mb-0">Nộp báo cáo cuối kỳ cho đồ án</p>
+    <div class="container-fluid py-4">
+      <!-- Header -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h2 class="mb-1">
+            <i class="bi bi-file-earmark-arrow-up me-2"></i>
+            Nộp báo cáo
+          </h2>
+          <p class="text-muted mb-0 small">Nộp báo cáo cuối kỳ cho đồ án</p>
         </div>
       </div>
-    </div>
 
-    <div *ngIf="!deTaiCuaToi" class="alert alert-warning">
-      <i class="bi bi-exclamation-triangle me-2"></i>Bạn chưa đăng ký đề tài hoặc đề tài chưa được duyệt.
-    </div>
+      <!-- Alert: Chưa đăng ký đề tài -->
+      <div class="alert alert-warning" *ngIf="!deTaiCuaToi">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        Bạn chưa đăng ký đề tài hoặc đề tài chưa được duyệt.
+      </div>
 
-    <div *ngIf="deTaiCuaToi" class="card">
-      <div class="card-body">
-        <div *ngIf="deTaiCuaToi && deTaiCuaToi.trangThai === 'DANG_THUC_HIEN' && !baoCao">
-          <div class="alert alert-info mb-4">
-            <i class="bi bi-info-circle me-2"></i>
-            <strong>Lưu ý:</strong> Bạn chỉ được nộp báo cáo một lần duy nhất. Vui lòng kiểm tra kỹ trước khi nộp.
-          </div>
-
-          <form (ngSubmit)="nopBaoCao()">
-            <div class="mb-4">
-              <label class="form-label">File báo cáo (Word) <span class="text-danger">*</span></label>
-              <input type="file" class="form-control" (change)="onFileChange($event)" accept=".doc,.docx" required>
-              <small class="text-muted d-block mt-1">Chấp nhận file .doc, .docx</small>
+      <!-- Main Card -->
+      <div class="card shadow-sm" *ngIf="deTaiCuaToi">
+        <div class="card-body">
+          <!-- Form Upload (chưa nộp) -->
+          <div *ngIf="deTaiCuaToi.trangThai === 'DANG_THUC_HIEN' && !baoCao">
+            <div class="alert alert-info mb-4">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Lưu ý:</strong> Bạn chỉ được nộp báo cáo một lần duy nhất. Vui lòng kiểm tra kỹ trước khi nộp.
             </div>
-            <button type="submit" class="btn btn-primary" [disabled]="!fileBaoCao || isSubmitting">
-              <i class="bi bi-upload me-2"></i>
-              <span *ngIf="isSubmitting">Đang nộp...</span>
-              <span *ngIf="!isSubmitting">Nộp báo cáo</span>
+
+            <div class="nbc-upload-area mb-4" (click)="triggerFileInput()"
+                 [class.nbc-dragover]="isDragover"
+                 (dragover)="onDragOver($event)"
+                 (dragleave)="onDragLeave($event)"
+                 (drop)="onDrop($event)">
+              <input type="file" #fileInput (change)="onFileChange($event)" accept=".doc,.docx" hidden>
+              <div class="nbc-upload-icon">
+                <i class="bi bi-cloud-arrow-up-fill"></i>
+              </div>
+              <div class="nbc-upload-text">
+                <span *ngIf="!fileBaoCao">Kéo thả file vào đây hoặc <strong>chọn file</strong></span>
+                <span *ngIf="fileBaoCao" class="nbc-file-name">
+                  <i class="bi bi-file-earmark-word"></i> {{ fileBaoCao.name }}
+                </span>
+              </div>
+              <small class="nbc-upload-hint">Chấp nhận file .doc, .docx</small>
+            </div>
+
+            <button class="btn btn-success w-100" (click)="nopBaoCao()"
+                    [disabled]="!fileBaoCao || isSubmitting">
+              <span *ngIf="isSubmitting">
+                <i class="bi bi-arrow-repeat spin me-2"></i>Đang nộp...
+              </span>
+              <span *ngIf="!isSubmitting">
+                <i class="bi bi-upload me-2"></i>Nộp báo cáo
+              </span>
             </button>
-          </form>
-        </div>
+          </div>
 
-        <div *ngIf="deTaiCuaToi && deTaiCuaToi.trangThai === 'DA_NOP_BAO_CAO' && baoCao" class="alert alert-success">
-          <i class="bi bi-check-circle-fill me-2"></i>
-          <strong>Đã nộp báo cáo!</strong> File của bạn đã được nộp thành công. Vui lòng chờ GVHD chấm điểm.
-        </div>
+          <!-- Alert: Đã nộp -->
+          <div class="alert alert-success" *ngIf="deTaiCuaToi.trangThai === 'DA_NOP_BAO_CAO' && baoCao">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong>Đã nộp báo cáo!</strong> File của bạn đã được nộp thành công. Vui lòng chờ GVHD chấm điểm.
+          </div>
 
-        <div *ngIf="baoCao" class="mt-4">
-          <h5 class="mb-4"><i class="bi bi-file-earmark-text me-2"></i>Thông tin báo cáo đã nộp</h5>
-          <table class="table table-bordered">
-            <tbody>
-              <tr>
-                <th width="30%" class="bg-light">Ngày nộp:</th>
-                <td>{{ baoCao.ngayNop | date:'dd/MM/yyyy HH:mm' }}</td>
-              </tr>
-              <tr>
-                <th class="bg-light">Trạng thái:</th>
-                <td><span class="badge badge-success">Đã nộp</span></td>
-              </tr>
-              <tr>
-                <th class="bg-light">Tên đề tài:</th>
-                <td>{{ baoCao.tenDeTai }}</td>
-              </tr>
-            </tbody>
-          </table>
+          <!-- Thông tin báo cáo đã nộp -->
+          <div *ngIf="baoCao">
+            <h5 class="mb-4">
+              <i class="bi bi-file-earmark-text me-2"></i>Thông tin báo cáo đã nộp
+            </h5>
+            <table >
+              <tbody>
+                <tr>
+                  <th width="30%" class="bg-light">Ngày nộp:</th>
+                  <td>{{ baoCao.ngayNop | date:'dd/MM/yyyy HH:mm' }}</td>
+                </tr>
+                <tr>
+                  <th class="bg-light">Trạng thái:</th>
+                  <td><span class="badge bg-success">Đã nộp</span></td>
+                </tr>
+                <tr>
+                  <th class="bg-light">Tên đề tài:</th>
+                  <td>{{ baoCao.tenDeTai }}</td>
+                </tr>
+              </tbody>
+            </table>
 
-          <div class="mt-4" *ngIf="baoCao.fileBaoCao">
-            <h6 class="mb-3"><i class="bi bi-paperclip me-2"></i>Tài liệu đã nộp:</h6>
-            <button (click)="downloadFile(baoCao.fileBaoCao)" class="btn btn-outline-primary">
-              <i class="fas fa-download me-2"></i>Tải báo cáo
-            </button>
+            <div class="mt-4" *ngIf="baoCao.fileBaoCao">
+              <h6 class="mb-3">
+                <i class="bi bi-paperclip me-2"></i>Tài liệu đã nộp:
+              </h6>
+              <button class="btn btn-outline-primary" (click)="downloadFile(baoCao.fileBaoCao)">
+                <i class="fas fa-download me-2"></i>Tải báo cáo
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    .nbc-upload-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      background: #f8f9fa;
+      border: 2px dashed #dee2e6;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+    .nbc-upload-area:hover,
+    .nbc-dragover {
+      border-color: #198754;
+      background: #f0fff4;
+    }
+    .nbc-upload-icon {
+      width: 72px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #198754;
+      border-radius: 50%;
+      margin-bottom: 16px;
+      font-size: 32px;
+      color: white;
+    }
+    .nbc-upload-text {
+      font-size: 15px;
+      color: #495057;
+      margin-bottom: 8px;
+    }
+    .nbc-upload-text strong {
+      color: #198754;
+    }
+    .nbc-upload-hint {
+      font-size: 13px;
+      color: #adb5bd;
+    }
+    .nbc-file-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #198754;
+      font-weight: 500;
+    }
+    .nbc-file-name i {
+      font-size: 20px;
+    }
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  `]
 })
 export class NopBaoCaoComponent implements OnInit {
   deTaiCuaToi: DeTaiResponse | null = null;
   baoCao: BaoCaoResponse | null = null;
   fileBaoCao: File | null = null;
   isSubmitting = false;
+  isDragover = false;
 
   constructor(
     private svService: SinhVienService,
     private toastr: ToastrService,
     private authService: AuthService
   ) {}
+
+  ngOnInit(): void {
+    this.loadData();
+  }
+
+  loadData(): void {
+    this.svService.getDeTaiCuaToi().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.deTaiCuaToi = res.data;
+        }
+      }
+    });
+
+    this.svService.getBaoCaoCuaToi().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.baoCao = res.data;
+        }
+      }
+    });
+  }
+
+  triggerFileInput(): void {
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    input?.click();
+  }
+
+  onFileChange(event: any): void {
+    this.fileBaoCao = event.target.files[0];
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragover = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragover = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragover = false;
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.fileBaoCao = files[0];
+    }
+  }
 
   getDownloadUrl(filePath: string): string {
     return `http://localhost:8080/api/files/download?path=${encodeURIComponent(filePath)}`;
@@ -129,39 +267,12 @@ export class NopBaoCaoComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.loadData();
-  }
-
-  loadData(): void {
-    this.svService.getDeTaiCuaToi().subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.deTaiCuaToi = res.data;
-        }
-      }
-    });
-
-    this.svService.getBaoCaoCuaToi().subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.baoCao = res.data;
-        }
-      }
-    });
-  }
-
-  onFileChange(event: any): void {
-    this.fileBaoCao = event.target.files[0];
-  }
-
   nopBaoCao(): void {
     if (!this.fileBaoCao) {
       this.toastr.warning('Vui lòng chọn file báo cáo');
       return;
     }
 
-    // Validate file type
     const fileName = this.fileBaoCao.name.toLowerCase();
     if (!fileName.endsWith('.doc') && !fileName.endsWith('.docx')) {
       this.toastr.warning('File báo cáo phải là file Word (.doc hoặc .docx)');

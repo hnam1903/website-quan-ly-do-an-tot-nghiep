@@ -8,79 +8,219 @@ import { DeTaiResponse } from '../../../core/models/models';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="page-header">
-      <h2>Lịch bảo vệ tốt nghiệp</h2>
-      
-    </div>
-
-    <div *ngIf="!coLich" class="alert alert-info">
-      <i class="bi bi-info-circle me-2"></i>
-      Hiện tại chưa có lịch bảo vệ. Vui lòng chờ thông báo từ Bộ môn.
-    </div>
-
-    <div *ngIf="coLich && lichBaoVe" class="card">
-      <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="bi bi-calendar-event me-2"></i>Thông tin lịch bảo vệ</h5>
+    <div class="container-fluid py-4">
+      <!-- Header -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <h2 class="mb-1">
+            <i class="bi bi-calendar-event me-2"></i>
+            Lịch bảo vệ tốt nghiệp
+          </h2>
+          <p class="text-muted mb-0 small">Xem thông tin lịch bảo vệ đồ án của bạn</p>
+        </div>
       </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="mb-4">
-              <h6 class="text-muted mb-2">Đề tài</h6>
-              <h5 class="text-primary">{{ lichBaoVe.tenDeTai }}</h5>
+
+      <!-- Alert: Chưa có lịch -->
+      <div class="alert alert-info" *ngIf="!coLich">
+        <i class="bi bi-info-circle me-2"></i>
+        Hiện tại chưa có lịch bảo vệ. Vui lòng chờ thông báo từ Bộ môn.
+      </div>
+
+      <!-- Main Card -->
+      <div class="card shadow-sm" *ngIf="coLich && lichBaoVe">
+        
+        <div class="card-body p-4">
+          <div class="row">
+            <!-- Cột trái -->
+            <div class="col-md-6">
+              <div class="lbv-info-section">
+                <div class="lbv-label">
+                  <i class="bi bi-card-heading"></i> Đề tài
+                </div>
+                <h5 class="lbv-value text-primary">{{ lichBaoVe.tenDeTai }}</h5>
+              </div>
+
+              <div class="lbv-info-section">
+                <div class="lbv-label">
+                  <i class="bi bi-calendar3"></i> Ngày bảo vệ
+                </div>
+                <h4 class="lbv-value lbv-date">
+                  <i class="bi bi-calendar-event me-2"></i>
+                  {{ lichBaoVe.ngayBaoVe ? (lichBaoVe.ngayBaoVe | date:'dd/MM/yyyy') : 'Chưa xác định' }}
+                </h4>
+              </div>
+
+              <div class="lbv-info-section">
+                <div class="lbv-label">
+                  <i class="bi bi-geo-alt"></i> Địa điểm
+                </div>
+                <h5 class="lbv-value">
+                  <i class="bi bi-building me-2 text-danger"></i>
+                  {{ lichBaoVe.diaDiem || 'Chưa xác định' }}
+                </h5>
+              </div>
             </div>
 
-            <div class="mb-4">
-              <h6 class="text-muted mb-2">Ngày bảo vệ</h6>
-              <p class="h4 text-success">
-                <i class="bi bi-calendar3 me-2"></i>
-                {{ lichBaoVe.ngayBaoVe ? (lichBaoVe.ngayBaoVe | date:'dd/MM/yyyy') : 'Chưa xác định' }}
-              </p>
-            </div>
+            <!-- Cột phải -->
+            <div class="col-md-6">
+              <div class="lbv-info-section">
+                <div class="lbv-label">
+                  <i class="bi bi-person"></i> Sinh viên
+                </div>
+                <p class="lbv-value mb-1"><strong>{{ lichBaoVe.hoTenSinhVien }}</strong></p>
+                <p class="lbv-sub-text mb-0">MSSV: {{ lichBaoVe.maSinhVien }} | Lớp: {{ lichBaoVe.lopSinhVien }}</p>
+              </div>
 
-            <div class="mb-4">
-              <h6 class="text-muted mb-2">Địa điểm</h6>
-              <p class="h5">
-                <i class="bi bi-geo-alt text-danger me-2"></i>
-                {{ lichBaoVe.diaDiem || 'Chưa xác định' }}
-              </p>
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="mb-4">
-              <h6 class="text-muted mb-2">Sinh viên</h6>
-              <p class="mb-1"><strong>{{ lichBaoVe.hoTenSinhVien }}</strong></p>
-              <p class="text-muted mb-0">MSSV: {{ lichBaoVe.maSinhVien }} | Lớp: {{ lichBaoVe.lopSinhVien }}</p>
-            </div>
-
-            <div class="mb-4">
-              <h6 class="text-muted mb-2">Giảng viên hướng dẫn</h6>
-              <p><strong>{{ lichBaoVe.hoTenGiangVienHuongDan || 'Chưa phân công' }}</strong></p>
-            </div>
-
-            <div class="mb-4">
-              <h6 class="text-muted mb-2">Hội đồng bảo vệ</h6>
-              <ul class="list-unstyled" *ngIf="lichBaoVe.thanhVienHoiDongList?.length">
-                <li *ngFor="let tv of lichBaoVe.thanhVienHoiDongList" class="mb-2">
+              <div class="lbv-info-section">
+                <div class="lbv-label">
+                  <i class="bi bi-mortarboard"></i> Giảng viên hướng dẫn
+                </div>
+                <p class="lbv-value mb-0">
                   <i class="bi bi-person-badge me-2 text-primary"></i>
-                  {{ tv.hoTen }}
-                  <span class="badge bg-secondary ms-2">{{ getVaiTroText(tv.vaiTro) }}</span>
-                </li>
-              </ul>
-              <p *ngIf="!lichBaoVe.thanhVienHoiDongList?.length" class="text-muted">Chưa có thông tin hội đồng</p>
+                  {{ lichBaoVe.hoTenGiangVienHuongDan || 'Chưa phân công' }}
+                </p>
+              </div>
+
+              <div class="lbv-info-section">
+                <div class="lbv-label">
+                  <i class="bi bi-people"></i> Hội đồng bảo vệ
+                </div>
+                <ul class="lbv-member-list" *ngIf="lichBaoVe.thanhVienHoiDongList?.length">
+                  <li *ngFor="let tv of lichBaoVe.thanhVienHoiDongList" class="lbv-member-item">
+                    <i class="bi bi-person-circle"></i>
+                    <span class="lbv-member-name">{{ tv.hoTen }}</span>
+                    <span class="lbv-member-role">{{ getVaiTroText(tv.vaiTro) }}</span>
+                  </li>
+                </ul>
+                <p *ngIf="!lichBaoVe.thanhVienHoiDongList?.length" class="lbv-no-data">Chưa có thông tin hội đồng</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Note -->
+          <div class="lbv-note">
+            <i class="bi bi-lightbulb-fill"></i>
+            <div>
+              <strong>Lưu ý:</strong> Vui lòng có mặt đúng ngày và ăn mặc lịch sự.
             </div>
           </div>
         </div>
-
-        <div class="alert alert-warning mt-4">
-          <i class="bi bi-lightbulb me-2"></i>
-          <strong>Lưu ý:</strong> Vui lòng có mặt đúng ngày và ăn mặc lịch sự.
-        </div>
-
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    /* Info Section */
+    .lbv-info-section {
+      margin-bottom: 24px;
+    }
+    .lbv-info-section:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Label */
+    .lbv-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6c757d;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .lbv-label i {
+      font-size: 14px;
+    }
+
+    /* Value */
+    .lbv-value {
+      margin: 0;
+      font-size: 16px;
+      color: #212529;
+      line-height: 1.5;
+    }
+    .lbv-sub-text {
+      font-size: 14px;
+      color: #6c757d;
+    }
+
+    /* Date Special Style */
+    .lbv-date {
+      color: #198754;
+      font-weight: 600;
+    }
+
+    /* Member List */
+    .lbv-member-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .lbv-member-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+    }
+    .lbv-member-item:hover {
+      background: #e9ecef;
+    }
+    .lbv-member-item:last-child {
+      margin-bottom: 0;
+    }
+    .lbv-member-item i {
+      font-size: 20px;
+      color: #6c757d;
+    }
+    .lbv-member-name {
+      flex: 1;
+      font-weight: 500;
+      color: #333;
+    }
+    .lbv-member-role {
+      background: #e7f1ff;
+      color: #0d6efd;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* No Data */
+    .lbv-no-data {
+      color: #adb5bd;
+      font-style: italic;
+      margin: 0;
+      padding: 10px 0;
+    }
+
+    /* Note Box */
+    .lbv-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 20px;
+      background: #fff3cd;
+      border: 1px solid #ffe69c;
+      border-radius: 10px;
+      margin-top: 24px;
+    }
+    .lbv-note i {
+      font-size: 20px;
+      color: #ffc107;
+      margin-top: 2px;
+    }
+    .lbv-note div {
+      flex: 1;
+      color: #664d03;
+      margin: 0;
+    }
+  `]
 })
 export class LichBaoVeComponent implements OnInit {
   lichBaoVe: DeTaiResponse | null = null;

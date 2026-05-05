@@ -77,13 +77,13 @@ import { ToastrService } from 'ngx-toastr';
                   <td class="text-center">
                     <strong>{{ hd.diemBaoVe || '-' }}</strong>
                   </td>
-                  <td>
-                    <div class="d-flex gap-2">
-                      <button class="btn btn-sm btn-outline-warning btn-icon" (click)="openEditModal(hd)" *ngIf="hd.trangThai === 'DA_BAO_VE' || hd.diemBaoVe" title="Sửa điểm">
-                        <i class="bi bi-pencil"></i>
+                  <td class="text-center">
+                    <div class="action-buttons">
+                      <button class="btn btn-sm btn-outline-primary btn-icon" (click)="openEditModal(hd)" *ngIf="hd.trangThai === 'DA_BAO_VE' || hd.diemBaoVe" title="Sửa điểm">
+                        <span class="material-symbols-outlined">edit</span>
                       </button>
-                      <button class="btn btn-sm btn-outline-info btn-icon" (click)="xemChiTiet(hd)" title="Xem chi tiết">
-                        <i class="bi bi-eye"></i>
+                      <button class="btn btn-sm btn-outline-primary btn-icon" (click)="xemChiTiet(hd)" title="Xem chi tiết">
+                        <span class="material-symbols-outlined">visibility</span>
                       </button>
                     </div>
                   </td>

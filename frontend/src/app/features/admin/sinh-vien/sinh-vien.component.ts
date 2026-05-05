@@ -43,6 +43,7 @@ import { ToastrService } from 'ngx-toastr';
                 <th>Lớp</th>
                 <th>Email</th>
                 <th>Bộ môn</th>
+                <th>Tài khoản</th>
                 <th>Thao tác</th>
               </tr>
             </thead>
@@ -55,9 +56,19 @@ import { ToastrService } from 'ngx-toastr';
                 <td>{{ sv.email }}</td>
                 <td>{{ sv.tenBoMon }}</td>
                 <td>
+                  <span [class]="sv.trangThaiTaiKhoan ? 'bg-success' : 'bg-danger'" class="badge">
+                    {{ sv.trangThaiTaiKhoan ? 'Hoạt động' : 'Bị khóa' }}
+                  </span>
+                </td>
+                <td>
                   <div class="action-buttons">
                     <button class="btn btn-sm btn-outline-primary" (click)="editSinhVien(sv)">
                       <span class="material-symbols-outlined me-1">edit</span>Sửa
+                    </button>
+                    <button class="btn btn-sm" [class.btn-outline-success]="!sv.trangThaiTaiKhoan" [class.btn-outline-danger]="sv.trangThaiTaiKhoan"
+                            (click)="toggleTaiKhoan(sv)">
+                      <span class="material-symbols-outlined me-1">{{ sv.trangThaiTaiKhoan ? 'lock' : 'lock_open' }}</span>
+                      {{ sv.trangThaiTaiKhoan ? 'Khóa' : 'Mở' }}
                     </button>
                     <button class="btn btn-sm btn-outline-danger" (click)="deleteSinhVien(sv.id)">
                       <span class="material-symbols-outlined me-1">delete</span>Xóa
@@ -66,12 +77,12 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
               </tr>
               <tr *ngIf="sinhVienList.length === 0 && !isLoading">
-                <td colspan="7" class="text-center py-4 text-muted">
+                <td colspan="8" class="text-center py-4 text-muted">
                   Không có dữ liệu
                 </td>
               </tr>
               <tr *ngIf="isLoading">
-                <td colspan="7" class="text-center py-4">
+                <td colspan="8" class="text-center py-4">
                   <span class="spinner-border spinner-border-sm me-2"></span> Đang tải...
                 </td>
               </tr>
@@ -266,6 +277,30 @@ export class SinhVienComponent implements OnInit {
             this.toastr.success('Thêm thành công!');
             this.loadSinhVien();
             this.closeModal();
+          }
+        }
+      });
+    }
+  }
+
+  toggleTaiKhoan(sv: SinhVienResponse): void {
+    if (sv.trangThaiTaiKhoan) {
+      if (confirm(`Bạn có chắc chắn muốn khóa tài khoản của "${sv.hoTen}"?`)) {
+        this.adminService.khoaTaiKhoan(sv.taiKhoanId!).subscribe({
+          next: (res) => {
+            if (res.success) {
+              this.toastr.success('Đã khóa tài khoản!');
+              this.loadSinhVien();
+            }
+          }
+        });
+      }
+    } else {
+      this.adminService.moTaiKhoan(sv.taiKhoanId!).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.toastr.success('Đã mở tài khoản!');
+            this.loadSinhVien();
           }
         }
       });

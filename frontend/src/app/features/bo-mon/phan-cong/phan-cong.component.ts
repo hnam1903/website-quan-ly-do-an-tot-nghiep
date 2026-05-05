@@ -100,8 +100,8 @@ export class PhanCongComponent implements OnInit {
     const currentUser = this.authService.getCurrentUser();
     const boMonId = currentUser?.boMonId;
 
-    // Lấy đề tài DANG_THUC_HIEN - đã duyệt, cần phân công GVHD
-    this.boMonService.getDeTai('DANG_THUC_HIEN', boMonId).subscribe({
+    // Lấy đề tài CHO_GV_DUYET - chờ GV duyệt
+    this.boMonService.getDeTai('CHO_GV_DUYET', boMonId).subscribe({
       next: (res) => {
         if (res.success) this.svDuDieuKien = res.data;
       }

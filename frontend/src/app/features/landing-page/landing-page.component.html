@@ -46,10 +46,95 @@
         </div>
         <div class="hero-image-wrapper">
           <div class="hero-image-glow"></div>
-          <img class="hero-image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC619gUPYm5ekSLy0KQbmdW4KVQKaAWCtoEjlCCyQyVhOTy_obBEsLUWnBDGjNxWLiTp82dQmSWIyTyRhiXuRwwdT63LT_NVprP4E1-dfEeXvkA5hQt9l65FEfoGyQWnz5DmITkGmOBcX7a3KW3a0CNQjVW99MT8NZF0lRwr2otzZBXpyqjsiofNaBUad5DaY-4DjGLoOCOt_owPmeLvx9iKUqNV3neSEpUZfypSx_E8FQqQnzVOalnjDye1P5Yj73efmKaZ123Pc3Q" alt="Students collaborating in a high-tech modern computer lab">
+          <img class="hero-image" src="assets/images/Dh-Mo-Dia-Chat.jpg" alt="Sinh viên làm việc trong phòng thí nghiệm công nghệ cao">
         </div>
       </div>
     </section>
+
+    <!-- Chatbot Button -->
+    <button class="chatbot-fab" (click)="toggleChatbot()" [class.active]="showChatbot">
+      <span class="material-symbols-outlined">{{ showChatbot ? 'close' : 'chat' }}</span>
+    </button>
+
+    <!-- Chatbot Panel -->
+    <div class="chatbot-panel" [class.open]="showChatbot">
+      <div class="chatbot-header">
+        <div class="chatbot-title">
+          <span class="material-symbols-outlined">smart_toy</span>
+          <h3>Tư vấn đề tài</h3>
+        </div>
+        <button class="chatbot-close" (click)="closeChatbot()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="chatbot-body">
+        <div class="chat-messages">
+          <div class="welcome-message">
+            <div class="bot-avatar">
+              <span class="material-symbols-outlined">smart_toy</span>
+            </div>
+            <div class="message-content">
+              <p>Xin chào! Tôi có thể giúp bạn tìm kiếm đề tài đồ án phù hợp.</p>
+              <p class="hint">Mô tả lĩnh vực bạn quan tâm, ví dụ: "web bán hàng", "ứng dụng di động", "AI",...</p>
+            </div>
+          </div>
+          <div *ngFor="let msg of chatMessages" [class]="'message-item ' + msg.role">
+            <div *ngIf="msg.role === 'bot'" class="bot-avatar">
+              <span class="material-symbols-outlined">smart_toy</span>
+            </div>
+            <div class="message-content">
+              <p>{{ msg.content }}</p>
+              <div *ngIf="msg.deTaiList && msg.deTaiList.length > 0" class="de-tai-list">
+                <div *ngFor="let deTai of msg.deTaiList; let i = index" class="de-tai-card">
+                  <div class="de-tai-header">
+                    <span class="de-tai-number">{{ i + 1 }}</span>
+                    <h4>{{ deTai.tenDeTai }}</h4>
+                  </div>
+                  <div class="de-tai-body">
+                    <div class="de-tai-section">
+                      <strong>Nội dung dự kiến:</strong>
+                      <p>{{ deTai.noiDungDuKien }}</p>
+                    </div>
+                    <div class="de-tai-section">
+                      <strong>Công nghệ:</strong>
+                      <p>{{ deTai.congNgheSuDung }}</p>
+                    </div>
+                    <div class="de-tai-section evaluation">
+                      <strong>Đánh giá thực tế:</strong>
+                      <p>{{ deTai.danhGiaThucTe }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="msg.role === 'user'" class="user-avatar">
+              <span class="material-symbols-outlined">person</span>
+            </div>
+          </div>
+          <div *ngIf="isLoading" class="message-item bot loading">
+            <div class="bot-avatar">
+              <span class="material-symbols-outlined">smart_toy</span>
+            </div>
+            <div class="message-content">
+              <div class="typing-indicator">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="chatbot-input">
+        <textarea 
+          [(ngModel)]="userMessage" 
+          (keypress)="onKeyPress($event)"
+          placeholder="Nhập mô tả đề tài bạn quan tâm..."
+          rows="1">
+        </textarea>
+        <button (click)="sendMessage()" [disabled]="isLoading || !userMessage.trim()">
+          <span class="material-symbols-outlined">send</span>
+        </button>
+      </div>
+    </div>
 
     <!-- 2. Latest Notifications Section -->
     <section class="notifications-section">

@@ -17,4 +17,6 @@ public class GiangVienResponse {
     private Long boMonId;
     private String tenBoMon;
     private Boolean laLanhDao;
+    private Long taiKhoanId;
+    private Boolean trangThaiTaiKhoan;
 }

@@ -20,4 +20,6 @@ public class SinhVienResponse {
     private Long deTaiId;
     private String deTaiTen;
     private String deTaiTrangThai;
+    private Long taiKhoanId;
+    private Boolean trangThaiTaiKhoan;
 }

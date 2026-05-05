@@ -58,7 +58,7 @@ import { ToastrService } from 'ngx-toastr';
                 <td><code>{{ sv.maSinhVien }}</code></td>
                 <td><strong>{{ sv.hoTen }}</strong></td>
                 <td>{{ sv.lop || '-' }}</td>
-                <td><span class="badge badge-secondary">{{ sv.tenBoMon || '-' }}</span></td>
+                <td>{{ sv.tenBoMon || '-' }}</td>
                 <td class="text-muted">{{ sv.email }}</td>
               </tr>
               <tr *ngIf="filteredSinhVienList.length === 0">
