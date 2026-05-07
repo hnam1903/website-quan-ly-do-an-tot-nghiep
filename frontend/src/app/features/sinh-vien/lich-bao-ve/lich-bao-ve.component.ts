@@ -13,7 +13,7 @@ import { DeTaiResponse } from '../../../core/models/models';
       <div class="row mb-4">
         <div class="col-12">
           <h2 class="mb-1">
-            <i class="bi bi-calendar-event me-2"></i>
+            <span class="material-symbols-outlined me-2">event</span>
             Lịch bảo vệ tốt nghiệp
           </h2>
           <p class="text-muted mb-0 small">Xem thông tin lịch bảo vệ đồ án của bạn</p>
@@ -22,7 +22,7 @@ import { DeTaiResponse } from '../../../core/models/models';
 
       <!-- Alert: Chưa có lịch -->
       <div class="alert alert-info" *ngIf="!coLich">
-        <i class="bi bi-info-circle me-2"></i>
+        <span class="material-symbols-outlined me-2">info</span>
         Hiện tại chưa có lịch bảo vệ. Vui lòng chờ thông báo từ Bộ môn.
       </div>
 
@@ -35,27 +35,27 @@ import { DeTaiResponse } from '../../../core/models/models';
             <div class="col-md-6">
               <div class="lbv-info-section">
                 <div class="lbv-label">
-                  <i class="bi bi-card-heading"></i> Đề tài
+                  <span class="material-symbols-outlined">topic</span> Đề tài
                 </div>
                 <h5 class="lbv-value text-primary">{{ lichBaoVe.tenDeTai }}</h5>
               </div>
 
               <div class="lbv-info-section">
                 <div class="lbv-label">
-                  <i class="bi bi-calendar3"></i> Ngày bảo vệ
+                  <span class="material-symbols-outlined">calendar_month</span> Ngày bảo vệ
                 </div>
                 <h4 class="lbv-value lbv-date">
-                  <i class="bi bi-calendar-event me-2"></i>
+                  <span class="material-symbols-outlined me-2">event</span>
                   {{ lichBaoVe.ngayBaoVe ? (lichBaoVe.ngayBaoVe | date:'dd/MM/yyyy') : 'Chưa xác định' }}
                 </h4>
               </div>
 
               <div class="lbv-info-section">
                 <div class="lbv-label">
-                  <i class="bi bi-geo-alt"></i> Địa điểm
+                  <span class="material-symbols-outlined">location_on</span> Địa điểm
                 </div>
                 <h5 class="lbv-value">
-                  <i class="bi bi-building me-2 text-danger"></i>
+                  <span class="material-symbols-outlined me-2 text-danger">location_on</span>
                   {{ lichBaoVe.diaDiem || 'Chưa xác định' }}
                 </h5>
               </div>
@@ -65,7 +65,7 @@ import { DeTaiResponse } from '../../../core/models/models';
             <div class="col-md-6">
               <div class="lbv-info-section">
                 <div class="lbv-label">
-                  <i class="bi bi-person"></i> Sinh viên
+                  <span class="material-symbols-outlined">school</span> Sinh viên
                 </div>
                 <p class="lbv-value mb-1"><strong>{{ lichBaoVe.hoTenSinhVien }}</strong></p>
                 <p class="lbv-sub-text mb-0">MSSV: {{ lichBaoVe.maSinhVien }} | Lớp: {{ lichBaoVe.lopSinhVien }}</p>
@@ -73,21 +73,21 @@ import { DeTaiResponse } from '../../../core/models/models';
 
               <div class="lbv-info-section">
                 <div class="lbv-label">
-                  <i class="bi bi-mortarboard"></i> Giảng viên hướng dẫn
+                  <span class="material-symbols-outlined">school</span> Giảng viên hướng dẫn
                 </div>
                 <p class="lbv-value mb-0">
-                  <i class="bi bi-person-badge me-2 text-primary"></i>
+                  <span class="material-symbols-outlined me-2 text-primary">badge</span>
                   {{ lichBaoVe.hoTenGiangVienHuongDan || 'Chưa phân công' }}
                 </p>
               </div>
 
               <div class="lbv-info-section">
                 <div class="lbv-label">
-                  <i class="bi bi-people"></i> Hội đồng bảo vệ
+                  <span class="material-symbols-outlined">group</span> Hội đồng bảo vệ
                 </div>
                 <ul class="lbv-member-list" *ngIf="lichBaoVe.thanhVienHoiDongList?.length">
                   <li *ngFor="let tv of lichBaoVe.thanhVienHoiDongList" class="lbv-member-item">
-                    <i class="bi bi-person-circle"></i>
+                    <span class="material-symbols-outlined">account_circle</span>
                     <span class="lbv-member-name">{{ tv.hoTen }}</span>
                     <span class="lbv-member-role">{{ getVaiTroText(tv.vaiTro) }}</span>
                   </li>
@@ -99,7 +99,7 @@ import { DeTaiResponse } from '../../../core/models/models';
 
           <!-- Note -->
           <div class="lbv-note">
-            <i class="bi bi-lightbulb-fill"></i>
+            <span class="material-symbols-outlined">lightbulb</span>
             <div>
               <strong>Lưu ý:</strong> Vui lòng có mặt đúng ngày và ăn mặc lịch sự.
             </div>

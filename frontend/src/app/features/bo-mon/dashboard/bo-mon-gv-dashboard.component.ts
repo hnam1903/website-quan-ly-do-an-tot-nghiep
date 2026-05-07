@@ -17,7 +17,7 @@ import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DotBaoCaoTienDoRe
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h2 class="mb-1">
-                <i class="bi bi-speedometer2 me-2"></i>
+                <span class="material-symbols-outlined me-2">dashboard</span>
                 Dashboard Giảng viên
               </h2>
               <p class="text-muted mb-0 small" *ngIf="userInfo">
@@ -25,7 +25,7 @@ import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DotBaoCaoTienDoRe
               </p>
             </div>
             <button class="btn btn-outline-primary" (click)="refresh()" [disabled]="loading">
-              <i class="bi bi-arrow-clockwise" [class.spin]="loading"></i> Làm mới
+              <span class="material-symbols-outlined" [class.spin]="loading">sync</span> Làm mới
             </button>
           </div>
         </div>
@@ -46,16 +46,12 @@ import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DotBaoCaoTienDoRe
           <div class="col-lg-3 col-md-6 mb-4">
             <div class="card h-100 shadow-sm border-warning">
               <div class="card-body text-center">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <div class="bg-warning bg-opacity-10 p-2 rounded">
-                    <i class="bi bi-hourglass-split text-warning" style="font-size: 1.5rem;"></i>
-                  </div>
-                  <span *ngIf="soSinhVienChoDuyet > 0" class="badge bg-danger rounded-pill">{{ soSinhVienChoDuyet }}</span>
-                </div>
+                <span class="material-symbols-outlined text-warning mb-2" style="font-size: 2.5rem;">hourglass_empty</span>
                 <h3 class="mb-1">{{ soSinhVienChoDuyet }}</h3>
-                <p class="text-muted mb-2">Sinh viên chờ duyệt</p>
-                <a *ngIf="soSinhVienChoDuyet > 0" routerLink="/bo-mon/gv-huong-dan/duyet" class="btn btn-sm btn-outline-warning">
-                  Xem ngay <i class="bi bi-arrow-right ms-1"></i>
+                <p class="text-muted mb-0">Sinh viên chờ duyệt</p>
+                <span *ngIf="soSinhVienChoDuyet > 0" class="badge bg-danger rounded-pill mt-2">{{ soSinhVienChoDuyet }}</span>
+                <a *ngIf="soSinhVienChoDuyet > 0" routerLink="/bo-mon/gv-huong-dan/duyet" class="btn btn-sm btn-outline-warning mt-2">
+                  Xem ngay <span class="material-symbols-outlined ms-1" style="font-size: 16px;">arrow_forward</span>
                 </a>
               </div>
             </div>
@@ -65,15 +61,11 @@ import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DotBaoCaoTienDoRe
           <div class="col-lg-3 col-md-6 mb-4">
             <div class="card h-100 shadow-sm border-primary">
               <div class="card-body text-center">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <div class="bg-primary bg-opacity-10 p-2 rounded">
-                    <i class="bi bi-people-fill text-primary" style="font-size: 1.5rem;"></i>
-                  </div>
-                </div>
+                <span class="material-symbols-outlined text-primary mb-2" style="font-size: 2.5rem;">group</span>
                 <h3 class="mb-1">{{ soSinhVienHuongDan }}</h3>
-                <p class="text-muted mb-2">Sinh viên đang hướng dẫn</p>
-                <a routerLink="/bo-mon/gv-huong-dan/danh-sach" class="btn btn-sm btn-outline-primary">
-                  Xem danh sách <i class="bi bi-arrow-right ms-1"></i>
+                <p class="text-muted mb-0">Sinh viên đang hướng dẫn</p>
+                <a routerLink="/bo-mon/gv-huong-dan/danh-sach" class="btn btn-sm btn-outline-primary mt-2">
+                  Xem danh sách <span class="material-symbols-outlined ms-1" style="font-size: 16px;">arrow_forward</span>
                 </a>
               </div>
             </div>
@@ -83,16 +75,12 @@ import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DotBaoCaoTienDoRe
           <div class="col-lg-3 col-md-6 mb-4">
             <div class="card h-100 shadow-sm border-success">
               <div class="card-body text-center">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <div class="bg-success bg-opacity-10 p-2 rounded">
-                    <i class="bi bi-clipboard-check-fill text-success" style="font-size: 1.5rem;"></i>
-                  </div>
-                  <span *ngIf="soDeTaiChuaChamDiemPB > 0" class="badge bg-warning text-dark rounded-pill">{{ soDeTaiChuaChamDiemPB }} chưa chấm</span>
-                </div>
+                <span class="material-symbols-outlined text-success mb-2" style="font-size: 2.5rem;">task_alt</span>
                 <h3 class="mb-1">{{ soSinhVienPhanBien }}</h3>
-                <p class="text-muted mb-2">Đề tài phản biện</p>
-                <a routerLink="/bo-mon/gv-phan-bien/danh-sach" class="btn btn-sm btn-outline-success">
-                  Xem danh sách <i class="bi bi-arrow-right ms-1"></i>
+                <p class="text-muted mb-0">Đề tài phản biện</p>
+                <span *ngIf="soDeTaiChuaChamDiemPB > 0" class="badge bg-warning text-dark rounded-pill mt-2">{{ soDeTaiChuaChamDiemPB }} chưa chấm</span>
+                <a routerLink="/bo-mon/gv-phan-bien/danh-sach" class="btn btn-sm btn-outline-success mt-2">
+                  Xem danh sách <span class="material-symbols-outlined ms-1" style="font-size: 16px;">arrow_forward</span>
                 </a>
               </div>
             </div>
@@ -102,15 +90,11 @@ import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DotBaoCaoTienDoRe
           <div class="col-lg-3 col-md-6 mb-4">
             <div class="card h-100 shadow-sm border-danger">
               <div class="card-body text-center">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                  <div class="bg-danger bg-opacity-10 p-2 rounded">
-                    <i class="bi bi-shield-check text-danger" style="font-size: 1.5rem;"></i>
-                  </div>
-                </div>
+                <span class="material-symbols-outlined text-danger mb-2" style="font-size: 2.5rem;">groups</span>
                 <h3 class="mb-1">{{ soHoiDong }}</h3>
-                <p class="text-muted mb-2">Hội đồng bảo vệ</p>
-                <a routerLink="/bo-mon/gv-hoi-dong/danh-sach" class="btn btn-sm btn-outline-danger">
-                  Lịch bảo vệ <i class="bi bi-arrow-right ms-1"></i>
+                <p class="text-muted mb-0">Hội đồng bảo vệ</p>
+                <a routerLink="/bo-mon/gv-hoi-dong/danh-sach" class="btn btn-sm btn-outline-danger mt-2">
+                  Lịch bảo vệ <span class="material-symbols-outlined ms-1" style="font-size: 16px;">arrow_forward</span>
                 </a>
               </div>
             </div>
@@ -124,27 +108,27 @@ import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DotBaoCaoTienDoRe
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                   <h5 class="card-title mb-0">
-                    <i class="bi bi-calendar-range me-2"></i>Báo cáo tiến độ
+                    <span class="material-symbols-outlined me-2">calendar_month</span>Báo cáo tiến độ
                   </h5>
                   <div>
                     <a routerLink="/bo-mon/bao-cao-tien-do/tao-dot" class="btn btn-sm btn-outline-primary me-2">
-                      <i class="bi bi-plus-circle me-1"></i>Tạo đợt
+                      <span class="material-symbols-outlined me-1">add_circle</span>Tạo đợt
                     </a>
                     <a routerLink="/bo-mon/bao-cao-tien-do/danh-sach" class="btn btn-sm btn-primary">
-                      <i class="bi bi-list-check me-1"></i>Xem tất cả
+                      <span class="material-symbols-outlined me-1">checklist</span>Xem tất cả
                     </a>
                   </div>
                 </div>
 
                 <!-- Đợt báo cáo hiện tại -->
                 <div *ngIf="dotBaoCaoHienTai; else chuaCoDotBaoCao" class="alert alert-success d-flex align-items-center mb-0" role="alert">
-                  <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                  <span class="material-symbols-outlined me-2 fs-5">check_circle</span>
                   <div class="flex-grow-1">
                     <strong>Đợt hiện tại:</strong> {{ dotBaoCaoHienTai.tenDot }} 
                     <span class="mx-2">|</span>
-                    <i class="bi bi-calendar3 me-1"></i>{{ dotBaoCaoHienTai.ngayBatDau | date:'dd/MM' }} - {{ dotBaoCaoHienTai.ngayKetThuc | date:'dd/MM/yyyy' }}
+                    <span class="material-symbols-outlined me-1" style="font-size: 16px;">event</span>{{ dotBaoCaoHienTai.ngayBatDau | date:'dd/MM' }} - {{ dotBaoCaoHienTai.ngayKetThuc | date:'dd/MM/yyyy' }}
                     <span class="mx-2">|</span>
-                    <i class="bi bi-people me-1"></i>{{ dotBaoCaoHienTai.soLuongSinhVienNop || 0 }} SV nộp
+                    <span class="material-symbols-outlined me-1" style="font-size: 16px;">groups</span>{{ dotBaoCaoHienTai.soLuongSinhVienNop || 0 }} SV nộp
                   </div>
                   <span class="badge" [class]="getDotTrangThaiClass(dotBaoCaoHienTai.trangThai)">
                     {{ getDotTrangThaiText(dotBaoCaoHienTai.trangThai) }}
@@ -152,7 +136,7 @@ import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DotBaoCaoTienDoRe
                 </div>
                 <ng-template #chuaCoDotBaoCao>
                   <div class="text-center py-3 text-muted">
-                    <i class="bi bi-calendar-x me-2"></i>
+                    <span class="material-symbols-outlined me-2">event_busy</span>
                     Chưa có đợt báo cáo tiến độ nào
                   </div>
                 </ng-template>
@@ -169,14 +153,14 @@ import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DotBaoCaoTienDoRe
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                   <h6 class="card-title mb-0">
-                    <i class="bi bi-star-fill text-warning me-2"></i>Điểm hướng dẫn
+                    <span class="material-symbols-outlined text-warning me-2">star</span>Điểm hướng dẫn
                   </h6>
                   <a routerLink="/bo-mon/gv-huong-dan/cham-diem" class="btn btn-sm btn-outline-warning">
-                    Xem chi tiết <i class="bi bi-arrow-right ms-1"></i>
+                    Xem chi tiết <span class="material-symbols-outlined ms-1" style="font-size: 16px;">arrow_forward</span>
                   </a>
                 </div>
                 <div class="text-center py-3">
-                  <i class="bi bi-check-circle-fill text-success" style="font-size: 2rem;"></i>
+                  <span class="material-symbols-outlined text-success" style="font-size: 2rem;">check_circle</span>
                   <p class="text-success mt-2 mb-0">Đã chấm hết điểm hướng dẫn</p>
                 </div>
               </div>
@@ -189,14 +173,14 @@ import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DotBaoCaoTienDoRe
               <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                   <h6 class="card-title mb-0">
-                    <i class="bi bi-check-circle-fill text-success me-2"></i>Điểm phản biện
+                    <span class="material-symbols-outlined text-success me-2">check_circle</span>Điểm phản biện
                   </h6>
                   <a routerLink="/bo-mon/gv-phan-bien/cham-diem" class="btn btn-sm btn-outline-success">
-                    Xem chi tiết <i class="bi bi-arrow-right ms-1"></i>
+                    Xem chi tiết <span class="material-symbols-outlined ms-1" style="font-size: 16px;">arrow_forward</span>
                   </a>
                 </div>
                 <div class="text-center py-3">
-                  <i class="bi bi-check-circle-fill text-success" style="font-size: 2rem;"></i>
+                  <span class="material-symbols-outlined text-success" style="font-size: 2rem;">check_circle</span>
                   <p class="text-success mt-2 mb-0">Đã chấm hết điểm phản biện</p>
                 </div>
               </div>

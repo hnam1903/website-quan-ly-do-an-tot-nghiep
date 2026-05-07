@@ -3,7 +3,7 @@
   <div class="page-header">
     <div class="header-left">
       <div class="header-icon">
-        <i class="bi bi-grid-1x2"></i>
+        <span class="material-symbols-outlined">dashboard</span>
       </div>
       <div>
         <h2>Dashboard Quản trị</h2>
@@ -11,7 +11,7 @@
       </div>
     </div>
     <button class="btn btn-secondary" (click)="refresh()" [disabled]="loading">
-      <i class="bi bi-arrow-clockwise"></i> Làm mới
+      <span class="material-symbols-outlined">sync</span> Làm mới
     </button>
   </div>
 
@@ -27,53 +27,53 @@
     <div class="summary-cards">
       <div class="summary-card gv-card">
         <div class="card-icon">
-          <i class="bi bi-person-badge-fill"></i>
+          <span class="material-symbols-outlined">badge</span>
         </div>
         <div class="card-content">
           <span class="card-label">Giảng viên</span>
           <span class="card-value">{{ dashboard.tongSoGiangVien }}</span>
         </div>
         <a routerLink="/admin/giang-vien" class="card-action">
-          <i class="bi bi-arrow-right"></i>
+          <span class="material-symbols-outlined">arrow_forward</span>
         </a>
       </div>
 
       <div class="summary-card sv-card">
         <div class="card-icon">
-          <i class="bi bi-mortarboard-fill"></i>
+          <span class="material-symbols-outlined">school</span>
         </div>
         <div class="card-content">
           <span class="card-label">Sinh viên</span>
           <span class="card-value">{{ dashboard.tongSoSinhVien }}</span>
         </div>
         <a routerLink="/admin/sinh-vien" class="card-action">
-          <i class="bi bi-arrow-right"></i>
+          <span class="material-symbols-outlined">arrow_forward</span>
         </a>
       </div>
 
       <div class="summary-card de-tai-card">
         <div class="card-icon">
-          <i class="bi bi-journal-text"></i>
+          <span class="material-symbols-outlined">assignment</span>
         </div>
         <div class="card-content">
           <span class="card-label">Tổng đề tài</span>
           <span class="card-value">{{ dashboard.tongSoDeTai }}</span>
         </div>
         <a routerLink="/admin/de-tai" class="card-action">
-          <i class="bi bi-arrow-right"></i>
+          <span class="material-symbols-outlined">arrow_forward</span>
         </a>
       </div>
 
       <div class="summary-card cho-duyet-card">
         <div class="card-icon">
-          <i class="bi bi-hourglass-split"></i>
+          <span class="material-symbols-outlined">hourglass_empty</span>
         </div>
         <div class="card-content">
           <span class="card-label">Chờ duyệt</span>
           <span class="card-value">{{ dashboard.deTaiChoDuyet }}</span>
         </div>
         <a routerLink="/admin/de-tai" class="card-action">
-          <i class="bi bi-arrow-right"></i>
+          <span class="material-symbols-outlined">arrow_forward</span>
         </a>
       </div>
     </div>
@@ -83,7 +83,7 @@
       <!-- Doughnut Chart -->
       <div class="chart-card">
         <div class="chart-card-header">
-          <h4><i class="bi bi-pie-chart"></i>Tỷ lệ đề tài theo trạng thái</h4>
+          <h4><span class="material-symbols-outlined me-2">pie_chart</span>Tỷ lệ đề tài theo trạng thái</h4>
         </div>
         <div class="chart-card-body">
           <div class="chart-wrapper">
@@ -99,13 +99,13 @@
       <!-- Status Overview -->
       <div class="chart-card">
         <div class="chart-card-header">
-          <h4><i class="bi bi-kanban"></i>Tình trạng đề tài</h4>
+          <h4><span class="material-symbols-outlined me-2">view_kanban</span>Tình trạng đề tài</h4>
         </div>
         <div class="chart-card-body">
           <div class="status-grid">
             <div class="status-item cho-duyet">
               <div class="status-icon">
-                <i class="bi bi-hourglass-split"></i>
+                <span class="material-symbols-outlined">hourglass_empty</span>
               </div>
               <div class="status-info">
                 <span class="status-count">{{ dashboard.deTaiChoDuyet }}</span>
@@ -114,7 +114,7 @@
             </div>
             <div class="status-item dang-thuc-hien">
               <div class="status-icon">
-                <i class="bi bi-play-circle"></i>
+                <span class="material-symbols-outlined">play_circle</span>
               </div>
               <div class="status-info">
                 <span class="status-count">{{ dashboard.deTaiDangThucHien }}</span>
@@ -123,7 +123,7 @@
             </div>
             <div class="status-item hoan-thanh">
               <div class="status-icon">
-                <i class="bi bi-check-circle"></i>
+                <span class="material-symbols-outlined">check_circle</span>
               </div>
               <div class="status-info">
                 <span class="status-count">{{ dashboard.deTaiHoanThanh }}</span>
@@ -132,7 +132,7 @@
             </div>
             <div class="status-item khong-dat">
               <div class="status-icon">
-                <i class="bi bi-x-circle"></i>
+                <span class="material-symbols-outlined">cancel</span>
               </div>
               <div class="status-info">
                 <span class="status-count">{{ dashboard.deTaiKhongDat }}</span>

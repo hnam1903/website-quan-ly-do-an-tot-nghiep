@@ -10,123 +10,194 @@ import { ToastrService } from 'ngx-toastr';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="page-header">
-      <div class="d-flex align-items-center gap-3">
-        <div class="page-icon bg-primary-subtle">
-          <i class="bi bi-file-earmark-plus text-primary"></i>
-        </div>
+    <div class="container-fluid py-4">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h2>Đăng ký đề tài</h2>
-          <p class="mb-0">Đăng ký đề tài đồ án tốt nghiệp</p>
+          <h2 class="mb-1">
+            <span class="material-symbols-outlined me-2">note_add</span>
+            Đăng ký đề tài
+          </h2>
+          <p class="text-muted mb-0 small">Đăng ký đề tài đồ án tốt nghiệp</p>
         </div>
       </div>
-    </div>
 
-    <div *ngIf="!deTaiCuaToi" class="card">
-      <div class="card-body">
-        <div *ngIf="!daDangKy">
-          <div *ngFor="let dot of dotList" class="alert alert-info mb-3">
-            <strong><i class="bi bi-calendar-event me-2"></i>{{ dot.tenDot }}</strong><br>
-            <small>{{ dot.namHoc }} - Học kỳ {{ dot.hocKy }}</small> |
-            <small>Hạn: {{ dot.ngayKetThuc | date:'dd/MM/yyyy' }}</small>
+    <!-- Form đăng ký (chưa có đề tài) -->
+    <div *ngIf="!deTaiCuaToi" class="row">
+      <!-- Thông tin đợt đăng ký -->
+      <div class="col-lg-4 mb-4" *ngIf="dotList.length > 0">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+              <span class="material-symbols-outlined me-2">event</span>Đợt đăng ký
+            </h5>
           </div>
-
-          <form (ngSubmit)="dangKy()" class="mt-4">
-            <div class="row g-3 mb-3">
-              <div class="col-md-12">
-                <label class="form-label">Đợt đăng ký <span class="text-danger">*</span></label>
-                <select class="form-select" [(ngModel)]="formData.dotDangKyId" name="dotDangKyId" required>
-                  <option [value]="null">Chọn đợt đăng ký</option>
-                  <option *ngFor="let dot of dotList" [value]="dot.id">{{ dot.tenDot }}</option>
-                </select>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Tên đề tài <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" [(ngModel)]="formData.tenDeTai" name="tenDeTai" required placeholder="Nhập tên đề tài">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Giảng viên hướng dẫn dự kiến</label>
-              <select class="form-select" [(ngModel)]="formData.giangVienDuKienId" name="giangVienDuKienId">
-                <option [value]="null">-- Chọn giảng viên --</option>
-                <option *ngFor="let gv of giangVienList" [value]="gv.id">
-                  {{ gv.hoTen }} {{ gv.hocVi ? '- ' + gv.hocVi : '' }} {{ gv.tenBoMon ? '- ' + gv.tenBoMon : '' }}
-                </option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Nội dung dự kiến</label>
-              <textarea class="form-control" [(ngModel)]="formData.noiDungDuKien" name="noiDungDuKien" rows="3" placeholder="Mô tả ngắn gọn nội dung đề tài"></textarea>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Công nghệ sử dụng</label>
-              <input type="text" class="form-control" [(ngModel)]="formData.congNgheSuDung" name="congNgheSuDung" placeholder="VD: Java, Python, React...">
-            </div>
-            <button type="submit" class="btn btn-primary">
-              <i class="bi bi-check2 me-2"></i>Đăng ký
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <div *ngIf="deTaiCuaToi" class="card">
-      <div class="card-header" [ngClass]="{
-        'bg-danger text-white': laTrangThaiThatBai(deTaiCuaToi.trangThai),
-        'bg-warning text-dark': deTaiCuaToi.trangThai === 'CHO_GV_DUYET_LAI',
-        'bg-success text-white': !laTrangThaiThatBai(deTaiCuaToi.trangThai) && deTaiCuaToi.trangThai !== 'CHO_GV_DUYET_LAI'
-      }">
-        <h5 class="mb-0">
-          <i class="bi" [ngClass]="{
-            'bi-x-circle': laTrangThaiThatBai(deTaiCuaToi.trangThai),
-            'bi-hourglass-split': deTaiCuaToi.trangThai === 'CHO_GV_DUYET_LAI',
-            'bi-check-circle': !laTrangThaiThatBai(deTaiCuaToi.trangThai) && deTaiCuaToi.trangThai !== 'CHO_GV_DUYET_LAI'
-          }"></i>
-          <span *ngIf="laTrangThaiThatBai(deTaiCuaToi.trangThai)"> Đề tài bị từ chối</span>
-          <span *ngIf="deTaiCuaToi.trangThai === 'CHO_GV_DUYET_LAI'"> Đề tài đang chờ GVHD khác duyệt</span>
-          <span *ngIf="!laTrangThaiThatBai(deTaiCuaToi.trangThai) && deTaiCuaToi.trangThai !== 'CHO_GV_DUYET_LAI'"> Đề tài của bạn</span>
-        </h5>
-      </div>
-      <div class="card-body">
-        <div class="row g-4">
-          <div class="col-md-6">
-            <div class="info-group">
-              <label class="info-label">Tên đề tài</label>
-              <p class="info-title">{{ deTaiCuaToi.tenDeTai }}</p>
-            </div>
-            <div class="info-group">
-              <label class="info-label">Nội dung</label>
-              <p class="info-value">{{ deTaiCuaToi.noiDungDuKien || '-' }}</p>
-            </div>
-            <div class="info-group mb-0">
-              <label class="info-label">Công nghệ</label>
-              <p class="info-value">{{ deTaiCuaToi.congNgheSuDung || '-' }}</p>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="info-group">
-              <label class="info-label">GV dự kiến</label>
-              <p class="info-value">{{ deTaiCuaToi.hoTenGiangVienDuKien || '-' }}</p>
-            </div>
-            <div class="info-group">
-              <label class="info-label">Trạng thái</label>
-              <p class="info-value">
-                <span [class]="getStatusClass(deTaiCuaToi.trangThai)" class="badge">
-                  {{ getStatusText(deTaiCuaToi.trangThai) }}
-                </span>
+          <div class="card-body">
+            <div *ngFor="let dot of dotList" class="mb-3 pb-3 border-bottom">
+              <h6 class="text-primary mb-2">{{ dot.tenDot }}</h6>
+              <p class="mb-1 small">
+                <span class="material-symbols-outlined me-1" style="font-size: 16px;">school</span>
+                {{ dot.namHoc }} - Học kỳ {{ dot.hocKy }}
+              </p>
+              <p class="mb-0 small" [class.text-danger]="isQuaHan(dot.ngayKetThuc)">
+                <span class="material-symbols-outlined me-1" style="font-size: 16px;">schedule</span>
+                Hạn: {{ dot.ngayKetThuc | date:'dd/MM/yyyy' }}
+                <span *ngIf="isQuaHan(dot.ngayKetThuc)" class="badge bg-danger ms-2">Đã hết hạn</span>
               </p>
             </div>
           </div>
         </div>
+      </div>
 
-        <div *ngIf="deTaiCuaToi.ghiChu && (laTrangThaiThatBai(deTaiCuaToi.trangThai) || deTaiCuaToi.trangThai === 'CHO_GV_DUYET_LAI')" class="alert alert-danger mt-3">
-          <i class="bi bi-exclamation-triangle me-2"></i><strong>Lý do:</strong> {{ deTaiCuaToi.ghiChu }}
+      <!-- Form đăng ký -->
+      <div class="col-lg-8">
+        <div class="card shadow-sm">
+          <div class="card-header">
+            <h5 class="mb-0">
+              <span class="material-symbols-outlined me-2">edit</span>Thông tin đề tài
+            </h5>
+          </div>
+          <div class="card-body">
+            <form (ngSubmit)="dangKy()" *ngIf="!daDangKy">
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <label class="form-label fw-medium">Đợt đăng ký <span class="text-danger">*</span></label>
+                  <select class="form-select" [(ngModel)]="formData.dotDangKyId" name="dotDangKyId" required>
+                    <option [value]="null">Chọn đợt đăng ký</option>
+                    <option *ngFor="let dot of dotList" [value]="dot.id">{{ dot.tenDot }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <hr class="my-4">
+
+              <h6 class="text-muted mb-3">
+                <span class="material-symbols-outlined me-2">description</span>Thông tin đề tài
+              </h6>
+
+              <div class="mb-3">
+                <label class="form-label fw-medium">Tên đề tài <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" [(ngModel)]="formData.tenDeTai" name="tenDeTai" required placeholder="Nhập tên đề tài của bạn">
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label fw-medium">Giảng viên hướng dẫn dự kiến</label>
+                  <select class="form-select" [(ngModel)]="formData.giangVienDuKienId" name="giangVienDuKienId">
+                    <option [value]="null">-- Chọn giảng viên --</option>
+                    <option *ngFor="let gv of giangVienList" [value]="gv.id">
+                      {{ gv.hoTen }} {{ gv.hocVi ? '- ' + gv.hocVi : '' }} {{ gv.tenBoMon ? '- ' + gv.tenBoMon : '' }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-medium">Công nghệ sử dụng</label>
+                  <input type="text" class="form-control" [(ngModel)]="formData.congNgheSuDung" name="congNgheSuDung" placeholder="VD: Java, Python, React...">
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label fw-medium">Nội dung dự kiến</label>
+                <textarea class="form-control" [(ngModel)]="formData.noiDungDuKien" name="noiDungDuKien" rows="3" placeholder="Mô tả ngắn gọn nội dung đề tài"></textarea>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                  <span class="material-symbols-outlined me-1">check</span>Đăng ký
+                </button>
+                <button type="button" class="btn btn-outline-secondary" (click)="formData = {}">
+                  <span class="material-symbols-outlined me-1">refresh</span>Nhập lại
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
+      </div>
+    </div>
 
-        <div *ngIf="laTrangThaiThatBai(deTaiCuaToi.trangThai)" class="mt-3">
-          <button class="btn btn-danger" (click)="hienThiFormDangKyLai()">
-            <i class="bi bi-arrow-repeat me-2"></i>Đăng ký lại đề tài khác
-          </button>
+    <!-- Đã có đề tài -->
+    <div *ngIf="deTaiCuaToi" class="row">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <!-- Header với trạng thái -->
+          <div class="card-header text-white" [ngClass]="{
+            'bg-danger': laTrangThaiThatBai(deTaiCuaToi.trangThai),
+            'bg-warning text-dark': deTaiCuaToi.trangThai === 'CHO_GV_DUYET_LAI',
+            'bg-success': !laTrangThaiThatBai(deTaiCuaToi.trangThai) && deTaiCuaToi.trangThai !== 'CHO_GV_DUYET_LAI'
+          }">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">
+                <span class="material-symbols-outlined me-2" [ngClass]="{
+                  'text-danger': laTrangThaiThatBai(deTaiCuaToi.trangThai),
+                  'text-dark': deTaiCuaToi.trangThai === 'CHO_GV_DUYET_LAI',
+                  'text-white': !laTrangThaiThatBai(deTaiCuaToi.trangThai) && deTaiCuaToi.trangThai !== 'CHO_GV_DUYET_LAI'
+                }">{{ getStatusIcon(deTaiCuaToi.trangThai) }}</span>
+                {{ getStatusTitle(deTaiCuaToi.trangThai) }}
+              </h5>
+              <span [class]="getStatusClass(deTaiCuaToi.trangThai)" class="badge fs-6">
+                {{ getStatusText(deTaiCuaToi.trangThai) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="row g-4">
+              <!-- Thông tin đề tài -->
+              <div class="col-lg-8">
+                <div class="mb-4">
+                  <label class="text-muted small text-uppercase">
+                    <span class="material-symbols-outlined me-1" style="font-size: 16px;">title</span>
+                    Tên đề tài
+                  </label>
+                  <h4 class="mb-0 text-primary">{{ deTaiCuaToi.tenDeTai }}</h4>
+                </div>
+
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="p-3 bg-light rounded">
+                      <label class="text-muted small text-uppercase d-block mb-1">
+                        <span class="material-symbols-outlined me-1" style="font-size: 14px;">description</span>
+                        Nội dung
+                      </label>
+                      <p class="mb-0 fw-medium">{{ deTaiCuaToi.noiDungDuKien || 'Chưa cập nhật' }}</p>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="p-3 bg-light rounded">
+                      <label class="text-muted small text-uppercase d-block mb-1">
+                        <span class="material-symbols-outlined me-1" style="font-size: 14px;">code</span>
+                        Công nghệ
+                      </label>
+                      <p class="mb-0 fw-medium">{{ deTaiCuaToi.congNgheSuDung || 'Chưa cập nhật' }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Thông tin GV -->
+              <div class="col-lg-4">
+                <div class="p-3 border rounded">
+                  <label class="text-muted small text-uppercase d-block mb-2">
+                    <span class="material-symbols-outlined me-1" style="font-size: 14px;">person</span>
+                    Giảng viên hướng dẫn
+                  </label>
+                  <p class="mb-0 fw-medium fs-5">{{ deTaiCuaToi.hoTenGiangVienDuKien || 'Chưa phân công' }}</p>
+                </div>
+
+                <div *ngIf="deTaiCuaToi.ghiChu && (laTrangThaiThatBai(deTaiCuaToi.trangThai) || deTaiCuaToi.trangThai === 'CHO_GV_DUYET_LAI')" class="alert alert-danger mt-3 mb-0">
+                  <span class="material-symbols-outlined me-2">warning</span>
+                  <strong>Lý do:</strong> {{ deTaiCuaToi.ghiChu }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Nút đăng ký lại -->
+            <div *ngIf="laTrangThaiThatBai(deTaiCuaToi.trangThai)" class="mt-4 pt-3 border-top">
+              <button class="btn btn-danger" (click)="hienThiFormDangKyLai()">
+                <span class="material-symbols-outlined me-2">restart_alt</span>Đăng ký lại đề tài khác
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -136,24 +207,26 @@ import { ToastrService } from 'ngx-toastr';
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title"><i class="bi bi-arrow-repeat me-2"></i>Đăng ký lại đề tài</h5>
+            <h5 class="modal-title">
+              <span class="material-symbols-outlined me-2">restart_alt</span>Đăng ký lại đề tài
+            </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
             <form (ngSubmit)="dangKyLai()">
               <div class="mb-3">
-                <label class="form-label">Đợt đăng ký <span class="text-danger">*</span></label>
+                <label class="form-label fw-medium">Đợt đăng ký <span class="text-danger">*</span></label>
                 <select class="form-select" [(ngModel)]="formData.dotDangKyId" name="dotDangKyId" required>
                   <option [value]="null">Chọn đợt đăng ký</option>
                   <option *ngFor="let dot of dotList" [value]="dot.id">{{ dot.tenDot }}</option>
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">Tên đề tài <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" [(ngModel)]="formData.tenDeTai" name="tenDeTai" required>
+                <label class="form-label fw-medium">Tên đề tài <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" [(ngModel)]="formData.tenDeTai" name="tenDeTai" required placeholder="Nhập tên đề tài mới">
               </div>
               <div class="mb-3">
-                <label class="form-label">Giảng viên hướng dẫn dự kiến</label>
+                <label class="form-label fw-medium">Giảng viên hướng dẫn dự kiến</label>
                 <select class="form-select" [(ngModel)]="formData.giangVienDuKienId" name="giangVienDuKienId">
                   <option [value]="null">-- Chọn giảng viên --</option>
                   <option *ngFor="let gv of giangVienList" [value]="gv.id">
@@ -162,12 +235,12 @@ import { ToastrService } from 'ngx-toastr';
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">Nội dung dự kiến</label>
-                <textarea class="form-control" [(ngModel)]="formData.noiDungDuKien" name="noiDungDuKien" rows="3"></textarea>
+                <label class="form-label fw-medium">Công nghệ sử dụng</label>
+                <input type="text" class="form-control" [(ngModel)]="formData.congNgheSuDung" name="congNgheSuDung" placeholder="VD: Java, Python...">
               </div>
               <div class="mb-3">
-                <label class="form-label">Công nghệ sử dụng</label>
-                <input type="text" class="form-control" [(ngModel)]="formData.congNgheSuDung" name="congNgheSuDung">
+                <label class="form-label fw-medium">Nội dung dự kiến</label>
+                <textarea class="form-control" [(ngModel)]="formData.noiDungDuKien" name="noiDungDuKien" rows="3" placeholder="Mô tả nội dung đề tài"></textarea>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -178,7 +251,26 @@ import { ToastrService } from 'ngx-toastr';
         </div>
       </div>
     </div>
-  `
+    </div>
+  `,
+  styles: [`
+    .card {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }
+    .form-label {
+      color: #495057;
+    }
+    .bg-light {
+      background-color: #f8f9fa !important;
+    }
+  `]
 })
 export class DeTaiSvComponent implements OnInit {
   dotList: DotDangKyResponse[] = [];
@@ -335,5 +427,27 @@ export class DeTaiSvComponent implements OnInit {
       'HOAN_THANH': 'Hoàn thành'
     };
     return map[status] || status;
+  }
+
+  getStatusIcon(status: string): string {
+    if (this.laTrangThaiThatBai(status)) {
+      return 'cancel';
+    } else if (status === 'CHO_GV_DUYET_LAI') {
+      return 'hourglass_empty';
+    }
+    return 'check_circle';
+  }
+
+  getStatusTitle(status: string): string {
+    if (this.laTrangThaiThatBai(status)) {
+      return 'Đề tài bị từ chối';
+    } else if (status === 'CHO_GV_DUYET_LAI') {
+      return 'Đề tài đang chờ GVHD khác duyệt';
+    }
+    return 'Đề tài của bạn';
+  }
+
+  isQuaHan(ngayKetThuc: string): boolean {
+    return new Date(ngayKetThuc) < new Date();
   }
 }

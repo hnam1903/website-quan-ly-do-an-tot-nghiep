@@ -11,7 +11,7 @@ import { PhanCongHuongDanResponse } from '../../../core/models/models';
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
         <div class="page-icon bg-primary-subtle">
-          <i class="bi bi-list-check text-primary"></i>
+          <span class="material-symbols-outlined text-primary">checklist</span>
         </div>
         <div>
           <h2>Danh sách hướng dẫn</h2>
@@ -47,7 +47,7 @@ import { PhanCongHuongDanResponse } from '../../../core/models/models';
               </td>
               <td class="text-center">
                 <button class="btn btn-sm btn-outline-primary btn-icon" (click)="xemChiTiet(pc)" title="Xem chi tiết">
-                  <i class="bi bi-eye"></i>
+                  <span class="material-symbols-outlined">visibility</span>
                 </button>
               </td>
             </tr>
@@ -56,7 +56,7 @@ import { PhanCongHuongDanResponse } from '../../../core/models/models';
 
         <div *ngIf="huongDanList.length === 0" class="text-center py-5">
           <div class="empty-state">
-            <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+            <span class="material-symbols-outlined fs-2 d-block mb-3" style="color: #ccc;">inbox</span>
             <p class="mb-1 fw-semibold">Chưa có sinh viên nào được hướng dẫn</p>
             <small class="text-muted">Danh sách sẽ được cập nhật khi có sinh viên được phân công</small>
           </div>
@@ -69,7 +69,7 @@ import { PhanCongHuongDanResponse } from '../../../core/models/models';
       <div class="modal-dialog modal-lg">
         <div class="modal-content" *ngIf="selected">
           <div class="modal-header">
-            <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Chi tiết đề tài</h5>
+            <h5 class="modal-title"><span class="material-symbols-outlined me-2">info</span>Chi tiết đề tài</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">

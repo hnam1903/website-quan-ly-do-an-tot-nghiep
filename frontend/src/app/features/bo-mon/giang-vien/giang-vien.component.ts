@@ -13,7 +13,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
         <div class="page-icon bg-primary-subtle">
-          <i class="bi bi-person-badge text-primary"></i>
+          <span class="material-symbols-outlined text-primary">badge</span>
         </div>
         <div>
           <h2>Quản lý Giảng viên</h2>
@@ -62,7 +62,7 @@ import { ToastrService } from 'ngx-toastr';
               <tr *ngIf="filteredGiangVienList.length === 0">
                 <td colspan="6" class="text-center py-5">
                   <div class="empty-state">
-                    <i class="bi bi-person-badge fs-1 d-block mb-3"></i>
+                    <span class="material-symbols-outlined fs-2 d-block mb-3" style="color: #ccc;">badge</span>
                     <p class="mb-1 fw-semibold">Không có giảng viên nào</p>
                     <small class="text-muted">Thử thay đổi bộ lọc</small>
                   </div>

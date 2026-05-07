@@ -13,7 +13,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
         <div class="page-icon bg-warning-subtle">
-          <i class="bi bi-shield-check text-warning"></i>
+          <span class="material-symbols-outlined text-warning">verified_user</span>
         </div>
         <div>
           <h2>Chấm điểm bảo vệ</h2>
@@ -21,14 +21,14 @@ import { ToastrService } from 'ngx-toastr';
         </div>
       </div>
       <label class="btn btn-primary mb-0">
-        <i class="bi bi-upload me-2"></i> Import Excel
+        <span class="material-symbols-outlined me-2">upload</span> Import Excel
         <input type="file" accept=".xlsx,.xls" (change)="onFileSelected($event)" style="display: none;">
       </label>
     </div>
 
     <!-- Alert import -->
     <div *ngIf="importMessage" class="alert mt-3" [ngClass]="importSuccess ? 'alert-success' : 'alert-danger'">
-      <i class="bi me-2" [class.bi-check-circle-fill]="importSuccess" [class.bi-exclamation-triangle-fill]="!importSuccess"></i>
+      <span class="material-symbols-outlined me-2">{{ importSuccess ? 'check_circle' : 'error' }}</span>
       {{ importMessage }}
     </div>
 
@@ -39,7 +39,7 @@ import { ToastrService } from 'ngx-toastr';
         </div>
 
         <div *ngIf="!loading && hoiDongList.length === 0" class="alert alert-info m-4">
-          <i class="bi bi-info-circle me-2"></i>Không có hội đồng nào cần chấm điểm.
+          <span class="material-symbols-outlined me-2">info</span>Không có hội đồng nào cần chấm điểm.
         </div>
 
         <div *ngIf="!loading && hoiDongList.length > 0">
@@ -100,7 +100,7 @@ import { ToastrService } from 'ngx-toastr';
       <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title"><i class="bi" [class.bi-pencil-square]="isEditMode" [class.bi-shield-check]="!isEditMode"></i> {{ isEditMode ? 'Sửa điểm bảo vệ' : 'Nhập điểm bảo vệ' }}</h5>
+            <h5 class="modal-title"><span class="material-symbols-outlined" [ngClass]="isEditMode ? 'edit_note' : 'verified_user'"></span> {{ isEditMode ? 'Sửa điểm bảo vệ' : 'Nhập điểm bảo vệ' }}</h5>
             <button type="button" class="btn-close" (click)="closeModal()"></button>
           </div>
           <div class="modal-body">
@@ -120,12 +120,12 @@ import { ToastrService } from 'ngx-toastr';
             </div>
 
             <hr>
-            <h6 class="mb-3"><i class="bi bi-people me-2"></i>Điểm của từng thành viên hội đồng</h6>
+            <h6 class="mb-3"><span class="material-symbols-outlined me-2">group</span>Điểm của từng thành viên hội đồng</h6>
 
             <div *ngFor="let tv of selectedHoiDong?.thanhViens; let i = index" class="row g-3 mb-3">
               <div class="col-md-8">
                 <label class="form-label">
-                  <i class="bi bi-person me-1"></i>{{ tv.hoTenGiangVien }}
+                  <span class="material-symbols-outlined me-1">person</span>{{ tv.hoTenGiangVien }}
                   <span class="badge badge-secondary ms-1">{{ getVaiTroText(tv.vaiTro) }}</span>
                   <span *ngIf="tv.hocVi" class="text-muted ms-1">({{ tv.hocVi }})</span>
                 </label>
@@ -148,7 +148,7 @@ import { ToastrService } from 'ngx-toastr';
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" (click)="closeModal()">Hủy</button>
             <button type="button" class="btn btn-success" (click)="luuDiem()">
-              <i class="bi bi-check2 me-1"></i>{{ isEditMode ? 'Cập nhật' : 'Lưu điểm' }}
+              <span class="material-symbols-outlined me-1">check</span>{{ isEditMode ? 'Cập nhật' : 'Lưu điểm' }}
             </button>
           </div>
         </div>
@@ -160,7 +160,7 @@ import { ToastrService } from 'ngx-toastr';
       <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title"><i class="bi bi-shield-check me-2"></i>Kết quả bảo vệ</h5>
+            <h5 class="modal-title"><span class="material-symbols-outlined me-2">verified_user</span>Kết quả bảo vệ</h5>
             <button type="button" class="btn-close" (click)="closeChiTietModal()"></button>
           </div>
           <div class="modal-body">

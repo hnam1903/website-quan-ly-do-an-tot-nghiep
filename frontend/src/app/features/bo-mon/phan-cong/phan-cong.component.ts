@@ -14,7 +14,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
         <div class="page-icon bg-primary-subtle">
-          <i class="bi bi-person-plus text-primary"></i>
+          <span class="material-symbols-outlined text-primary">person_add</span>
         </div>
         <div>
           <h2>Phân công Giảng viên hướng dẫn</h2>
@@ -26,7 +26,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="card">
       <div class="card-body p-0">
         <div *ngIf="svDuDieuKien.length === 0" class="alert alert-info m-4">
-          <i class="bi bi-info-circle me-2"></i>Không có sinh viên cần phân công GVHD.
+          <span class="material-symbols-outlined me-2">info</span>Không có sinh viên cần phân công GVHD.
         </div>
 
         <div class="table-responsive" *ngIf="svDuDieuKien.length > 0">
@@ -54,7 +54,7 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
                 <td>
                   <span *ngIf="dt.hoTenGiangVienDuKien; else noGv" class="text-muted">
-                    <i class="bi bi-person me-1"></i>{{ dt.hoTenGiangVienDuKien }}
+                    <span class="material-symbols-outlined me-1">person</span>{{ dt.hoTenGiangVienDuKien }}
                   </span>
                   <ng-template #noGv><span class="text-muted fst-italic">Chưa có</span></ng-template>
                 </td>
@@ -68,7 +68,7 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
                 <td>
                   <button class="btn btn-sm btn-primary" (click)="phanCongHD(dt.id)">
-                    <i class="bi bi-check2 me-1"></i> Phân công
+                    <span class="material-symbols-outlined me-1">check</span> Phân công
                   </button>
                 </td>
               </tr>
@@ -100,17 +100,24 @@ export class PhanCongComponent implements OnInit {
     const currentUser = this.authService.getCurrentUser();
     const boMonId = currentUser?.boMonId;
 
-    // Lấy đề tài CHO_GV_DUYET - chờ GV duyệt
-    this.boMonService.getDeTai('CHO_GV_DUYET', boMonId).subscribe({
+    // Lấy đề tài DANG_THUC_HIEN - đang chờ phân công GVHD
+    this.boMonService.getDeTai('DANG_THUC_HIEN', boMonId).subscribe({
       next: (res) => {
-        if (res.success) this.svDuDieuKien = res.data;
+        if (res.success) {
+          // Lọc bỏ đề tài đã có GVHD được duyệt
+          this.svDuDieuKien = res.data.filter(dt => !dt.giangVienHuongDanId);
+        }
       }
     });
 
     // Lấy đề tài bị GV từ chối, cần phân công lại
     this.boMonService.getDeTai('CHO_GV_DUYET_LAI', boMonId).subscribe({
       next: (res) => {
-        if (res.success) this.svDuDieuKien = [...this.svDuDieuKien, ...res.data];
+        if (res.success) {
+          // Thêm filter bỏ đề tài đã có GVHD được duyệt
+          const choGvDuyetLai = res.data.filter(dt => !dt.giangVienHuongDanId);
+          this.svDuDieuKien = [...this.svDuDieuKien, ...choGvDuyetLai];
+        }
       }
     });
 

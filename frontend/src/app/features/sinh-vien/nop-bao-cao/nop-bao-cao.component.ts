@@ -16,7 +16,7 @@ import { AuthService } from '../../../core/services/auth.service';
       <div class="row mb-4">
         <div class="col-12">
           <h2 class="mb-1">
-            <i class="bi bi-file-earmark-arrow-up me-2"></i>
+            <span class="material-symbols-outlined me-2">upload_file</span>
             Nộp báo cáo
           </h2>
           <p class="text-muted mb-0 small">Nộp báo cáo cuối kỳ cho đồ án</p>
@@ -25,7 +25,7 @@ import { AuthService } from '../../../core/services/auth.service';
 
       <!-- Alert: Chưa đăng ký đề tài -->
       <div class="alert alert-warning" *ngIf="!deTaiCuaToi">
-        <i class="bi bi-exclamation-triangle me-2"></i>
+        <span class="material-symbols-outlined me-2">warning</span>
         Bạn chưa đăng ký đề tài hoặc đề tài chưa được duyệt.
       </div>
 
@@ -35,7 +35,7 @@ import { AuthService } from '../../../core/services/auth.service';
           <!-- Form Upload (chưa nộp) -->
           <div *ngIf="deTaiCuaToi.trangThai === 'DANG_THUC_HIEN' && !baoCao">
             <div class="alert alert-info mb-4">
-              <i class="bi bi-info-circle me-2"></i>
+              <span class="material-symbols-outlined me-2">info</span>
               <strong>Lưu ý:</strong> Bạn chỉ được nộp báo cáo một lần duy nhất. Vui lòng kiểm tra kỹ trước khi nộp.
             </div>
 
@@ -46,12 +46,12 @@ import { AuthService } from '../../../core/services/auth.service';
                  (drop)="onDrop($event)">
               <input type="file" #fileInput (change)="onFileChange($event)" accept=".doc,.docx" hidden>
               <div class="nbc-upload-icon">
-                <i class="bi bi-cloud-arrow-up-fill"></i>
+                <span class="material-symbols-outlined">cloud_upload</span>
               </div>
               <div class="nbc-upload-text">
                 <span *ngIf="!fileBaoCao">Kéo thả file vào đây hoặc <strong>chọn file</strong></span>
                 <span *ngIf="fileBaoCao" class="nbc-file-name">
-                  <i class="bi bi-file-earmark-word"></i> {{ fileBaoCao.name }}
+                  <span class="material-symbols-outlined">description</span> {{ fileBaoCao.name }}
                 </span>
               </div>
               <small class="nbc-upload-hint">Chấp nhận file .doc, .docx</small>
@@ -60,24 +60,24 @@ import { AuthService } from '../../../core/services/auth.service';
             <button class="btn btn-success w-100" (click)="nopBaoCao()"
                     [disabled]="!fileBaoCao || isSubmitting">
               <span *ngIf="isSubmitting">
-                <i class="bi bi-arrow-repeat spin me-2"></i>Đang nộp...
+                <span class="material-symbols-outlined me-2 spin">sync</span>Đang nộp...
               </span>
               <span *ngIf="!isSubmitting">
-                <i class="bi bi-upload me-2"></i>Nộp báo cáo
+                <span class="material-symbols-outlined me-2">upload</span>Nộp báo cáo
               </span>
             </button>
           </div>
 
           <!-- Alert: Đã nộp -->
           <div class="alert alert-success" *ngIf="deTaiCuaToi.trangThai === 'DA_NOP_BAO_CAO' && baoCao">
-            <i class="bi bi-check-circle-fill me-2"></i>
+            <span class="material-symbols-outlined me-2">check_circle</span>
             <strong>Đã nộp báo cáo!</strong> File của bạn đã được nộp thành công. Vui lòng chờ GVHD chấm điểm.
           </div>
 
           <!-- Thông tin báo cáo đã nộp -->
           <div *ngIf="baoCao">
             <h5 class="mb-4">
-              <i class="bi bi-file-earmark-text me-2"></i>Thông tin báo cáo đã nộp
+              <span class="material-symbols-outlined me-2">info</span>Thông tin báo cáo đã nộp
             </h5>
             <table >
               <tbody>
@@ -98,10 +98,10 @@ import { AuthService } from '../../../core/services/auth.service';
 
             <div class="mt-4" *ngIf="baoCao.fileBaoCao">
               <h6 class="mb-3">
-                <i class="bi bi-paperclip me-2"></i>Tài liệu đã nộp:
+                <span class="material-symbols-outlined me-2">attach_file</span>Tài liệu đã nộp:
               </h6>
               <button class="btn btn-outline-primary" (click)="downloadFile(baoCao.fileBaoCao)">
-                <i class="fas fa-download me-2"></i>Tải báo cáo
+                <span class="material-symbols-outlined me-2">download</span>Tải báo cáo
               </button>
             </div>
           </div>

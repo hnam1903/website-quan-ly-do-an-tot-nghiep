@@ -13,7 +13,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
         <div class="page-icon bg-warning-subtle">
-          <i class="bi bi-person-check text-warning"></i>
+          <span class="material-symbols-outlined text-warning">person_check</span>
         </div>
         <div>
           <h2>Danh sách GVPB</h2>
@@ -28,7 +28,7 @@ import { ToastrService } from 'ngx-toastr';
           <span class="spinner-border spinner-border-sm me-2"></span> Đang tải...
         </div>
         <div *ngIf="!loading && gvpbGroups.length === 0" class="alert alert-info">
-          <i class="bi bi-info-circle me-2"></i>Chưa có đề tài nào được phân công GVPB.
+          <span class="material-symbols-outlined me-2">info</span>Chưa có đề tài nào được phân công GVPB.
         </div>
 
         <div *ngIf="!loading && gvpbGroups.length > 0">
@@ -38,14 +38,14 @@ import { ToastrService } from 'ngx-toastr';
                 <div class="d-flex align-items-center justify-content-between">
                   <div class="d-flex align-items-center gap-3">
                     <div >
-                      <i class="bi bi-person-check"></i>
+                      <span class="material-symbols-outlined">person_check</span>
                     </div>
                     <div>
                       <strong>{{ gvpb.hoTenGvpb }}</strong>
                       <span class="badge bg-warning text-dark ms-2">{{ gvpb.soLuong }} sinh viên</span>
                     </div>
                   </div>
-                  <i class="bi" [ngClass]="expandedGvpb === gvpb.hoTenGvpb ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                  <span class="material-symbols-outlined">{{ expandedGvpb === gvpb.hoTenGvpb ? 'expand_less' : 'expand_more' }}</span>
                 </div>
               </div>
             </div>

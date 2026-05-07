@@ -19,13 +19,13 @@ import { DeTaiResponse, DiemHuongDanResponse, DiemPhanBienResponse } from '../..
         <div class="card border-0 shadow-sm h-100">
           <div class="card-header bg-gradient text-white py-3" style="background: linear-gradient(135deg, #17a2b8, #138496);">
             <div class="d-flex align-items-center">
-              <i class="bi bi-person-check fs-4 me-2"></i>
+              <span class="material-symbols-outlined fs-4 me-2">person_check</span>
               <h5 class="mb-0">Điểm Hướng dẫn</h5>
             </div>
           </div>
           <div class="card-body text-center py-4">
             <div class="small text-muted mb-2">
-              <i class="bi bi-pencil-square me-1"></i>Điểm Hướng dẫn
+              <span class="material-symbols-outlined me-1">edit_note</span>Điểm Hướng dẫn
             </div>
             <div class="display-1 mb-3" [class.text-success]="ketQuaHD && ketQuaHD.diem! >= 5" [class.text-danger]="ketQuaHD && ketQuaHD.diem! < 5" [class.text-muted]="!ketQuaHD">
               {{ ketQuaHD?.diem || '-' }}
@@ -40,7 +40,7 @@ import { DeTaiResponse, DiemHuongDanResponse, DiemPhanBienResponse } from '../..
               <p class="mb-0 text-secondary" style="font-size: 0.9rem; line-height: 1.5;">{{ ketQuaHD?.nhanXet }}</p>
             </div>
             <div *ngIf="!ketQuaHD" class="text-muted mt-3">
-              <i class="bi bi-clock-history me-1"></i> Chưa có kết quả
+              <span class="material-symbols-outlined me-1">hourglass_empty</span> Chưa có kết quả
             </div>
           </div>
         </div>
@@ -51,13 +51,13 @@ import { DeTaiResponse, DiemHuongDanResponse, DiemPhanBienResponse } from '../..
         <div class="card border-0 shadow-sm h-100">
           <div class="card-header bg-gradient text-white py-3" style="background: linear-gradient(135deg, #ffc107, #e0a800);">
             <div class="d-flex align-items-center">
-              <i class="bi bi-chat-square-text fs-4 me-2"></i>
+              <span class="material-symbols-outlined fs-4 me-2">quiz</span>
               <h5 class="mb-0">Điểm Phản biện</h5>
             </div>
           </div>
           <div class="card-body text-center py-4">
             <div class="small text-muted mb-2">
-              <i class="bi bi-pencil-square me-1"></i>Điểm Phản biện
+              <span class="material-symbols-outlined me-1">edit_note</span>Điểm Phản biện
             </div>
             <div class="display-1 mb-3" [class.text-success]="ketQuaPB && ketQuaPB.diem! >= 5" [class.text-danger]="ketQuaPB && ketQuaPB.diem! < 5" [class.text-muted]="!ketQuaPB">
               {{ ketQuaPB?.diem || '-' }}
@@ -72,7 +72,7 @@ import { DeTaiResponse, DiemHuongDanResponse, DiemPhanBienResponse } from '../..
               <p class="mb-0 text-secondary" style="font-size: 0.9rem; line-height: 1.5;">{{ ketQuaPB?.nhanXet }}</p>
             </div>
             <div *ngIf="!ketQuaPB" class="text-muted mt-3">
-              <i class="bi bi-clock-history me-1"></i> Chưa có kết quả
+              <span class="material-symbols-outlined me-1">hourglass_empty</span> Chưa có kết quả
             </div>
           </div>
         </div>
@@ -83,13 +83,13 @@ import { DeTaiResponse, DiemHuongDanResponse, DiemPhanBienResponse } from '../..
         <div class="card border-0 shadow-sm h-100">
           <div class="card-header bg-gradient text-white py-3" style="background: linear-gradient(135deg, #28a745, #1e7e34);">
             <div class="d-flex align-items-center">
-              <i class="bi bi-shield-check fs-4 me-2"></i>
+              <span class="material-symbols-outlined fs-4 me-2">verified_user</span>
               <h5 class="mb-0">Điểm Bảo vệ</h5>
             </div>
           </div>
           <div class="card-body text-center py-4">
             <div class="small text-muted mb-2">
-              <i class="bi bi-pencil-square me-1"></i>Điểm Bảo vệ
+              <span class="material-symbols-outlined me-1">edit_note</span>Điểm Bảo vệ
             </div>
             <div class="display-1 mb-3" [class.text-success]="ketQuaBV?.diemTongBaoVe && ketQuaBV!.diemTongBaoVe! >= 5" [class.text-danger]="ketQuaBV?.diemTongBaoVe && ketQuaBV!.diemTongBaoVe! < 5" [class.text-muted]="!ketQuaBV?.diemTongBaoVe">
               {{ ketQuaBV?.diemTongBaoVe || '-' }}
@@ -100,7 +100,7 @@ import { DeTaiResponse, DiemHuongDanResponse, DiemPhanBienResponse } from '../..
             </div>
             
             <div *ngIf="!ketQuaBV?.diemTongBaoVe" class="text-muted mt-3">
-              <i class="bi bi-clock-history me-1"></i> Chưa có kết quả
+              <span class="material-symbols-outlined me-1">hourglass_empty</span> Chưa có kết quả
             </div>
           </div>
         </div>

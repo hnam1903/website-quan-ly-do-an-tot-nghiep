@@ -14,7 +14,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
         <div class="page-icon bg-success-subtle">
-          <i class="bi bi-people-fill text-success"></i>
+          <span class="material-symbols-outlined text-success">group</span>
         </div>
         <div>
           <h2>Quản lý Sinh viên</h2>
@@ -64,7 +64,7 @@ import { ToastrService } from 'ngx-toastr';
               <tr *ngIf="filteredSinhVienList.length === 0">
                 <td colspan="6" class="text-center py-5">
                   <div class="empty-state">
-                    <i class="bi bi-people fs-1 d-block mb-3"></i>
+                    <span class="material-symbols-outlined fs-2 d-block mb-3" style="color: #ccc;">group</span>
                     <p class="mb-1 fw-semibold">Không có sinh viên nào</p>
                     <small class="text-muted">Thử thay đổi bộ lọc</small>
                   </div>

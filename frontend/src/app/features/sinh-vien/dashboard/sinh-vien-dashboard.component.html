@@ -5,7 +5,7 @@
       <div class="d-flex justify-content-between align-items-center">
         <div>
           <h2 class="mb-1">
-            <i class="bi bi-speedometer2 me-2"></i>
+            <span class="material-symbols-outlined me-2">dashboard</span>
             Dashboard Sinh viên
           </h2>
           <p class="text-muted mb-0 small" *ngIf="userInfo">
@@ -13,7 +13,7 @@
           </p>
         </div>
         <button class="btn btn-outline-primary" (click)="refresh()" [disabled]="loading">
-          <i class="bi bi-arrow-clockwise" [class.spin]="loading"></i> Làm mới
+          <span class="material-symbols-outlined" [class.spin]="loading">sync</span> Làm mới
         </button>
       </div>
     </div>
@@ -34,7 +34,7 @@
         <div class="card shadow-sm">
           <div class="card-body">
             <h5 class="card-title text-muted mb-3">
-              <i class="bi bi-folder-fill me-2"></i>Trạng thái đề tài
+              <span class="material-symbols-outlined me-2">folder</span>Trạng thái đề tài
             </h5>
             <div *ngIf="deTai; else chuaDangKy">
               <div class="d-flex align-items-center flex-wrap gap-3">
@@ -48,10 +48,10 @@
             </div>
             <ng-template #chuaDangKy>
               <div class="text-center py-3">
-                <i class="bi bi-exclamation-circle text-warning me-2"></i>
+                <span class="material-symbols-outlined text-warning me-2" style="font-size: 1.5rem;">info</span>
                 <span>Bạn chưa đăng ký đề tài</span>
                 <button class="btn btn-primary btn-sm ms-3" routerLink="/sinh-vien/de-tai/dang-ky">
-                  <i class="bi bi-plus-circle me-1"></i>Đăng ký ngay
+                  <span class="material-symbols-outlined me-1">add_circle</span>Đăng ký ngay
                 </button>
               </div>
             </ng-template>
@@ -67,7 +67,7 @@
         <div class="card h-100 shadow-sm text-center">
           <div class="card-body">
             <h5 class="card-title text-muted mb-3">
-              <i class="bi bi-star-fill me-2 text-warning"></i>Điểm Hướng dẫn
+              <span class="material-symbols-outlined me-2 text-warning">star</span>Điểm Hướng dẫn
             </h5>
             <div *ngIf="ketQuaHD?.diem; else chuaCoDiemHD">
               <div class="display-4 fw-bold text-primary">{{ ketQuaHD?.diem }}</div>
@@ -77,7 +77,7 @@
               </p>
             </div>
             <ng-template #chuaCoDiemHD>
-              <i class="bi bi-hourglass text-muted" style="font-size: 3rem;"></i>
+              <span class="material-symbols-outlined text-muted" style="font-size: 3rem;">hourglass_empty</span>
               <p class="mt-3 mb-0 text-muted">Chưa có điểm</p>
             </ng-template>
           </div>
@@ -89,7 +89,7 @@
         <div class="card h-100 shadow-sm text-center">
           <div class="card-body">
             <h5 class="card-title text-muted mb-3">
-              <i class="bi bi-check-circle-fill me-2 text-success"></i>Điểm Phản biện
+              <span class="material-symbols-outlined me-2 text-success">check_circle</span>Điểm Phản biện
             </h5>
             <div *ngIf="ketQuaPB?.diem; else chuaCoDiemPB">
               <div class="display-4 fw-bold text-success">{{ ketQuaPB?.diem }}</div>
@@ -99,7 +99,7 @@
               </p>
             </div>
             <ng-template #chuaCoDiemPB>
-              <i class="bi bi-hourglass text-muted" style="font-size: 3rem;"></i>
+              <span class="material-symbols-outlined text-muted" style="font-size: 3rem;">hourglass_empty</span>
               <p class="mt-3 mb-0 text-muted">Chưa có điểm</p>
             </ng-template>
           </div>
@@ -111,13 +111,13 @@
         <div class="card h-100 shadow-sm text-center border-danger">
           <div class="card-body">
             <h5 class="card-title text-muted mb-3">
-              <i class="bi bi-trophy-fill me-2 text-danger"></i>Điểm Bảo vệ
+              <span class="material-symbols-outlined me-2 text-danger">emoji_events</span>Điểm Bảo vệ
             </h5>
             <div *ngIf="deTai?.diemTongBaoVe; else chuaCoDiemBV">
               <div class="display-4 fw-bold text-danger">{{ deTai?.diemTongBaoVe }}</div>
             </div>
             <ng-template #chuaCoDiemBV>
-              <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+              <span class="material-symbols-outlined text-muted" style="font-size: 3rem;">event_busy</span>
               <p class="mt-3 mb-0 text-muted">Chưa có điểm</p>
             </ng-template>
           </div>
@@ -131,26 +131,26 @@
         <div class="card shadow-sm">
           <div class="card-body">
             <h5 class="card-title text-muted mb-3">
-              <i class="bi bi-calendar-event-fill me-2"></i>Lịch bảo vệ
+              <span class="material-symbols-outlined me-2">event</span>Lịch bảo vệ
             </h5>
             <div *ngIf="lichBaoVe?.ngayBaoVe; else chuaCoLich">
               <div class="d-flex align-items-center">
                 <div class="bg-primary bg-opacity-10 p-3 rounded me-3">
-                  <i class="bi bi-calendar-week text-primary" style="font-size: 2rem;"></i>
+                  <span class="material-symbols-outlined text-primary" style="font-size: 2rem;">calendar_month</span>
                 </div>
                 <div>
                   <p class="mb-1 fw-bold">Đề tài của bạn sẽ bảo vệ</p>
                   <p class="mb-0 text-muted">
-                    <i class="bi bi-calendar3 me-1"></i>{{ lichBaoVe?.ngayBaoVe | date:'dd/MM/yyyy' }}
+                    <span class="material-symbols-outlined me-1" style="font-size: 16px;">event</span>{{ lichBaoVe?.ngayBaoVe | date:'dd/MM/yyyy' }}
                     <span class="mx-2">|</span>
-                    <i class="bi bi-geo-alt me-1"></i>{{ lichBaoVe?.diaDiem || 'Chưa xác định địa điểm' }}
+                    <span class="material-symbols-outlined me-1" style="font-size: 16px;">location_on</span>{{ lichBaoVe?.diaDiem || 'Chưa xác định địa điểm' }}
                   </p>
                 </div>
               </div>
             </div>
             <ng-template #chuaCoLich>
               <div class="text-center py-3">
-                <i class="bi bi-calendar-x text-muted me-2"></i>
+                <span class="material-symbols-outlined text-muted me-2">event_busy</span>
                 <span class="text-muted">Chưa có lịch bảo vệ</span>
               </div>
             </ng-template>

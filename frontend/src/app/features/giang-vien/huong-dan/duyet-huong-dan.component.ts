@@ -13,7 +13,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
         <div class="page-icon bg-warning-subtle">
-          <i class="bi bi-person-check text-warning"></i>
+          <span class="material-symbols-outlined text-warning">person_check</span>
         </div>
         <div>
           <h2>Duyệt Giảng viên hướng dẫn</h2>
@@ -21,7 +21,7 @@ import { ToastrService } from 'ngx-toastr';
         </div>
       </div>
       <span class="badge bg-warning text-dark">
-        <i class="bi bi-hourglass-split me-1"></i>{{ choDuyetList.length }} sinh viên chờ duyệt
+        <span class="material-symbols-outlined me-1" style="font-size: 16px;">hourglass_empty</span>{{ choDuyetList.length }} sinh viên chờ duyệt
       </span>
     </div>
 
@@ -51,19 +51,19 @@ import { ToastrService } from 'ngx-toastr';
               <td>
                 <span class="text-truncate d-inline-block" style="max-width: 250px">{{ sv.tenDeTai }}</span>
               </td>
-              <td><span class="badge badge-secondary">{{ sv.tenBoMon }}</span></td>
+              <td><span >{{ sv.tenBoMon }}</span></td>
               <td class="text-center">
                 <button class="btn btn-sm btn-outline-primary btn-icon" (click)="xemChiTiet(sv)" title="Xem chi tiết">
-                  <i class="bi bi-eye"></i>
+                  <span class="material-symbols-outlined">visibility</span>
                 </button>
               </td>
               <td>
                 <div class="d-flex gap-2">
                   <button class="btn btn-sm btn-success btn-icon" (click)="duyet(sv)" title="Đồng ý hướng dẫn">
-                    <i class="bi bi-check-circle"></i>
+                    <span class="material-symbols-outlined">check_circle</span>
                   </button>
                   <button class="btn btn-sm btn-outline-danger btn-icon" (click)="tuChoi(sv)" title="Từ chối">
-                    <i class="bi bi-x-circle"></i>
+                    <span class="material-symbols-outlined">cancel</span>
                   </button>
                 </div>
               </td>
@@ -73,7 +73,7 @@ import { ToastrService } from 'ngx-toastr';
 
         <div *ngIf="choDuyetList.length === 0" class="text-center py-5">
           <div class="empty-state">
-            <i class="bi bi-check-circle text-success fs-1 d-block mb-3"></i>
+            <span class="material-symbols-outlined text-success fs-2 d-block mb-3">task_alt</span>
             <p class="mb-1 fw-semibold">Không có sinh viên nào chờ duyệt hướng dẫn</p>
             <small class="text-muted">Tất cả yêu cầu đã được xử lý</small>
           </div>
@@ -110,7 +110,7 @@ import { ToastrService } from 'ngx-toastr';
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
             <button type="button" class="btn" [class.btn-success]="actionType === 'duyet'" [class.btn-danger]="actionType === 'tuchoi'" (click)="confirmAction()">
-              <i class="bi bi-check2 me-1"></i>Xác nhận
+              <span class="material-symbols-outlined me-1">check</span>Xác nhận
             </button>
           </div>
         </div>
@@ -122,7 +122,7 @@ import { ToastrService } from 'ngx-toastr';
       <div class="modal-dialog modal-lg">
         <div class="modal-content" *ngIf="chiTietDeTai">
           <div class="modal-header bg-info text-white">
-            <h5 class="modal-title"><i class="bi bi-eye me-2"></i>Chi tiết đề tài đăng ký</h5>
+            <h5 class="modal-title"><span class="material-symbols-outlined me-2">info</span>Chi tiết đề tài đăng ký</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">

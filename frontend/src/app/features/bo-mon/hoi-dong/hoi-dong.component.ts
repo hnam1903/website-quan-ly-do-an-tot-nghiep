@@ -14,7 +14,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
         <div class="page-icon bg-success-subtle">
-          <i class="bi bi-people-fill text-success"></i>
+          <span class="material-symbols-outlined text-success">group</span>
         </div>
         <div>
           <h2>Thành lập hội đồng bảo vệ</h2>
@@ -26,7 +26,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="card">
       <div class="card-body p-0">
         <div *ngIf="svDatPB.length === 0" class="alert alert-info m-4">
-          <i class="bi bi-info-circle me-2"></i>Không có sinh viên đủ điều kiện
+          <span class="material-symbols-outlined me-2">info</span>Không có sinh viên đủ điều kiện
         </div>
 
         <div class="table-responsive" *ngIf="svDatPB.length > 0">
@@ -52,19 +52,19 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
                 <td>
                   <span *ngIf="dt.hoTenGiangVienHuongDan; else noGvhd" class="text-muted">
-                    <i class="bi bi-person me-1"></i>{{ dt.hoTenGiangVienHuongDan }}
+                    <span class="material-symbols-outlined me-1">person</span>{{ dt.hoTenGiangVienHuongDan }}
                   </span>
                   <ng-template #noGvhd><span class="text-muted fst-italic">-</span></ng-template>
                 </td>
                 <td>
                   <span *ngIf="dt.hoTenGiangVienPhanBien; else noGvpb" class="text-muted">
-                    <i class="bi bi-person me-1"></i>{{ dt.hoTenGiangVienPhanBien }}
+                    <span class="material-symbols-outlined me-1">person</span>{{ dt.hoTenGiangVienPhanBien }}
                   </span>
                   <ng-template #noGvpb><span class="text-muted fst-italic">-</span></ng-template>
                 </td>
                 <td class="text-center">
                   <button class="btn btn-sm btn-primary" (click)="showHoiDongModal(dt)">
-                    <i class="bi bi-plus-circle me-1"></i>Lập HĐ
+                    <span class="material-symbols-outlined me-1">add_circle</span>Lập HĐ
                   </button>
                 </td>
               </tr>
@@ -79,7 +79,7 @@ import { ToastrService } from 'ngx-toastr';
       <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title"><i class="bi bi-people me-2"></i>Thành lập hội đồng</h5>
+            <h5 class="modal-title"><span class="material-symbols-outlined me-2">group</span>Thành lập hội đồng</h5>
             <button type="button" class="btn-close" (click)="closeModal()"></button>
           </div>
           <div class="modal-body">
@@ -99,7 +99,7 @@ import { ToastrService } from 'ngx-toastr';
               </div>
             </div>
 
-            <h6 class="mb-3"><i class="bi bi-persons me-2"></i>Thành viên hội đồng (3 người)</h6>
+            <h6 class="mb-3"><span class="material-symbols-outlined me-2">group</span>Thành viên hội đồng (3 người)</h6>
             <div *ngFor="let tv of thanhVien; let i = index" class="row g-3 mb-3">
               <div class="col-md-8">
                 <select class="form-select" [(ngModel)]="tv.giangVienId">
@@ -121,7 +121,7 @@ import { ToastrService } from 'ngx-toastr';
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" (click)="closeModal()">Hủy</button>
             <button type="button" class="btn btn-primary" (click)="taoHoiDong()">
-              <i class="bi bi-check2 me-1"></i>Tạo hội đồng
+              <span class="material-symbols-outlined me-1">check</span>Tạo hội đồng
             </button>
           </div>
         </div>

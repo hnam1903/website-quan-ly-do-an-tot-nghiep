@@ -22,7 +22,7 @@ import { ToastrService } from 'ngx-toastr';
           <input type="text" class="form-control me-3" placeholder="Tìm kiếm..." 
                  [(ngModel)]="searchText" (input)="filterData()" style="width: 200px;">
           <button class="btn btn-success" (click)="exportExcel()">
-            <i class="bi bi-file-earmark-excel me-2"></i>Xuất Excel
+            <span class="material-symbols-outlined me-2">table</span>Xuất Excel
           </button>
         </div>
       </div>
@@ -76,10 +76,10 @@ import { ToastrService } from 'ngx-toastr';
                   </td>
                 </tr>
                 <tr *ngIf="filteredData.length === 0">
-                  <td colspan="5" class="text-center py-4 text-muted">
-                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                    Không có dữ liệu
-                  </td>
+                <td colspan="5" class="text-center py-4 text-muted">
+                  <span class="material-symbols-outlined fs-2 d-block mb-2">inbox</span>
+                  Không có dữ liệu
+                </td>
                 </tr>
               </tbody>
             </table>

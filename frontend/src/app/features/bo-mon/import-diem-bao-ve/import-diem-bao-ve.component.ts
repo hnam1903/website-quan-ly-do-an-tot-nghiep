@@ -11,7 +11,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
         <div class="page-icon bg-success-subtle">
-          <i class="bi bi-file-earmark-arrow-up text-success"></i>
+          <span class="material-symbols-outlined text-success">upload_file</span>
         </div>
         <div>
           <h2>Import điểm bảo vệ từ Excel</h2>
@@ -24,9 +24,9 @@ import { ToastrService } from 'ngx-toastr';
       <div class="col-lg-4">
         <div class="card h-100">
           <div class="card-body">
-            <h5 class="mb-4"><i class="bi bi-download me-2 text-success"></i>Tải template</h5>
+            <h5 class="mb-4"><span class="material-symbols-outlined me-2 text-success">download</span>Tải template</h5>
             <button class="btn btn-success w-100" (click)="downloadTemplate()">
-              <i class="bi bi-file-earmark-excel me-2"></i>Tải file template Excel
+              <span class="material-symbols-outlined me-2">table</span>Tải file template Excel
             </button>
           </div>
         </div>
@@ -34,9 +34,9 @@ import { ToastrService } from 'ngx-toastr';
       <div class="col-lg-8">
         <div class="card h-100">
           <div class="card-body">
-            <h5 class="mb-4"><i class="bi bi-upload me-2 text-primary"></i>Upload file điểm</h5>
+            <h5 class="mb-4"><span class="material-symbols-outlined me-2 text-primary">upload</span>Upload file điểm</h5>
             <div class="alert alert-info mb-4">
-              <strong><i class="bi bi-info-circle me-2"></i>Hướng dẫn:</strong>
+              <strong><span class="material-symbols-outlined me-2">info</span>Hướng dẫn:</strong>
               <ul class="mb-0 mt-2">
                 <li>Tải template Excel về máy</li>
                 <li>Điền thông tin điểm bảo vệ theo đúng định dạng</li>
@@ -45,15 +45,15 @@ import { ToastrService } from 'ngx-toastr';
             </div>
 
             <label class="btn btn-primary">
-              <i class="bi bi-upload me-2"></i>Chọn file Excel
+              <span class="material-symbols-outlined me-2">upload</span>Chọn file Excel
               <input type="file" accept=".xlsx,.xls" (change)="onFileSelected($event)" style="display: none;">
             </label>
             <span class="ms-3 text-muted" *ngIf="selectedFile">
-              <i class="bi bi-file-earmark-check text-success me-1"></i>{{ selectedFile.name }}
+              <span class="material-symbols-outlined text-success me-1">check_circle</span>{{ selectedFile.name }}
             </span>
 
             <div *ngIf="message" class="alert mt-3" [ngClass]="success ? 'alert-success' : 'alert-danger'">
-              <i class="bi me-2" [class.bi-check-circle-fill]="success" [class.bi-exclamation-triangle-fill]="!success"></i>
+              <span class="material-symbols-outlined me-2">{{ success ? 'check_circle' : 'error' }}</span>
               {{ message }}
             </div>
           </div>

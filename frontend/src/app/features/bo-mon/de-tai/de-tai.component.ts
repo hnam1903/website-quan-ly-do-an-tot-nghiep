@@ -92,7 +92,7 @@ import { ToastrService } from 'ngx-toastr';
               <tr *ngIf="deTaiDangThucHien.length === 0">
                 <td colspan="7" class="text-center py-5">
                   <div class="empty-state">
-                    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                    <span class="material-symbols-outlined fs-2 d-block mb-3" style="color: #ccc;">inbox</span>
                     <p class="mb-1 fw-semibold">Không có đề tài nào</p>
                     <small class="text-muted">Đang thực hiện</small>
                   </div>
@@ -149,7 +149,7 @@ import { ToastrService } from 'ngx-toastr';
               <tr *ngIf="deTaiHoanThanh.length === 0">
                 <td colspan="7" class="text-center py-5">
                   <div class="empty-state">
-                    <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                    <span class="material-symbols-outlined fs-2 d-block mb-3" style="color: #ccc;">inbox</span>
                     <p class="mb-1 fw-semibold">Không có đề tài nào</p>
                     <small class="text-muted">Hoàn thành</small>
                   </div>
@@ -227,7 +227,7 @@ import { ToastrService } from 'ngx-toastr';
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" *ngIf="chiTietDeTai">
           <div class="modal-header">
-            <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Chi tiết đề tài</h5>
+            <h5 class="modal-title"><span class="material-symbols-outlined me-2">info</span>Chi tiết đề tài</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -269,11 +269,11 @@ import { ToastrService } from 'ngx-toastr';
               </div>
             </div>
             <hr>
-            <h6 class="mb-3"><i class="bi bi-people me-2"></i>Giảng viên &amp; Điểm</h6>
+            <h6 class="mb-3"><span class="material-symbols-outlined me-2">group</span>Giảng viên &amp; Điểm</h6>
             <div class="row g-3">
               <div class="col-md-4">
                 <div class="info-card border-start border-4 border-primary">
-                  <h6 class="text-primary mb-2"><i class="bi bi-person-check me-2"></i>GV Hướng dẫn</h6>
+                  <h6 class="text-primary mb-2"><span class="material-symbols-outlined me-2">person_check</span>GV Hướng dẫn</h6>
                   <p class="mb-1">{{ chiTietDeTai.hoTenGiangVienHuongDan || 'Chưa phân công' }}</p>
                   <span class="badge" [class]="chiTietDeTai.diemHuongDan != null ? 'badge-primary' : 'badge-secondary'">
                     {{ chiTietDeTai.diemHuongDan != null ? 'Điểm: ' + chiTietDeTai.diemHuongDan + '/10' : 'Chưa chấm' }}
@@ -282,7 +282,7 @@ import { ToastrService } from 'ngx-toastr';
               </div>
               <div class="col-md-4">
                 <div class="info-card border-start border-4 border-warning">
-                  <h6 class="text-warning mb-2"><i class="bi bi-person-dash me-2"></i>GV Phản biện</h6>
+                  <h6 class="text-warning mb-2"><span class="material-symbols-outlined me-2">person_remove</span>GV Phản biện</h6>
                   <p class="mb-1">{{ chiTietDeTai.hoTenGiangVienPhanBien || 'Chưa phân công' }}</p>
                   <span class="badge" [class]="chiTietDeTai.diemPhanBien != null ? 'badge-warning text-dark' : 'badge-secondary'">
                     {{ chiTietDeTai.diemPhanBien != null ? 'Điểm: ' + chiTietDeTai.diemPhanBien + '/10' : 'Chưa chấm' }}
@@ -291,10 +291,10 @@ import { ToastrService } from 'ngx-toastr';
               </div>
               <div class="col-md-4">
                 <div class="info-card border-start border-4 border-success">
-                  <h6 class="text-success mb-2"><i class="bi bi-shield-check me-2"></i>GV Hội đồng</h6>
+                  <h6 class="text-success mb-2"><span class="material-symbols-outlined me-2">verified_user</span>GV Hội đồng</h6>
                   <ul class="list-unstyled mb-0" *ngIf="chiTietDeTai.thanhVienHoiDongList?.length">
                     <li *ngFor="let tv of chiTietDeTai.thanhVienHoiDongList" class="mb-1">
-                      <i class="bi bi-person-fill me-1 text-muted"></i>{{ tv.hoTen }}
+                      <span class="material-symbols-outlined me-1 text-muted">person</span>{{ tv.hoTen }}
                       <span class="badge badge-success ms-1" style="font-size: 0.65rem;">{{ tv.vaiTro }}</span>
                       <span *ngIf="tv.diem != null" class="badge badge-warning text-dark ms-1" style="font-size: 0.65rem;">{{ tv.diem }}/10</span>
                     </li>
@@ -316,7 +316,7 @@ import { ToastrService } from 'ngx-toastr';
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" *ngIf="chiTietBaoCao">
           <div class="modal-header bg-success text-white">
-            <h5 class="modal-title"><i class="bi bi-file-earmark-text me-2"></i>Báo cáo đề tài</h5>
+            <h5 class="modal-title"><span class="material-symbols-outlined me-2">description</span>Báo cáo đề tài</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -344,10 +344,10 @@ import { ToastrService } from 'ngx-toastr';
             <hr>
             <div class="text-center">
               <div class="mb-3">
-                <i class="bi bi-file-earmark-text" style="font-size: 4rem; color: var(--danger);"></i>
+                <span class="material-symbols-outlined" style="font-size: 4rem; color: var(--danger);">description</span>
               </div>
               <button *ngIf="chiTietBaoCao.fileBaoCao" class="btn btn-success" (click)="downloadFile(chiTietBaoCao.fileBaoCao)">
-                <i class="bi bi-download me-2"></i>Tải xuống báo cáo
+                <span class="material-symbols-outlined me-2">download</span>Tải xuống báo cáo
               </button>
               <p *ngIf="!chiTietBaoCao.fileBaoCao" class="text-muted mb-0">Chưa có file</p>
             </div>

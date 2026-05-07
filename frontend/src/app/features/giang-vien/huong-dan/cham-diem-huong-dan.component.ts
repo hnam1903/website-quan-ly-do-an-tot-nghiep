@@ -13,7 +13,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
         <div class="page-icon bg-warning-subtle">
-          <i class="bi bi-pencil-square text-warning"></i>
+          <span class="material-symbols-outlined text-warning">edit_note</span>
         </div>
         <div>
           <h2>Chấm điểm hướng dẫn</h2>
@@ -51,23 +51,23 @@ import { ToastrService } from 'ngx-toastr';
                   </strong>
                 </td>
                 <td>
-                  <span *ngIf="pc.daChamDiem" class="badge badge-success">
-                    <i class="bi bi-check-circle-fill me-1"></i>Đã chấm
+                  <span *ngIf="pc.daChamDiem" class="badge bg-success">
+                    <span class="material-symbols-outlined me-1 text-white">check_circle</span>Đã chấm
                   </span>
-                  <span *ngIf="!pc.daChamDiem" class="badge badge-warning text-dark">
-                    <i class="bi bi-hourglass-split me-1"></i>Chưa chấm
+                  <span *ngIf="!pc.daChamDiem" class="badge bg-warning text-dark">
+                    <span class="material-symbols-outlined me-1">hourglass_empty</span>Chưa chấm
                   </span>
                 </td>
                 <td class="text-center">
                   <button class="btn btn-sm" [class.btn-outline-warning]="!pc.daChamDiem" [class.btn-outline-secondary]="pc.daChamDiem" (click)="showForm(pc)">
-                    <i class="bi bi-pencil me-1"></i>{{ pc.daChamDiem ? 'Sửa' : 'Chấm điểm' }}
+                    <span class="material-symbols-outlined me-1">edit</span>{{ pc.daChamDiem ? 'Sửa' : 'Chấm điểm' }}
                   </button>
                 </td>
               </tr>
               <tr *ngIf="activeFormId === pc.id" class="table-active">
                 <td colspan="7">
                   <div class="p-4 bg-light rounded">
-                    <h6 class="mb-3"><i class="bi bi-pencil-square me-2"></i>Chấm điểm cho: {{ pc.hoTenSinhVien }}</h6>
+                    <h6 class="mb-3"><span class="material-symbols-outlined me-2">edit_note</span>Chấm điểm cho: {{ pc.hoTenSinhVien }}</h6>
                     <div class="row g-3">
                       <div class="col-md-3">
                         <label class="form-label">Điểm (0 - 10)</label>
@@ -81,10 +81,10 @@ import { ToastrService } from 'ngx-toastr';
                       </div>
                       <div class="col-md-3 d-flex align-items-end gap-2">
                         <button class="btn btn-success flex-grow-1" (click)="chamDiem(pc)">
-                          <i class="bi bi-check-lg me-1"></i>Lưu
+                          <span class="material-symbols-outlined me-1">check</span>Lưu
                         </button>
                         <button class="btn btn-secondary" (click)="cancelForm()">
-                          <i class="bi bi-x-lg"></i>
+                          <span class="material-symbols-outlined">close</span>
                         </button>
                       </div>
                     </div>
@@ -97,7 +97,7 @@ import { ToastrService } from 'ngx-toastr';
 
         <div *ngIf="huongDanList.length === 0" class="text-center py-5">
           <div class="empty-state">
-            <i class="bi bi-check-circle text-success fs-1 d-block mb-3"></i>
+            <span class="material-symbols-outlined text-success fs-2 d-block mb-3">task_alt</span>
             <p class="mb-1 fw-semibold">Không có sinh viên cần chấm điểm</p>
             <small class="text-muted">Danh sách sẽ được cập nhật khi có sinh viên</small>
           </div>

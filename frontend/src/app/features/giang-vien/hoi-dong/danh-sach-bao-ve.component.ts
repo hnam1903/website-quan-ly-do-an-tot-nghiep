@@ -39,7 +39,7 @@ import { HoiDongBaoVeResponse } from '../../../core/models/models';
               <td>{{ hd.diaDiem || '-' }}</td>
               <td>
                 <button class="btn btn-sm btn-outline-primary" (click)="xemThanhVien(hd)">
-                  <i class="bi bi-people"></i> Xem ({{ hd.thanhViens?.length || 0 }})
+                  <span class="material-symbols-outlined me-1">group</span> Xem ({{ hd.thanhViens?.length || 0 }})
                 </button>
               </td>
             </tr>
@@ -47,7 +47,7 @@ import { HoiDongBaoVeResponse } from '../../../core/models/models';
         </table>
 
         <div *ngIf="hoiDongList.length === 0" class="text-center py-5">
-          <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+          <span class="material-symbols-outlined" style="font-size: 3rem; color: #ccc;">inbox</span>
           <p class="text-muted mt-2">Bạn không có hội đồng nào</p>
         </div>
       </div>
@@ -82,7 +82,7 @@ import { HoiDongBaoVeResponse } from '../../../core/models/models';
               <label class="fw-bold">Thành viên</label>
               <ul class="list-group">
                 <li class="list-group-item" *ngFor="let tv of selected.thanhViens">
-                  <i class="bi bi-person-badge me-2"></i>
+                  <span class="material-symbols-outlined me-2">badge</span>
                   <strong>{{ tv.hoTenGiangVien }}</strong>
                   <span class="text-muted"> - {{ tv.hocVi }}</span>
                   <span class="badge bg-info ms-2">{{ tv.vaiTro }}</span>

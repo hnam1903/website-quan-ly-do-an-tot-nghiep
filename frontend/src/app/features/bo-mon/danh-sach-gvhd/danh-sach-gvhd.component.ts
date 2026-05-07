@@ -13,7 +13,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
         <div class="page-icon bg-primary-subtle">
-          <i class="bi bi-person-badge text-primary"></i>
+          <span class="material-symbols-outlined text-primary">badge</span>
         </div>
         <div>
           <h2>Danh sách Giảng viên hướng dẫn</h2>
@@ -28,7 +28,7 @@ import { ToastrService } from 'ngx-toastr';
           <span class="spinner-border spinner-border-sm me-2"></span> Đang tải...
         </div>
         <div *ngIf="!loading && gvhdGroups.length === 0" class="alert alert-info">
-          <i class="bi bi-info-circle me-2"></i>Chưa có đề tài nào được phân công GVHD.
+          <span class="material-symbols-outlined me-2">info</span>Chưa có đề tài nào được phân công GVHD.
         </div>
 
         <div *ngIf="!loading && gvhdGroups.length > 0">
@@ -38,14 +38,14 @@ import { ToastrService } from 'ngx-toastr';
                 <div class="d-flex align-items-center justify-content-between">
                   <div class="d-flex align-items-center gap-3">
                     <div >
-                      <i class="bi bi-person-badge"></i>
+                      <span class="material-symbols-outlined">badge</span>
                     </div>
                     <div>
                       <strong>{{ gvhd.hoTenGvhd }}</strong>
                       <span class="badge bg-primary ms-2">{{ gvhd.soLuong }} sinh viên</span>
                     </div>
                   </div>
-                  <i class="bi" [ngClass]="expandedGvhd === gvhd.hoTenGvhd ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                  <span class="material-symbols-outlined">{{ expandedGvhd === gvhd.hoTenGvhd ? 'expand_less' : 'expand_more' }}</span>
                 </div>
               </div>
             </div>

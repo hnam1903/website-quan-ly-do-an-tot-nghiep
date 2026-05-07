@@ -16,36 +16,47 @@ import { AuthService } from '../../../core/services/auth.service';
     </div>
 
     <!-- Đợt báo cáo đang mở -->
-    <div class="card mb-4" *ngIf="dotDangMos.length > 0">
-      <div class="card-header bg-primary text-white">
-        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Đợt báo cáo đang mở</h5>
-      </div>
-      <div class="card-body">
-        <div class="alert alert-warning">
-          <i class="fas fa-exclamation-triangle me-2"></i>
-          <strong>Lưu ý:</strong> Bạn chỉ được nộp báo cáo một lần cho mỗi đợt. Vui lòng kiểm tra kỹ trước khi nộp.
-        </div>
-
-        <div class="row">
-          <div class="col-md-6 mb-3" *ngFor="let dot of dotDangMos">
-            <div class="card h-100 border-primary">
-              <div class="card-header bg-primary text-white">
-                <strong>{{ dot.tenDot }}</strong>
-              </div>
-              <div class="card-body">
-                <p><strong>Hạn nộp:</strong> {{ dot.ngayKetThuc | date:'dd/MM/yyyy HH:mm' }}</p>
-                <p><strong>GVHD:</strong> {{ dot.hoTenGiangVien }}</p>
-
-                <!-- Kiểm tra đã nộp chưa -->
-                <div *ngIf="daNopMap[dot.id]" class="alert alert-success mt-2 mb-0">
-                  <i class="fas fa-check-circle me-1"></i> Bạn đã nộp báo cáo cho đợt này
+    <div *ngIf="dotDangMos.length > 0" class="mb-4">
+      <h5 class="mb-3">
+        <span class="material-symbols-outlined me-2 text-warning">schedule</span>Đợt báo cáo đang mở
+      </h5>
+      
+      <div class="row">
+        <div class="col-lg-6 mb-3" *ngFor="let dot of dotDangMos">
+          <div class="card h-100 shadow-sm border-warning">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                  <h5 class="card-title mb-1 text-warning">{{ dot.tenDot }}</h5>
+                  <p class="text-muted mb-0 small">
+                    <span class="material-symbols-outlined me-1" style="font-size: 16px;">person</span>
+                    GVHD: {{ dot.hoTenGiangVien }}
+                  </p>
                 </div>
-                <div *ngIf="!daNopMap[dot.id]" class="mt-2">
-                  <button class="btn btn-primary w-100" (click)="openModalNop(dot)">
-                    <i class="fas fa-upload me-1"></i> Nộp báo cáo
-                  </button>
+                <span class="badge bg-warning text-dark">
+                  <span class="material-symbols-outlined me-1" style="font-size: 14px;">schedule</span>
+                  Đang mở
+                </span>
+              </div>
+              
+              <div class="alert alert-light mb-3">
+                <div class="d-flex align-items-center">
+                  <span class="material-symbols-outlined text-danger me-2">event</span>
+                  <div>
+                    <small class="text-muted">Hạn nộp</small>
+                    <div class="fw-bold">{{ dot.ngayKetThuc | date:'dd/MM/yyyy HH:mm' }}</div>
+                  </div>
                 </div>
               </div>
+
+              <!-- Kiểm tra đã nộp chưa -->
+              <div *ngIf="daNopMap[dot.id]" class="alert alert-success d-flex align-items-center mb-0">
+                <span class="material-symbols-outlined me-2">check_circle</span>
+                <span>Bạn đã nộp báo cáo cho đợt này</span>
+              </div>
+              <button *ngIf="!daNopMap[dot.id]" class="btn btn-warning w-100" (click)="openModalNop(dot)">
+                <span class="material-symbols-outlined me-1">upload</span> Nộp báo cáo
+              </button>
             </div>
           </div>
         </div>
@@ -199,7 +210,19 @@ import { AuthService } from '../../../core/services/auth.service';
         </div>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    .card {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    }
+    .table-hover tbody tr:hover {
+      background-color: rgba(13, 110, 253, 0.05);
+    }
+  `]
 })
 export class BaoCaoTienDoSvComponent implements OnInit {
   dotDangMos: DotBaoCaoTienDoResponse[] = [];

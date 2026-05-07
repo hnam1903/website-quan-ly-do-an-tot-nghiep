@@ -14,7 +14,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
         <div class="page-icon bg-warning-subtle">
-          <i class="bi bi-person-check text-warning"></i>
+          <span class="material-symbols-outlined text-warning">person_check</span>
         </div>
         <div>
           <h2>Phân công Giảng viên phản biện</h2>
@@ -26,7 +26,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="card">
       <div class="card-body p-0">
         <div *ngIf="svDatGVHD.length === 0" class="alert alert-info m-4">
-          <i class="bi bi-info-circle me-2"></i>Không có sinh viên nào cần phân công phản biện.
+          <span class="material-symbols-outlined me-2">info</span>Không có sinh viên nào cần phân công phản biện.
         </div>
 
         <div class="table-responsive" *ngIf="svDatGVHD.length > 0">
@@ -54,7 +54,7 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
                 <td>
                   <span *ngIf="dt.hoTenGiangVienHuongDan; else noGvhd" class="text-muted">
-                    <i class="bi bi-person me-1"></i>{{ dt.hoTenGiangVienHuongDan }}
+                    <span class="material-symbols-outlined me-1">person</span>{{ dt.hoTenGiangVienHuongDan }}
                   </span>
                   <ng-template #noGvhd><span class="text-muted fst-italic">Chưa có</span></ng-template>
                 </td>
@@ -68,7 +68,7 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
                 <td>
                   <button class="btn btn-sm btn-primary" (click)="phanCongPB(dt.id)">
-                    <i class="bi bi-check2 me-1"></i> Phân công
+                    <span class="material-symbols-outlined me-1">check</span> Phân công
                   </button>
                 </td>
               </tr>

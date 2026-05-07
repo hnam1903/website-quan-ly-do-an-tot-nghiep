@@ -12,7 +12,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
         <div class="page-icon bg-info-subtle">
-          <i class="bi bi-people-fill text-info"></i>
+          <span class="material-symbols-outlined text-info">group</span>
         </div>
         <div>
           <h2>Danh sách hội đồng bảo vệ</h2>
@@ -27,7 +27,7 @@ import { ToastrService } from 'ngx-toastr';
           <span class="spinner-border spinner-border-sm me-2"></span> Đang tải...
         </div>
         <div *ngIf="!loading && hoiDongList.length === 0" class="alert alert-info">
-          <i class="bi bi-info-circle me-2"></i>Chưa có hội đồng bảo vệ nào được thành lập.
+          <span class="material-symbols-outlined me-2">info</span>Chưa có hội đồng bảo vệ nào được thành lập.
         </div>
 
         <div *ngIf="!loading && hoiDongList.length > 0">
@@ -37,7 +37,7 @@ import { ToastrService } from 'ngx-toastr';
                 <div class="d-flex align-items-center justify-content-between">
                   <div class="d-flex align-items-center gap-3">
                     <div >
-                      <i class="bi bi-people"></i>
+                      <span class="material-symbols-outlined">group</span>
                     </div>
                     <div>
                       <strong>{{ hd.sinhVien || hd.hoTenSinhVien }}</strong>
@@ -49,7 +49,7 @@ import { ToastrService } from 'ngx-toastr';
                     <span class="text-muted"><strong>Ngày:</strong> {{ hd.ngayBaoVe | date:'dd/MM/yyyy' }}</span>
                     <span class="text-muted"><strong>Phòng:</strong> {{ hd.diaDiem }}</span>
                   </div>
-                  <i class="bi" [ngClass]="expandedHd === hd.id ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                  <span class="material-symbols-outlined">{{ expandedHd === hd.id ? 'expand_less' : 'expand_more' }}</span>
                 </div>
               </div>
             </div>
@@ -65,8 +65,8 @@ import { ToastrService } from 'ngx-toastr';
                 <tbody>
                   <tr *ngFor="let tv of hd.thanhViens; let i = index">
                     <td class="text-center"><span class="stt-badge">{{ i + 2 }}</span></td>
-                    <td><i class="bi bi-person me-2 text-muted"></i>{{ tv.hoTen || tv.hoTenGiangVien }}</td>
-                    <td><span  [ngClass]="getVaiTroBadge(tv.vaiTro)"><i class="bi me-1" [ngClass]="getVaiTroIcon(tv.vaiTro)"></i>{{ getVaiTroText(tv.vaiTro) }}</span></td>
+                    <td><span class="material-symbols-outlined me-2 text-muted">person</span>{{ tv.hoTen || tv.hoTenGiangVien }}</td>
+                    <td><span  [ngClass]="getVaiTroBadge(tv.vaiTro)"><span class="material-symbols-outlined me-1">{{ getVaiTroIcon(tv.vaiTro) }}</span>{{ getVaiTroText(tv.vaiTro) }}</span></td>
                   </tr>
                 </tbody>
               </table>
@@ -157,10 +157,10 @@ export class DanhSachHoiDongComponent implements OnInit {
 
   getVaiTroIcon(vaiTro: string): string {
     switch (vaiTro) {
-      case 'CHU_TICH': return 'bi-shield-fill';
-      case 'THU_KY': return 'bi-pen-fill';
-      case 'UY_VIEN': return 'bi-person-fill';
-      default: return 'bi-person';
+      case 'CHU_TICH': return 'shield';
+      case 'THU_KY': return 'edit';
+      case 'UY_VIEN': return 'person';
+      default: return 'person';
     }
   }
 

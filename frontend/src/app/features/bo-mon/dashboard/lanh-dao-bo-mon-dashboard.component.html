@@ -5,7 +5,7 @@
       <div class="d-flex justify-content-between align-items-center">
         <div>
           <h2 class="mb-1">
-            <i class="bi bi-speedometer2 me-2"></i>
+            <span class="material-symbols-outlined me-2">dashboard</span>
             Dashboard Lãnh đạo Bộ môn
           </h2>
           <p class="text-muted mb-0 small" *ngIf="userInfo">
@@ -13,7 +13,7 @@
           </p>
         </div>
         <button class="btn btn-outline-primary" (click)="refresh()" [disabled]="loading">
-          <i class="bi bi-arrow-clockwise"></i> Làm mới
+          <span class="material-symbols-outlined">sync</span> Làm mới
         </button>
       </div>
     </div>
@@ -34,13 +34,9 @@
       <div class="col-lg-3 col-md-6 mb-4">
         <div class="card h-100 shadow-sm border-primary">
           <div class="card-body text-center">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <div class="bg-primary bg-opacity-10 p-2 rounded">
-                <i class="bi bi-journal-text text-primary" style="font-size: 1.5rem;"></i>
-              </div>
-            </div>
+            <span class="material-symbols-outlined text-primary mb-2" style="font-size: 2.5rem;">folder</span>
             <h3 class="mb-1">{{ tongDeTai }}</h3>
-            <p class="text-muted mb-2">Tổng đề tài</p>
+            <p class="text-muted mb-0">Tổng đề tài</p>
           </div>
         </div>
       </div>
@@ -49,15 +45,11 @@
       <div class="col-lg-3 col-md-6 mb-4">
         <div class="card h-100 shadow-sm border-success">
           <div class="card-body text-center">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <div class="bg-success bg-opacity-10 p-2 rounded">
-                <i class="bi bi-person-badge-fill text-success" style="font-size: 1.5rem;"></i>
-              </div>
-            </div>
+            <span class="material-symbols-outlined text-success mb-2" style="font-size: 2.5rem;">person</span>
             <h3 class="mb-1">{{ tongGiangVien }}</h3>
-            <p class="text-muted mb-2">Giảng viên bộ môn</p>
-            <a routerLink="/bo-mon/giang-vien" class="btn btn-sm btn-outline-success">
-              Chi tiết <i class="bi bi-arrow-right ms-1"></i>
+            <p class="text-muted mb-0">Giảng viên bộ môn</p>
+            <a routerLink="/bo-mon/giang-vien" class="btn btn-sm btn-outline-success mt-2">
+              Chi tiết <span class="material-symbols-outlined ms-1" style="font-size: 16px;">arrow_forward</span>
             </a>
           </div>
         </div>
@@ -67,32 +59,25 @@
       <div class="col-lg-3 col-md-6 mb-4">
         <div class="card h-100 shadow-sm border-info">
           <div class="card-body text-center">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <div class="bg-info bg-opacity-10 p-2 rounded">
-                <i class="bi bi-mortarboard-fill text-info" style="font-size: 1.5rem;"></i>
-              </div>
-            </div>
+            <span class="material-symbols-outlined text-info mb-2" style="font-size: 2.5rem;">school</span>
             <h3 class="mb-1">{{ tongSinhVien }}</h3>
-            <p class="text-muted mb-2">Sinh viên bộ môn</p>
-            <a routerLink="/bo-mon/sinh-vien" class="btn btn-sm btn-outline-info">
-              Chi tiết <i class="bi bi-arrow-right ms-1"></i>
+            <p class="text-muted mb-0">Sinh viên bộ môn</p>
+            <a routerLink="/bo-mon/sinh-vien" class="btn btn-sm btn-outline-info mt-2">
+              Chi tiết <span class="material-symbols-outlined ms-1" style="font-size: 16px;">arrow_forward</span>
             </a>
           </div>
         </div>
       </div>
+
       <!-- Hội đồng bảo vệ -->
       <div class="col-lg-3 col-md-6 mb-4">
         <div class="card h-100 shadow-sm border-danger">
           <div class="card-body text-center">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-              <div class="bg-danger bg-opacity-10 p-2 rounded">
-                <i class="bi bi-shield-check text-danger" style="font-size: 1.5rem;"></i>
-              </div>
-            </div>
+            <span class="material-symbols-outlined text-danger mb-2" style="font-size: 2.5rem;">groups</span>
             <h3 class="mb-1">{{ soHoiDong }}</h3>
-            <p class="text-muted mb-2">Hội đồng bảo vệ</p>
-            <a routerLink="/bo-mon/hoi-dong/danh-sach" class="btn btn-sm btn-outline-danger">
-              Xem danh sách <i class="bi bi-arrow-right ms-1"></i>
+            <p class="text-muted mb-0">Hội đồng bảo vệ</p>
+            <a routerLink="/bo-mon/hoi-dong/danh-sach" class="btn btn-sm btn-outline-danger mt-2">
+              Xem danh sách <span class="material-symbols-outlined ms-1" style="font-size: 16px;">arrow_forward</span>
             </a>
           </div>
         </div>
@@ -103,7 +88,7 @@
     <div class="row mb-4" *ngIf="thongKePhanCong">
       <div class="col-12">
         <h5 class="mb-3">
-          <i class="bi bi-exclamation-triangle me-2 text-warning"></i>Cần xử lý
+          <span class="material-symbols-outlined me-2 text-warning">warning</span>Cần xử lý
         </h5>
       </div>
       <div class="col-md-4 mb-3">
@@ -142,7 +127,7 @@
     <div class="row mb-4">
       <div class="col-12">
         <h5 class="mb-3">
-          <i class="bi bi-kanban me-2"></i>Tình trạng đề tài
+          <span class="material-symbols-outlined me-2">view_kanban</span>Tình trạng đề tài
         </h5>
       </div>
       <!-- Đang thực hiện -->
@@ -180,7 +165,7 @@
         <div class="card shadow-sm h-100">
           <div class="card-header bg-white">
             <h5 class="card-title mb-0">
-              <i class="bi bi-bar-chart me-2"></i>Biểu đồ điểm trung bình theo giai đoạn
+              <span class="material-symbols-outlined me-2">bar_chart</span>Biểu đồ điểm trung bình theo giai đoạn
             </h5>
           </div>
           <div class="card-body">
@@ -203,7 +188,7 @@
         <div class="card shadow-sm h-100">
           <div class="card-header bg-white">
             <h5 class="card-title mb-0">
-              <i class="bi bi-award me-2"></i>Chi tiết điểm
+              <span class="material-symbols-outlined me-2">emoji_events</span>Chi tiết điểm
             </h5>
           </div>
           <div class="card-body">
@@ -248,26 +233,26 @@
         <div class="card shadow-sm">
           <div class="card-header bg-white">
             <h5 class="card-title mb-0">
-              <i class="bi bi-lightning me-2"></i>Thao tác nhanh
+              <span class="material-symbols-outlined me-2">bolt</span>Thao tác nhanh
             </h5>
           </div>
           <div class="card-body">
             <div class="row">
               <div class="col-md-4 col-6 mb-3">
                 <a routerLink="/bo-mon/phan-cong" class="btn btn-outline-primary w-100 py-3">
-                  <i class="bi bi-person-plus d-block fs-3 mb-2"></i>
+                  <span class="material-symbols-outlined d-block" style="font-size: 2rem; margin-bottom: 0.5rem;">person_add</span>
                   <span>Phân công HD</span>
                 </a>
               </div>
               <div class="col-md-4 col-6 mb-3">
                 <a routerLink="/bo-mon/phan-cong-phan-bien" class="btn btn-outline-success w-100 py-3">
-                  <i class="bi bi-clipboard-plus d-block fs-3 mb-2"></i>
+                  <span class="material-symbols-outlined d-block" style="font-size: 2rem; margin-bottom: 0.5rem;">assignment_ind</span>
                   <span>Phân công PB</span>
                 </a>
               </div>
               <div class="col-md-4 col-6 mb-3">
                 <a routerLink="/bo-mon/hoi-dong/thanh-lap" class="btn btn-outline-danger w-100 py-3">
-                  <i class="bi bi-people-fill d-block fs-3 mb-2"></i>
+                  <span class="material-symbols-outlined d-block" style="font-size: 2rem; margin-bottom: 0.5rem;">group</span>
                   <span>Thành lập HĐ</span>
                 </a>
               </div>

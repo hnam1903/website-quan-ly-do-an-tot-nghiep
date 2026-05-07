@@ -13,7 +13,7 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
         <div class="page-icon bg-info-subtle">
-          <i class="bi bi-chat-square-text text-info"></i>
+          <span class="material-symbols-outlined text-info">quiz</span>
         </div>
         <div>
           <h2>Danh sách sinh viên phản biện</h2>
@@ -29,7 +29,7 @@ import { ToastrService } from 'ngx-toastr';
         </div>
 
         <div *ngIf="!isLoading && deTaiList.length === 0" class="alert alert-info m-4">
-          <i class="bi bi-info-circle"></i> Không có sinh viên nào được phân công phản biện
+          <span class="material-symbols-outlined me-2">info</span> Không có sinh viên nào được phân công phản biện
         </div>
 
         <div class="table-responsive" *ngIf="!isLoading && deTaiList.length > 0">
@@ -53,16 +53,16 @@ import { ToastrService } from 'ngx-toastr';
                   {{ dt.tenDeTai }}
                 </td>
                 <td class="text-center">
-                  <span *ngIf="dt.daChamDiemPB" class="badge badge-success">
-                    <i class="bi bi-check-circle-fill me-1"></i>Đã chấm
+                  <span *ngIf="dt.daChamDiemPB" class="badge bg-success">
+                    <span class="material-symbols-outlined me-1 text-white">check_circle</span>Đã chấm
                   </span>
-                  <span *ngIf="!dt.daChamDiemPB" class="badge badge-warning text-dark">
-                    <i class="bi bi-hourglass-split me-1"></i>Chưa chấm
+                  <span *ngIf="!dt.daChamDiemPB" class="badge bg-warning text-dark">
+                    <span class="material-symbols-outlined me-1">hourglass_empty</span>Chưa chấm
                   </span>
                 </td>
                 <td class="text-center">
                   <button class="btn btn-sm btn-primary btn-icon" (click)="moModalChiTiet(dt)" title="Chi tiết">
-                    <i class="bi bi-eye"></i>
+                    <span class="material-symbols-outlined">visibility</span>
                   </button>
                 </td>
               </tr>
@@ -77,7 +77,7 @@ import { ToastrService } from 'ngx-toastr';
       <div class="modal-dialog modal-lg">
         <div class="modal-content" *ngIf="deTaiChon">
           <div class="modal-header">
-            <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Chi tiết phản biện</h5>
+            <h5 class="modal-title"><span class="material-symbols-outlined me-2">info</span>Chi tiết phản biện</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
