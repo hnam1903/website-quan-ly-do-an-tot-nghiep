@@ -20,8 +20,6 @@ import { ToastrService } from 'ngx-toastr';
           <option [ngValue]="undefined">-- Tất cả bộ môn --</option>
           <option *ngFor="let bm of boMonList" [ngValue]="bm.id">{{ bm.tenBoMon }}</option>
         </select>
-        <input type="text" class="form-control me-3" placeholder="Tìm kiếm..." 
-               [(ngModel)]="searchKeyword" (input)="onSearch()" style="width: 200px;">
         <button class="btn btn-success me-2" (click)="showImportModal = true">
           <span class="material-symbols-outlined me-2">upload</span>Import Excel
         </button>
@@ -175,7 +173,6 @@ import { ToastrService } from 'ngx-toastr';
 export class SinhVienComponent implements OnInit {
   boMonList: BoMonResponse[] = [];
   selectedBoMonId?: number;
-  searchKeyword = '';
   showModal = false;
   showImportModal = false;
   isEditing = false;
@@ -225,10 +222,6 @@ export class SinhVienComponent implements OnInit {
   }
 
   onFilterChange(): void {
-    this.loadSinhVien();
-  }
-
-  onSearch(): void {
     this.loadSinhVien();
   }
 

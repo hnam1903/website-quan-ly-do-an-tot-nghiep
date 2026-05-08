@@ -137,30 +137,42 @@ export class SinhVienBoMonComponent implements OnInit {
 
   getStatusClass(status: string): string {
     const map: any = {
-      'CHO_DUYET': 'bg-secondary',
-      'DA_GUI_BO_MON': 'bg-info',
+      'CHO_BO_MON_DUYET': 'bg-info',
       'CHO_GV_DUYET': 'bg-warning',
+      'GV_TU_CHOI': 'bg-warning',
+      'CHO_GV_PHAN_CONG': 'bg-warning',
+      'CHO_BO_MON_PHAN_CONG': 'bg-warning',
       'DANG_THUC_HIEN': 'bg-primary',
       'DA_NOP_BAO_CAO': 'bg-info',
       'DAT_GVHD': 'bg-success',
+      'KHONG_DAT_GVHD': 'bg-danger',
       'DAT_PHAN_BIEN': 'bg-success',
+      'KHONG_DAT_PHAN_BIEN': 'bg-danger',
+      'DANG_BAO_VE': 'bg-primary',
       'HOAN_THANH': 'bg-success',
-      'KHONG_DAT_BAO_VE': 'bg-danger'
+      'KHONG_DAT_BAO_VE': 'bg-danger',
+      'BI_TU_CHOI': 'bg-danger'
     };
     return map[status] || 'bg-secondary';
   }
 
   getStatusText(status: string): string {
     const map: any = {
-      'CHO_DUYET': 'Chờ duyệt',
-      'DA_GUI_BO_MON': 'Đã gửi BM',
+      'CHO_BO_MON_DUYET': 'Chờ BM duyệt',
       'CHO_GV_DUYET': 'Chờ GV duyệt',
+      'GV_TU_CHOI': 'GV từ chối',
+      'CHO_GV_PHAN_CONG': 'Chờ phân công GVHD',
+      'CHO_BO_MON_PHAN_CONG': 'Chờ BM xác nhận',
       'DANG_THUC_HIEN': 'Đang thực hiện',
       'DA_NOP_BAO_CAO': 'Đã nộp BC',
       'DAT_GVHD': 'Đạt HD',
+      'KHONG_DAT_GVHD': 'Không đạt HD',
       'DAT_PHAN_BIEN': 'Đạt PB',
+      'KHONG_DAT_PHAN_BIEN': 'Không đạt PB',
+      'DANG_BAO_VE': 'Đang bảo vệ',
       'HOAN_THANH': 'Hoàn thành',
-      'KHONG_DAT_BAO_VE': 'Không đạt bảo vệ'
+      'KHONG_DAT_BAO_VE': 'Không đạt BV',
+      'BI_TU_CHOI': 'Bị từ chối'
     };
     return map[status] || status;
   }

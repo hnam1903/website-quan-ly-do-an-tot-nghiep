@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { GiangVienService } from '../../../core/services/giang-vien.service';
-import { DotBaoCaoTienDoResponse, BaoCaoTienDoResponse } from '../../../core/models/models';
+import { DotBaoCaoTienDoResponse, BaoCaoTienDoResponse, DotDangKyResponse } from '../../../core/models/models';
 import { ToastrService } from 'ngx-toastr';
+import { forkJoin } from 'rxjs';
 
 interface SinhVienBaoCao {
   sinhVien: any;
@@ -88,7 +89,21 @@ interface SinhVienBaoCao {
 
     <!-- TRANG DUYỆT BÁO CÁO SINH VIÊN -->
     <div *ngIf="!isTaoDot" class="page-header">
-      <h2>Duyệt báo cáo tiến độ</h2>
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-primary-subtle">
+          <span class="material-symbols-outlined text-primary">rate_review</span>
+        </div>
+        <div>
+          <h2>Duyệt báo cáo tiến độ</h2>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <select class="form-select" [(ngModel)]="selectedDotDangKyId" (change)="onDotDangKyChange()" style="width: 250px;">
+          <option [ngValue]="null">Tất cả các đợt</option>
+          <option *ngFor="let dot of dotDangKyList" [ngValue]="dot.id">{{ dot.tenDot }} ({{ dot.namHoc }})</option>
+        </select>
+        <span class="badge bg-primary">{{ filteredSinhVienBaoCaos.length }} sinh viên</span>
+      </div>
     </div>
 
     <div *ngIf="!isTaoDot" class="card">
@@ -99,7 +114,7 @@ interface SinhVienBaoCao {
         </button>
       </div>
       <div class="card-body">
-        <div *ngIf="sinhVienBaoCaos.length === 0 && !isLoading" class="alert alert-info">
+        <div *ngIf="filteredSinhVienBaoCaos.length === 0 && !isLoading" class="alert alert-info">
           <i class="fas fa-info-circle me-2"></i>Bạn chưa hướng dẫn sinh viên nào hoặc chưa có đợt báo cáo nào.
         </div>
 
@@ -110,7 +125,7 @@ interface SinhVienBaoCao {
 
         <!-- Accordion theo sinh viên -->
         <div class="accordion" id="sinhVienAccordion">
-          <div class="accordion-item" *ngFor="let item of sinhVienBaoCaos; let i = index">
+          <div class="accordion-item" *ngFor="let item of filteredSinhVienBaoCaos; let i = index">
             <h2 class="accordion-header">
               <button class="accordion-button" [class.collapsed]="!item.expanded" 
                       type="button" (click)="toggleSinhVien(i)">
@@ -278,6 +293,7 @@ interface SinhVienBaoCao {
 export class BaoCaoTienDoComponent implements OnInit {
   dots: DotBaoCaoTienDoResponse[] = [];
   sinhVienBaoCaos: SinhVienBaoCao[] = [];
+  filteredSinhVienBaoCaos: SinhVienBaoCao[] = [];
   baoCaoChon: BaoCaoTienDoResponse | null = null;
   isTaoDot = false;
   isLoading = false;
@@ -287,10 +303,15 @@ export class BaoCaoTienDoComponent implements OnInit {
   isSubmitting = false;
   isSubmittingNhanXet = false;
 
+  dotDangKyList: DotDangKyResponse[] = [];
+  selectedDotDangKyId: number | null = null;
+  selectedDotDangKyIdSv: { [sinhVienId: number]: number | null } = {};
+
   constructor(
     private gvService: GiangVienService,
     private toastr: ToastrService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -305,8 +326,41 @@ export class BaoCaoTienDoComponent implements OnInit {
     });
   }
 
+  loadDotDangKy(): void {
+    this.gvService.getDotDangKy().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.dotDangKyList = res.data || [];
+        }
+      },
+      error: () => {
+        this.dotDangKyList = [];
+      }
+    });
+  }
+
+  onDotDangKyChange(): void {
+    this.applyFilter();
+  }
+
+  onDotBaoCaoChange(): void {
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
+    if (!this.selectedDotDangKyId) {
+      this.filteredSinhVienBaoCaos = this.sinhVienBaoCaos;
+    } else {
+      this.filteredSinhVienBaoCaos = this.sinhVienBaoCaos.filter(item => {
+        const svDotId = item.sinhVien.dotDangKyId;
+        return svDotId && svDotId === this.selectedDotDangKyId;
+      });
+    }
+  }
+
   loadData(): void {
     this.isLoading = true;
+    this.loadDotDangKy();
     this.loadDots();
     this.loadSinhVienHuongDan();
   }
@@ -329,57 +383,64 @@ export class BaoCaoTienDoComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           const sinhViens: any[] = res.data || [];
-          this.sinhVienBaoCaos = [];
           
-          sinhViens.forEach(sv => {
+          if (sinhViens.length === 0) {
+            this.sinhVienBaoCaos = [];
+            this.filteredSinhVienBaoCaos = [];
+            this.isLoading = false;
+            return;
+          }
+          
+          // Tạo danh sách sinh viên trước
+          this.sinhVienBaoCaos = sinhViens.map(sv => {
             const dotData: { dot: DotBaoCaoTienDoResponse; baoCao?: BaoCaoTienDoResponse }[] = [];
-            
             this.dots.forEach(dot => {
               dotData.push({ dot: dot });
             });
-            
-            this.sinhVienBaoCaos.push({
+            return {
               sinhVien: sv,
               dots: dotData,
               expanded: false
-            });
+            };
           });
           
-          this.loadBaoCaoForSinhVien(0);
+          // Gán ngay để hiển thị
+          this.filteredSinhVienBaoCaos = [...this.sinhVienBaoCaos];
+          
+          // Gọi API song song cho tất cả sinh viên
+          const requests = sinhViens.map((sv, index) => 
+            this.gvService.getBaoCaoTienDoBySinhVien(sv.id)
+          );
+          
+          forkJoin(requests).subscribe({
+            next: (results) => {
+              results.forEach((res, index) => {
+                if (res.success && res.data) {
+                  const baoCaos: BaoCaoTienDoResponse[] = res.data || [];
+                  this.sinhVienBaoCaos[index].dots.forEach(dotItem => {
+                    const baoCao = baoCaos.find(bc => bc.dotBaoCaoTienDoId === dotItem.dot.id);
+                    if (baoCao) {
+                      dotItem.baoCao = baoCao;
+                    }
+                  });
+                }
+              });
+              this.applyFilter();
+              this.cdr.detectChanges();
+              this.isLoading = false;
+            },
+            error: () => {
+              this.isLoading = false;
+              this.cdr.detectChanges();
+            }
+          });
+        } else {
+          this.isLoading = false;
         }
-        this.isLoading = false;
       },
       error: () => {
         this.toastr.error('Lỗi khi tải danh sách sinh viên');
         this.isLoading = false;
-      }
-    });
-  }
-
-  loadBaoCaoForSinhVien(index: number): void {
-    if (index >= this.sinhVienBaoCaos.length) {
-      this.isLoading = false;
-      return;
-    }
-
-    const item = this.sinhVienBaoCaos[index];
-    
-    this.gvService.getBaoCaoTienDoBySinhVien(item.sinhVien.id).subscribe({
-      next: (res) => {
-        if (res.success) {
-          const baoCaos: BaoCaoTienDoResponse[] = res.data || [];
-          
-          item.dots.forEach(dotItem => {
-            const baoCao = baoCaos.find(bc => bc.dotBaoCaoTienDoId === dotItem.dot.id);
-            if (baoCao) {
-              dotItem.baoCao = baoCao;
-            }
-          });
-        }
-        this.loadBaoCaoForSinhVien(index + 1);
-      },
-      error: () => {
-        this.loadBaoCaoForSinhVien(index + 1);
       }
     });
   }

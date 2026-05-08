@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
 import { AdminService } from '../../../core/services/admin.service';
-import { QuanLyDiemResponse, BoMonResponse } from '../../../core/models/models';
+import { QuanLyDiemResponse, BoMonResponse, DotDangKyResponse } from '../../../core/models/models';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -23,13 +23,15 @@ import { ToastrService } from 'ngx-toastr';
             <p class="mb-0">Tổng hợp điểm của tất cả sinh viên</p>
           </div>
         </div>
-        <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3 justify-content-end">
+          <select class="form-select" [(ngModel)]="selectedDotId" (change)="loadData()">
+            <option [value]="null">-- Tất cả đợt --</option>
+            <option *ngFor="let dot of dotDangKyList" [value]="dot.id">{{ dot.tenDot }} - {{ dot.namHoc }}</option>
+          </select>
           <select class="form-select" [(ngModel)]="selectedBoMonId" (change)="loadData()">
             <option [value]="null">-- Tất cả bộ môn --</option>
             <option *ngFor="let bm of boMons" [value]="bm.id">{{ bm.tenBoMon }}</option>
           </select>
-          <input type="text" class="form-control" placeholder="Tìm kiếm..."
-                 [(ngModel)]="searchText" (input)="filterData()" style="width: 200px;">
           <button class="btn btn-success" (click)="exportExcel()">
             <span class="material-symbols-outlined me-2">table_chart</span>Xuất Excel
           </button>
@@ -102,6 +104,24 @@ import { ToastrService } from 'ngx-toastr';
     </div>
   `,
   styles: [`
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .page-header .d-flex:last-child {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+    .page-header select,
+    .page-header button {
+      width: auto;
+      min-width: 150px;
+    }
     .card {
       border-radius: 12px;
     }
@@ -131,14 +151,26 @@ export class QuanLyDiemComponent implements OnInit {
   data: QuanLyDiemResponse[] = [];
   filteredData: QuanLyDiemResponse[] = [];
   boMons: BoMonResponse[] = [];
+  dotDangKyList: DotDangKyResponse[] = [];
   selectedBoMonId: number | null = null;
-  searchText = '';
+  selectedDotId: number | null = null;
 
   constructor(private adminService: AdminService, private toastr: ToastrService) {}
 
   ngOnInit(): void {
+    this.loadDotDangKy();
     this.loadBoMons();
     this.loadData();
+  }
+
+  loadDotDangKy(): void {
+    this.adminService.getAllDotDangKy().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.dotDangKyList = res.data;
+        }
+      }
+    });
   }
 
   loadBoMons(): void {
@@ -152,30 +184,17 @@ export class QuanLyDiemComponent implements OnInit {
   }
 
   loadData(): void {
-    this.adminService.getQuanLyDiem(this.selectedBoMonId || undefined).subscribe({
+    this.adminService.getQuanLyDiem(this.selectedBoMonId || undefined, this.selectedDotId || undefined).subscribe({
       next: (res) => {
         if (res.success) {
           this.data = res.data;
-          this.filterData();
+          this.filteredData = res.data;
         }
       },
       error: (err) => {
         console.error('Lỗi khi tải dữ liệu điểm:', err);
       }
     });
-  }
-
-  filterData(): void {
-    if (this.searchText) {
-      const search = this.searchText.toLowerCase();
-      this.filteredData = this.data.filter(item =>
-        item.hoTen?.toLowerCase().includes(search) ||
-        item.maSinhVien?.toLowerCase().includes(search) ||
-        item.tenDeTai?.toLowerCase().includes(search)
-      );
-    } else {
-      this.filteredData = [...this.data];
-    }
   }
 
   getDiemClass(diem: number | undefined | null): string {

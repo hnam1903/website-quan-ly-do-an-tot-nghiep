@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { GiangVienService } from '../../../core/services/giang-vien.service';
 import { PhanCongHuongDanResponse } from '../../../core/models/models';
 
 @Component({
   selector: 'app-danh-sach-huong-dan',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
@@ -15,15 +16,20 @@ import { PhanCongHuongDanResponse } from '../../../core/models/models';
         </div>
         <div>
           <h2>Danh sách hướng dẫn</h2>
-          <p class="mb-0">Danh sách sinh viên được hướng dẫn</p>
         </div>
       </div>
-      <span class="badge bg-primary">{{ huongDanList.length }} sinh viên</span>
+      <div class="d-flex align-items-center gap-3">
+        <select class="form-select" [(ngModel)]="selectedDotId" (change)="onDotChange()" style="width: 220px;">
+          <option [ngValue]="null">Tất cả các đợt</option>
+          <option *ngFor="let dot of dotDangKyList" [ngValue]="dot.id">{{ dot.tenDot }}</option>
+        </select>
+        <span class="badge bg-primary">{{ filteredList.length }} sinh viên</span>
+      </div>
     </div>
 
     <div class="card">
       <div class="card-body p-0">
-        <table class="table table-hover mb-0" *ngIf="huongDanList.length > 0">
+        <table class="table table-hover mb-0" *ngIf="filteredList.length > 0">
           <thead>
             <tr>
               <th class="text-center" style="width: 60px">STT</th>
@@ -35,7 +41,7 @@ import { PhanCongHuongDanResponse } from '../../../core/models/models';
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let pc of huongDanList; let i = index" class="align-middle">
+            <tr *ngFor="let pc of filteredList; let i = index" class="align-middle">
               <td class="text-center">
                 <span class="stt-badge">{{ i + 1 }}</span>
               </td>
@@ -54,7 +60,7 @@ import { PhanCongHuongDanResponse } from '../../../core/models/models';
           </tbody>
         </table>
 
-        <div *ngIf="huongDanList.length === 0" class="text-center py-5">
+        <div *ngIf="filteredList.length === 0" class="text-center py-5">
           <div class="empty-state">
             <span class="material-symbols-outlined fs-2 d-block mb-3" style="color: #ccc;">inbox</span>
             <p class="mb-1 fw-semibold">Chưa có sinh viên nào được hướng dẫn</p>
@@ -132,23 +138,55 @@ import { PhanCongHuongDanResponse } from '../../../core/models/models';
 })
 export class DanhSachHuongDanComponent implements OnInit {
   huongDanList: PhanCongHuongDanResponse[] = [];
+  filteredList: PhanCongHuongDanResponse[] = [];
   selected: PhanCongHuongDanResponse | null = null;
+  
+  dotDangKyList: any[] = [];
+  selectedDotId: number | null = null;
 
   constructor(private gvService: GiangVienService) {}
 
   ngOnInit(): void {
-    this.loadData();
+    this.loadDotList();
+  }
+
+  loadDotList(): void {
+    this.gvService.getDotDangKy().subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.dotDangKyList = res.data || [];
+          if (this.dotDangKyList.length > 0) {
+            this.selectedDotId = this.dotDangKyList[0].id;
+          }
+        }
+        this.loadData();
+      },
+      error: () => {
+        this.dotDangKyList = [];
+        this.loadData();
+      }
+    });
   }
 
   loadData(): void {
-    this.gvService.getDeTaiHuongDan().subscribe({
+    const dotId = this.selectedDotId ?? undefined;
+    this.gvService.getDeTaiHuongDan(dotId).subscribe({
       next: (res) => {
         if (res.success) {
           this.huongDanList = res.data;
+          this.applyFilter();
         }
       },
       error: (err) => console.error('Lỗi load:', err)
     });
+  }
+
+  onDotChange(): void {
+    this.loadData();
+  }
+
+  applyFilter(): void {
+    this.filteredList = this.huongDanList;
   }
 
   xemChiTiet(pc: PhanCongHuongDanResponse): void {

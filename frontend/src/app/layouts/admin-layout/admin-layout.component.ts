@@ -57,11 +57,6 @@ import { Router } from '@angular/router';
           </a>
           <ul class="nav flex-column sub-menu">
             <li class="nav-item">
-              <a class="nav-link" routerLink="/admin/de-tai" routerLinkActive="active" (click)="closeSidebar()">
-                <span class="material-symbols-outlined">send</span>Gửi đề tài
-              </a>
-            </li>
-            <li class="nav-item">
               <a class="nav-link" routerLink="/admin/thong-ke" routerLinkActive="active" (click)="closeSidebar()">
                 <span class="material-symbols-outlined">bar_chart</span>Danh sách đề tài
               </a>
@@ -297,7 +292,7 @@ export class AdminLayoutComponent {
 
   checkDeTaiRoute(): void {
     const currentUrl = this.router.url;
-    if (currentUrl.includes('/de-tai') || currentUrl.includes('/thong-ke')) {
+    if (currentUrl.includes('/thong-ke')) {
       this.isDeTaiOpen = true;
     }
   }

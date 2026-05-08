@@ -13,6 +13,10 @@ public class PhanCongPhanBienResponse {
     private Long id;
     private Long deTaiId;
     private String tenDeTai;
+    private String hoTenSinhVien;
+    private String maSinhVien;
+    private String lopSinhVien;
     private Long giangVienId;
     private String hoTenGiangVien;
+    private String deTaiTrangThai;
 }

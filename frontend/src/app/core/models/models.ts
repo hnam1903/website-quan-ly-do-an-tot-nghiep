@@ -146,6 +146,10 @@ export interface PhanCongHuongDanResponse {
   daChamDiemPB?: boolean;
   diemPhanBien?: number;
   nhanXetPhanBien?: string;
+  // Thông tin đợt đăng ký
+  dotDangKyId?: number;
+  tenDotDangKy?: string;
+  namHoc?: string;
 }
 
 export interface SinhVienHuongDanResponse {
@@ -153,16 +157,21 @@ export interface SinhVienHuongDanResponse {
   maSinhVien?: string;
   hoTen: string;
   lop?: string;
-  tenDeTai: string;
+  tenDeTai?: string;
   daChamDiem?: boolean;
+  dotDangKyId?: number;
 }
 
 export interface PhanCongPhanBienResponse {
   id: number;
   deTaiId: number;
   tenDeTai: string;
+  hoTenSinhVien?: string;
+  maSinhVien?: string;
+  lopSinhVien?: string;
   giangVienId: number;
   hoTenGiangVien: string;
+  deTaiTrangThai?: string;
 }
 
 export interface BaoCaoResponse {
@@ -212,6 +221,7 @@ export interface HoiDongBaoVeResponse {
   daChamDiem?: boolean;
   diemBaoVe?: number;
   nhanXetCham?: string;
+  dotDangKyId?: number;
 }
 
 export interface ThanhVienResponse {

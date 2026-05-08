@@ -27,11 +27,12 @@ public class GiangVienController {
 
     // GV Hướng dẫn
     @GetMapping("/huong-dan")
-    public ResponseEntity<ApiResponse<List<PhanCongHuongDanResponse>>> getDeTaiHuongDan() {
+    public ResponseEntity<ApiResponse<List<PhanCongHuongDanResponse>>> getDeTaiHuongDan(
+            @RequestParam(required = false) Long dotId) {
         UserResponse currentUser = authService.getCurrentUser();
         GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
-        return ResponseEntity.ok(ApiResponse.success(giangVienService.getDeTaiHuongDan(gv.getId())));
+        return ResponseEntity.ok(ApiResponse.success(giangVienService.getDeTaiHuongDan(gv.getId(), dotId)));
     }
 
     @GetMapping("/huong-dan/cho-duyet")
@@ -61,11 +62,12 @@ public class GiangVienController {
 
     // GV Phản biện
     @GetMapping("/phan-bien")
-    public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiPhanBien() {
+    public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiPhanBien(
+            @RequestParam(required = false) Long dotId) {
         UserResponse currentUser = authService.getCurrentUser();
         GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
-        return ResponseEntity.ok(ApiResponse.success(giangVienService.getDeTaiPhanBien(gv.getId())));
+        return ResponseEntity.ok(ApiResponse.success(giangVienService.getDeTaiPhanBien(gv.getId(), dotId)));
     }
 
     @PostMapping("/diem-phan-bien")
@@ -76,20 +78,22 @@ public class GiangVienController {
 
     // GV Hội đồng - chỉ xem danh sách, không chấm điểm bảo vệ
     @GetMapping("/hoi-dong")
-    public ResponseEntity<ApiResponse<List<HoiDongBaoVeResponse>>> getHoiDongBaoVe() {
+    public ResponseEntity<ApiResponse<List<HoiDongBaoVeResponse>>> getHoiDongBaoVe(
+            @RequestParam(required = false) Long dotId) {
         UserResponse currentUser = authService.getCurrentUser();
         GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
-        return ResponseEntity.ok(ApiResponse.success(giangVienService.getHoiDongBaoVe(gv.getId())));
+        return ResponseEntity.ok(ApiResponse.success(giangVienService.getHoiDongBaoVe(gv.getId(), dotId)));
     }
 
     // Xem báo cáo sinh viên
     @GetMapping("/bao-cao")
-    public ResponseEntity<ApiResponse<List<BaoCaoResponse>>> getBaoCaoSinhVien() {
+    public ResponseEntity<ApiResponse<List<BaoCaoResponse>>> getBaoCaoSinhVien(
+            @RequestParam(required = false) Long dotId) {
         UserResponse currentUser = authService.getCurrentUser();
         GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
-        return ResponseEntity.ok(ApiResponse.success(giangVienService.getBaoCaoCuaSinhVien(gv.getId())));
+        return ResponseEntity.ok(ApiResponse.success(giangVienService.getBaoCaoCuaSinhVien(gv.getId(), dotId)));
     }
 
     @GetMapping("/bao-cao/{deTaiId}")
@@ -183,5 +187,12 @@ public class GiangVienController {
         GiangVien gv = giangVienRepository.findByTaiKhoanEmail(currentUser.getEmail())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy giảng viên"));
         return ResponseEntity.ok(ApiResponse.success(giangVienService.getBaoCaoTienDoBySinhVien(sinhVienId, gv.getId())));
+    }
+
+    // Lấy danh sách đợt đăng ký
+    @GetMapping("/dot-dang-ky")
+    public ResponseEntity<ApiResponse<List<DotDangKyResponse>>> getDotDangKy() {
+        UserResponse currentUser = authService.getCurrentUser();
+        return ResponseEntity.ok(ApiResponse.success(giangVienService.getDotDangKyByBoMon(currentUser.getBoMonId())));
     }
 }

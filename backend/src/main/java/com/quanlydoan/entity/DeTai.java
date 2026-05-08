@@ -32,7 +32,7 @@ public class DeTai {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     @Builder.Default
-    private TrangThaiDeTai trangThai = TrangThaiDeTai.CHO_DUYET;
+    private TrangThaiDeTai trangThai = TrangThaiDeTai.CHO_BO_MON_DUYET;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dot_dang_ky_id")

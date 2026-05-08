@@ -63,7 +63,7 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success(adminService.getDanhSachSinhVienByDotDangKy(id)));
     }
 
-    // Gửi lên Bộ môn
+    // Đề tài (admin chỉ xem, không duyệt)
     @GetMapping("/de-tai")
     public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiDangKy(
             @RequestParam(required = false) Long dotDangKyId,
@@ -72,18 +72,7 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success(adminService.getDeTaiDangKy(dotDangKyId, trangThai, boMonId)));
     }
 
-    @PutMapping("/de-tai/{id}/gui-bo-mon")
-    public ResponseEntity<ApiResponse<DeTaiResponse>> guiLenBoMon(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success("Đã gửi lên Bộ môn thành công", adminService.guiLenBoMon(id)));
-    }
-
-    @PutMapping("/de-tai/gui-bo-mon")
-    public ResponseEntity<ApiResponse<List<DeTaiResponse>>> guiNhieuLenBoMon(@RequestBody List<Long> ids) {
-        return ResponseEntity.ok(ApiResponse.success("Đã gửi " + ids.size() + " đề tài lên Bộ môn thành công", adminService.guiNhieuLenBoMon(ids)));
-    }
-
-
-    // Đề tài không đạt
+    // ==================== Đề tài không đạt ====================
     @GetMapping("/de-tai/khong-dat")
     public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiKhongDat(
             @RequestParam(required = false) Long dotDangKyId) {
@@ -195,8 +184,9 @@ public class AdminController {
     // Quản lý điểm
     @GetMapping("/quan-ly-diem")
     public ResponseEntity<ApiResponse<List<QuanLyDiemResponse>>> getQuanLyDiem(
-            @RequestParam(required = false) Long boMonId) {
-        return ResponseEntity.ok(ApiResponse.success(adminService.getQuanLyDiem(boMonId)));
+            @RequestParam(required = false) Long boMonId,
+            @RequestParam(required = false) Long dotDangKyId) {
+        return ResponseEntity.ok(ApiResponse.success(adminService.getQuanLyDiem(boMonId, dotDangKyId)));
     }
 
     // ==================== Quản lý Tài Khoản ====================

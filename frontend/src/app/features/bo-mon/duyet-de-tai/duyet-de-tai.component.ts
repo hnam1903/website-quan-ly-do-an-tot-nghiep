@@ -227,7 +227,7 @@ export class DuyetDeTaiComponent implements OnInit {
   }
 
   loadDeTai(): void {
-    this.boMonService.getDeTai('DA_GUI_BO_MON').subscribe({
+    this.boMonService.getDeTaiChoBoMonDuyet().subscribe({
       next: (res) => {
         if (res.success) {
           this.deTaiList = res.data;
@@ -250,7 +250,7 @@ export class DuyetDeTaiComponent implements OnInit {
     this.boMonService.duyetDeTai(this.selectedDeTai.id).subscribe({
       next: (res) => {
         if (res.success) {
-          this.toastr.success('Đã duyệt đề tài! Chuyển vào danh sách đang thực hiện.');
+          this.toastr.success('Đã duyệt đề tài! Chuyển sang chờ GVHD duyệt.');
           this.showDuyetModal = false;
           this.selectedDeTai = null;
           this.loadDeTai();
@@ -271,7 +271,7 @@ export class DuyetDeTaiComponent implements OnInit {
     this.boMonService.tuChoiDeTai(this.selectedDeTai.id, this.lyDoTuChoi).subscribe({
       next: (res) => {
         if (res.success) {
-          this.toastr.warning('Đã từ chối! Sinh viên sẽ đăng ký lại với Admin.');
+          this.toastr.warning('Đã từ chối! Sinh viên sẽ đăng ký lại.');
           this.showTuChoiModal = false;
           this.selectedDeTai = null;
           this.lyDoTuChoi = '';

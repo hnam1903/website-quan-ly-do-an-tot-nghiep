@@ -33,4 +33,5 @@ public class HoiDongBaoVeResponse {
     private Boolean daChamDiem;
     private BigDecimal diemBaoVe;
     private String nhanXetCham;
+    private Long dotDangKyId;
 }

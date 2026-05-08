@@ -122,15 +122,15 @@ import { ToastrService } from 'ngx-toastr';
           <!-- Header với trạng thái -->
           <div class="card-header text-white" [ngClass]="{
             'bg-danger': laTrangThaiThatBai(deTaiCuaToi.trangThai),
-            'bg-warning text-dark': deTaiCuaToi.trangThai === 'CHO_GV_DUYET_LAI',
-            'bg-success': !laTrangThaiThatBai(deTaiCuaToi.trangThai) && deTaiCuaToi.trangThai !== 'CHO_GV_DUYET_LAI'
+            'bg-warning text-dark': deTaiCuaToi.trangThai === 'GV_TU_CHOI',
+            'bg-success': !laTrangThaiThatBai(deTaiCuaToi.trangThai) && deTaiCuaToi.trangThai !== 'GV_TU_CHOI'
           }">
             <div class="d-flex justify-content-between align-items-center">
               <h5 class="mb-0">
                 <span class="material-symbols-outlined me-2" [ngClass]="{
                   'text-danger': laTrangThaiThatBai(deTaiCuaToi.trangThai),
-                  'text-dark': deTaiCuaToi.trangThai === 'CHO_GV_DUYET_LAI',
-                  'text-white': !laTrangThaiThatBai(deTaiCuaToi.trangThai) && deTaiCuaToi.trangThai !== 'CHO_GV_DUYET_LAI'
+                  'text-dark': deTaiCuaToi.trangThai === 'GV_TU_CHOI',
+                  'text-white': !laTrangThaiThatBai(deTaiCuaToi.trangThai) && deTaiCuaToi.trangThai !== 'GV_TU_CHOI'
                 }">{{ getStatusIcon(deTaiCuaToi.trangThai) }}</span>
                 {{ getStatusTitle(deTaiCuaToi.trangThai) }}
               </h5>
@@ -184,7 +184,7 @@ import { ToastrService } from 'ngx-toastr';
                   <p class="mb-0 fw-medium fs-5">{{ deTaiCuaToi.hoTenGiangVienDuKien || 'Chưa phân công' }}</p>
                 </div>
 
-                <div *ngIf="deTaiCuaToi.ghiChu && (laTrangThaiThatBai(deTaiCuaToi.trangThai) || deTaiCuaToi.trangThai === 'CHO_GV_DUYET_LAI')" class="alert alert-danger mt-3 mb-0">
+                <div *ngIf="deTaiCuaToi.ghiChu && (laTrangThaiThatBai(deTaiCuaToi.trangThai) || deTaiCuaToi.trangThai === 'GV_TU_CHOI')" class="alert alert-danger mt-3 mb-0">
                   <span class="material-symbols-outlined me-2">warning</span>
                   <strong>Lý do:</strong> {{ deTaiCuaToi.ghiChu }}
                 </div>
@@ -401,14 +401,19 @@ export class DeTaiSvComponent implements OnInit {
 
   getStatusClass(status: string): string {
     const map: any = {
-      'CHO_DUYET': 'bg-warning',
-      'CHO_GV_DUYET_LAI': 'bg-warning',
-      'DU_DIEU_KIEN': 'bg-success',
-      'KHONG_DU_DIEU_KIEN': 'bg-danger',
+      'BI_TU_CHOI': 'bg-danger',
+      'CHO_BO_MON_DUYET': 'bg-warning',
+      'CHO_GV_DUYET': 'bg-warning',
+      'GV_TU_CHOI': 'bg-warning',
+      'CHO_GV_PHAN_CONG': 'bg-warning',
+      'CHO_BO_MON_PHAN_CONG': 'bg-warning',
       'DANG_THUC_HIEN': 'bg-info',
+      'DA_NOP_BAO_CAO': 'bg-info',
       'DAT_GVHD': 'bg-success',
       'KHONG_DAT_GVHD': 'bg-danger',
       'DAT_PHAN_BIEN': 'bg-success',
+      'KHONG_DAT_PHAN_BIEN': 'bg-danger',
+      'DANG_BAO_VE': 'bg-primary',
       'HOAN_THANH': 'bg-primary'
     };
     return map[status] || 'bg-secondary';
@@ -416,14 +421,19 @@ export class DeTaiSvComponent implements OnInit {
 
   getStatusText(status: string): string {
     const map: any = {
-      'CHO_DUYET': 'Chờ duyệt',
-      'CHO_GV_DUYET_LAI': 'Chờ GV duyệt lại',
-      'DU_DIEU_KIEN': 'Đủ điều kiện',
-      'KHONG_DU_DIEU_KIEN': 'Không đủ ĐK',
+      'BI_TU_CHOI': 'Bị từ chối',
+      'CHO_BO_MON_DUYET': 'Chờ BM duyệt',
+      'CHO_GV_DUYET': 'Chờ GV duyệt',
+      'GV_TU_CHOI': 'GV từ chối',
+      'CHO_GV_PHAN_CONG': 'Chờ phân công GVHD',
+      'CHO_BO_MON_PHAN_CONG': 'Chờ BM xác nhận',
       'DANG_THUC_HIEN': 'Đang thực hiện',
+      'DA_NOP_BAO_CAO': 'Đã nộp báo cáo',
       'DAT_GVHD': 'Đạt HD',
       'KHONG_DAT_GVHD': 'Không đạt HD',
       'DAT_PHAN_BIEN': 'Đạt PB',
+      'KHONG_DAT_PHAN_BIEN': 'Không đạt PB',
+      'DANG_BAO_VE': 'Đang bảo vệ',
       'HOAN_THANH': 'Hoàn thành'
     };
     return map[status] || status;
@@ -432,7 +442,7 @@ export class DeTaiSvComponent implements OnInit {
   getStatusIcon(status: string): string {
     if (this.laTrangThaiThatBai(status)) {
       return 'cancel';
-    } else if (status === 'CHO_GV_DUYET_LAI') {
+    } else if (status === 'GV_TU_CHOI') {
       return 'hourglass_empty';
     }
     return 'check_circle';
@@ -441,7 +451,7 @@ export class DeTaiSvComponent implements OnInit {
   getStatusTitle(status: string): string {
     if (this.laTrangThaiThatBai(status)) {
       return 'Đề tài bị từ chối';
-    } else if (status === 'CHO_GV_DUYET_LAI') {
+    } else if (status === 'GV_TU_CHOI') {
       return 'Đề tài đang chờ GVHD khác duyệt';
     }
     return 'Đề tài của bạn';

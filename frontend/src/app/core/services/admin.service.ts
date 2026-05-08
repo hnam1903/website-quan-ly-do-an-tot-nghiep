@@ -36,7 +36,7 @@ export class AdminService {
     return this.http.put<ApiResponse<DotDangKyResponse>>(`${this.apiUrl}/dot-dang-ky/${id}/mo-lai`, {});
   }
 
-  // Gửi lên Bộ môn
+  // Lấy danh sách đề tài (filter theo bộ môn và trạng thái)
   getDeTaiDangKy(dotDangKyId?: number, trangThai?: string, boMonId?: number): Observable<ApiResponse<DeTaiResponse[]>> {
     let params = new HttpParams();
     if (dotDangKyId) {
@@ -49,14 +49,6 @@ export class AdminService {
       params = params.set('boMonId', boMonId.toString());
     }
     return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/de-tai`, { params });
-  }
-
-  guiLenBoMon(id: number): Observable<ApiResponse<DeTaiResponse>> {
-    return this.http.put<ApiResponse<DeTaiResponse>>(`${this.apiUrl}/de-tai/${id}/gui-bo-mon`, {});
-  }
-
-  guiNhieuLenBoMon(ids: number[]): Observable<ApiResponse<DeTaiResponse[]>> {
-    return this.http.put<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/de-tai/gui-bo-mon`, ids);
   }
 
   // Đề tài không đạt
@@ -190,10 +182,13 @@ export class AdminService {
   }
 
   // Quản lý điểm
-  getQuanLyDiem(boMonId?: number): Observable<ApiResponse<QuanLyDiemResponse[]>> {
+  getQuanLyDiem(boMonId?: number, dotDangKyId?: number): Observable<ApiResponse<QuanLyDiemResponse[]>> {
     let params = new HttpParams();
     if (boMonId) {
       params = params.set('boMonId', boMonId.toString());
+    }
+    if (dotDangKyId) {
+      params = params.set('dotDangKyId', dotDangKyId.toString());
     }
     return this.http.get<ApiResponse<QuanLyDiemResponse[]>>(`${this.apiUrl}/quan-ly-diem`, { params });
   }

@@ -304,8 +304,11 @@ export class ThongKeComponent implements OnInit {
       case 'DANG_THUC_HIEN': return 'bg-primary';
       case 'DA_NOP_BAO_CAO': return 'bg-info';
       case 'KHONG_DAT_BAO_VE': return 'bg-danger';
-      case 'CHO_DUYET': return 'bg-warning';
-      case 'CHO_GV_DUYET_LAI': return 'bg-warning';
+      case 'CHO_BO_MON_DUYET': return 'bg-warning';
+      case 'CHO_GV_DUYET': return 'bg-warning';
+      case 'GV_TU_CHOI': return 'bg-warning';
+      case 'CHO_GV_PHAN_CONG': return 'bg-warning';
+      case 'CHO_BO_MON_PHAN_CONG': return 'bg-warning';
       default: return 'bg-secondary';
     }
   }
@@ -313,12 +316,12 @@ export class ThongKeComponent implements OnInit {
   getStatusText(trangThai: any): string {
     if (!trangThai) return 'Không xác định';
     const statusMap: { [key: string]: string } = {
-      'CHO_DUYET': 'Chờ duyệt',
-      'DA_GUI_BO_MON': 'Đã gửi BM',
       'BI_TU_CHOI': 'Bị từ chối',
       'CHO_BO_MON_DUYET': 'Chờ BM duyệt',
       'CHO_GV_DUYET': 'Chờ GV duyệt',
-      'CHO_GV_DUYET_LAI': 'Chờ GV duyệt lại',
+      'GV_TU_CHOI': 'GV từ chối',
+      'CHO_GV_PHAN_CONG': 'Chờ phân công GVHD',
+      'CHO_BO_MON_PHAN_CONG': 'Chờ BM xác nhận',
       'DANG_THUC_HIEN': 'Đang thực hiện',
       'DA_NOP_BAO_CAO': 'Đã nộp báo cáo',
       'DAT_GVHD': 'Đạt HD',
@@ -326,7 +329,7 @@ export class ThongKeComponent implements OnInit {
       'CHO_PHAN_BIEN': 'Chờ PB',
       'DAT_PHAN_BIEN': 'Đạt PB',
       'KHONG_DAT_PHAN_BIEN': 'K đạt PB',
-      'DANG_BAO_VE': 'Đã gặp hội đồng',
+      'DANG_BAO_VE': 'Đang bảo vệ',
       'HOAN_THANH': 'Hoàn thành',
       'KHONG_DAT_BAO_VE': 'Không đạt bảo vệ'
     };

@@ -31,24 +31,29 @@ public class BoMonController {
         return ResponseEntity.ok(ApiResponse.success(boMonService.getAllBoMon()));
     }
 
+    @GetMapping("/dot-dang-ky")
+    public ResponseEntity<ApiResponse<List<DotDangKyResponse>>> getAllDotDangKy() {
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getAllDotDangKy()));
+    }
+
     @GetMapping("/de-tai")
     public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTai(
             @RequestParam(required = false) Long boMonId,
-            @RequestParam(required = false) String trangThai) {
+            @RequestParam(required = false) String trangThai,
+            @RequestParam(required = false) Long dotId) {
 
         UserResponse currentUser = authService.getCurrentUser();
         Long targetBoMonId = boMonId != null ? boMonId : currentUser.getBoMonId();
 
         List<DeTaiResponse> deTais;
         if (trangThai == null || trangThai.isBlank()) {
-            deTais = boMonService.getDeTaiByBoMon(targetBoMonId);
+            deTais = boMonService.getDeTaiByBoMon(targetBoMonId, dotId);
         } else {
             try {
                 TrangThaiDeTai enumTrangThai = TrangThaiDeTai.valueOf(trangThai);
-                deTais = boMonService.getDeTaiByTrangThai(targetBoMonId, enumTrangThai);
+                deTais = boMonService.getDeTaiByTrangThai(targetBoMonId, enumTrangThai, dotId);
             } catch (IllegalArgumentException ex) {
-                // Nếu FE gửi giá trị không nằm trong enum, fallback hiển thị theo bộ môn
-                deTais = boMonService.getDeTaiByBoMon(targetBoMonId);
+                deTais = boMonService.getDeTaiByBoMon(targetBoMonId, dotId);
             }
         }
 
@@ -60,6 +65,14 @@ public class BoMonController {
         return ResponseEntity.ok(ApiResponse.success("Duyệt đề tài thành công", boMonService.duyetDeTaiBoMon(id)));
     }
 
+    // Lấy đề tài đang chờ bộ môn duyệt
+    @GetMapping("/de-tai/cho-bo-mon-duyet")
+    public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiChoBoMonDuyet() {
+        UserResponse currentUser = authService.getCurrentUser();
+        Long boMonId = currentUser.getBoMonId();
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getDeTaiChoBoMonDuyet(boMonId)));
+    }
+
     @PutMapping("/de-tai/{id}/tu-choi")
     public ResponseEntity<ApiResponse<DeTaiResponse>> tuChoiDeTai(
             @PathVariable Long id, @RequestBody TuChoiRequest request) {
@@ -69,19 +82,21 @@ public class BoMonController {
     @GetMapping("/de-tai/khong-dat")
     public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiKhongDat(
             @RequestParam(required = false) Long boMonId,
-            @RequestParam String loai) {
-        
+            @RequestParam String loai,
+            @RequestParam(required = false) Long dotId) {
+
         UserResponse currentUser = authService.getCurrentUser();
         Long targetBoMonId = boMonId != null ? boMonId : currentUser.getBoMonId();
-        
-        return ResponseEntity.ok(ApiResponse.success(boMonService.getDeTaiKhongDat(targetBoMonId, loai)));
+
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getDeTaiKhongDat(targetBoMonId, loai, dotId)));
     }
 
     @GetMapping("/de-tai/hoan-thanh")
-    public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiHoanThanh() {
+    public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiHoanThanh(
+            @RequestParam(required = false) Long dotId) {
         UserResponse currentUser = authService.getCurrentUser();
         Long boMonId = currentUser.getBoMonId();
-        return ResponseEntity.ok(ApiResponse.success(boMonService.getDeTaiHoanThanh(boMonId)));
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getDeTaiHoanThanh(boMonId, dotId)));
     }
 
     @GetMapping("/giang-vien")
@@ -125,10 +140,19 @@ public class BoMonController {
     }
 
     @GetMapping("/danh-sach-gvhd")
-    public ResponseEntity<ApiResponse<List<PhanCongHuongDanResponse>>> getDanhSachGvhd() {
+    public ResponseEntity<ApiResponse<List<PhanCongHuongDanResponse>>> getDanhSachGvhd(
+            @RequestParam(required = false) Long dotId) {
         UserResponse currentUser = authService.getCurrentUser();
         Long boMonId = currentUser.getBoMonId();
-        return ResponseEntity.ok(ApiResponse.success(boMonService.getDanhSachGvhd(boMonId)));
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getDanhSachGvhd(boMonId, dotId)));
+    }
+
+    @GetMapping("/danh-sach-gvpb")
+    public ResponseEntity<ApiResponse<List<PhanCongPhanBienResponse>>> getDanhSachGvpb(
+            @RequestParam(required = false) Long dotId) {
+        UserResponse currentUser = authService.getCurrentUser();
+        Long boMonId = currentUser.getBoMonId();
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getDanhSachGvpb(boMonId, dotId)));
     }
 
     @PostMapping("/phan-cong-phan-bien")
@@ -144,10 +168,11 @@ public class BoMonController {
     }
 
     @GetMapping("/hoi-dong")
-    public ResponseEntity<ApiResponse<List<HoiDongBaoVeResponse>>> getHoiDongBaoVe() {
+    public ResponseEntity<ApiResponse<List<HoiDongBaoVeResponse>>> getHoiDongBaoVe(
+            @RequestParam(required = false) Long dotId) {
         UserResponse currentUser = authService.getCurrentUser();
         Long boMonId = currentUser.getBoMonId();
-        return ResponseEntity.ok(ApiResponse.success(boMonService.getHoiDongByBoMon(boMonId)));
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getHoiDongByBoMon(boMonId, dotId)));
     }
 
     @GetMapping("/bao-cao")
@@ -232,9 +257,10 @@ public class BoMonController {
     }
 
     @GetMapping("/quan-ly-diem")
-    public ResponseEntity<ApiResponse<List<QuanLyDiemResponse>>> getQuanLyDiem() {
+    public ResponseEntity<ApiResponse<List<QuanLyDiemResponse>>> getQuanLyDiem(
+            @RequestParam(required = false) Long dotId) {
         UserResponse currentUser = authService.getCurrentUser();
         Long boMonId = currentUser.getBoMonId();
-        return ResponseEntity.ok(ApiResponse.success(boMonService.getQuanLyDiem(boMonId)));
+        return ResponseEntity.ok(ApiResponse.success(boMonService.getQuanLyDiem(boMonId, dotId)));
     }
 }

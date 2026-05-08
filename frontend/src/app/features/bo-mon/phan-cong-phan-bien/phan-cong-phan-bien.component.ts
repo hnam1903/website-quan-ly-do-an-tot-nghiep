@@ -98,7 +98,7 @@ export class PhanCongPhanBienBmComponent implements OnInit {
     const currentUser = this.authService.getCurrentUser();
     const boMonId = currentUser?.boMonId;
 
-    this.boMonService.getDeTai('DAT_GVHD', boMonId).subscribe({
+    this.boMonService.getDeTai('DAT_GVHD', undefined, boMonId).subscribe({
       next: (res) => {
         if (res.success) this.svDatGVHD = res.data || [];
       }

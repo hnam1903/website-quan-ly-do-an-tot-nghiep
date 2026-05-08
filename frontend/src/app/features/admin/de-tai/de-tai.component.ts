@@ -13,41 +13,45 @@ import { ToastrService } from 'ngx-toastr';
     <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
       <div>
         <h2>Quản lý đề tài</h2>
-        
+        <p class="text-muted mb-0 small">Xem danh sách đề tài đã đăng ký (SV đăng ký xong sẽ hiển thị tại Bộ môn tương ứng)</p>
       </div>
       <div class="d-flex gap-2">
         <select class="form-select" style="width: 220px;" [(ngModel)]="selectedBoMonId" (change)="loadDeTai()">
           <option [ngValue]="null">Tất cả bộ môn</option>
           <option *ngFor="let bm of boMonList" [ngValue]="bm.id">{{ bm.tenBoMon }}</option>
         </select>
+        <select class="form-select" style="width: 180px;" [(ngModel)]="selectedTrangThai" (change)="loadDeTai()">
+          <option value="">Tất cả trạng thái</option>
+          <option value="CHO_BO_MON_DUYET">Chờ Bộ môn duyệt</option>
+          <option value="CHO_GV_DUYET">Chờ GVHD duyệt</option>
+          <option value="DANG_THUC_HIEN">Đang thực hiện</option>
+          <option value="CHO_PHAN_BIEN">Chờ phản biện</option>
+          <option value="HOAN_THANH">Hoàn thành</option>
+        </select>
+        <button class="btn btn-outline-primary" (click)="loadDeTai()">
+          <span class="material-symbols-outlined">refresh</span>
+        </button>
       </div>
     </div>
 
-    <!-- Tab: Chờ gửi Bộ môn -->
+    <!-- Danh sách đề tài -->
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span>
-          <span class="material-symbols-outlined me-1">send</span>Danh sách đăng ký chờ gửi Bộ môn
+          <span class="material-symbols-outlined me-1">list_alt</span>Danh sách đề tài
           <span class="badge bg-primary ms-2">{{ deTaiList.length }}</span>
         </span>
-        <button *ngIf="selectedDeTais.length > 0"
-                class="btn btn-primary btn-sm"
-                (click)="guiLenBoMon()">
-          <span class="material-symbols-outlined me-1">send</span>Gửi {{ selectedDeTais.length }} đăng ký lên Bộ môn
-        </button>
       </div>
       <div class="card-body">
         <div class="table-responsive">
           <table class="table table-hover">
             <thead>
               <tr>
-                <th width="40">
-                  <input type="checkbox" (change)="toggleSelectAll($event)" [checked]="isAllSelected()">
-                </th>
                 <th>STT</th>
                 <th>Sinh viên</th>
                 <th>Tên đề tài</th>
                 <th>Bộ môn</th>
+                <th>Trạng thái</th>
                 <th class="text-center">Chi tiết</th>
               </tr>
             </thead>
@@ -58,11 +62,6 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
               </tr>
               <tr *ngFor="let dt of deTaiList; let i = index">
-                <td>
-                  <input type="checkbox"
-                         [checked]="selectedDeTais.includes(dt.id)"
-                         (change)="toggleSelect(dt.id)">
-                </td>
                 <td>{{ i + 1 }}</td>
                 <td>
                   <strong>{{ dt.hoTenSinhVien }}</strong><br>
@@ -70,6 +69,11 @@ import { ToastrService } from 'ngx-toastr';
                 </td>
                 <td>{{ dt.tenDeTai }}</td>
                 <td>{{ dt.tenBoMon }}</td>
+                <td>
+                  <span [class]="getStatusClass(dt.trangThai)" class="badge">
+                    {{ getStatusText(dt.trangThai) }}
+                  </span>
+                </td>
                 <td class="text-center">
                   <button class="btn btn-outline-primary btn-sm" (click)="chiTietDeTai = dt" data-bs-toggle="modal" data-bs-target="#chiTietModal">
                     <span class="material-symbols-outlined">visibility</span>
@@ -78,7 +82,7 @@ import { ToastrService } from 'ngx-toastr';
               </tr>
               <tr *ngIf="!isLoading && deTaiList.length === 0">
                 <td colspan="6" class="text-center text-muted py-4">
-                  Không có đề tài đăng ký nào chờ gửi Bộ môn.
+                  Không có đề tài nào.
                 </td>
               </tr>
             </tbody>
@@ -91,7 +95,7 @@ import { ToastrService } from 'ngx-toastr';
       <div class="modal-dialog modal-lg">
         <div class="modal-content" *ngIf="chiTietDeTai">
           <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title">Chi tiết đề tài đăng ký</h5>
+            <h5 class="modal-title">Chi tiết đề tài</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -121,6 +125,14 @@ import { ToastrService } from 'ngx-toastr';
                 <label class="form-label fw-bold">GV hướng dẫn dự kiến</label>
                 <p class="text-muted">{{ chiTietDeTai.hoTenGiangVienDuKien || 'Chưa có' }}</p>
               </div>
+              <div class="col-12">
+                <label class="form-label fw-bold">Trạng thái</label>
+                <p>
+                  <span [class]="getStatusClass(chiTietDeTai.trangThai)" class="badge fs-6">
+                    {{ getStatusText(chiTietDeTai.trangThai) }}
+                  </span>
+                </p>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -129,13 +141,23 @@ import { ToastrService } from 'ngx-toastr';
         </div>
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    .table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+    }
+    .badge {
+      padding: 0.35em 0.65em;
+      font-size: 0.85em;
+    }
+  `]
 })
 export class DeTaiComponent implements OnInit {
   deTaiList: DeTaiResponse[] = [];
   boMonList: BoMonResponse[] = [];
   selectedBoMonId: number | null = null;
-  selectedDeTais: number[] = [];
+  selectedTrangThai: string = '';
   chiTietDeTai: DeTaiResponse | null = null;
   isLoading = false;
 
@@ -162,7 +184,8 @@ export class DeTaiComponent implements OnInit {
   loadDeTai(): void {
     this.isLoading = true;
     const boMonId = this.selectedBoMonId ?? undefined;
-    this.adminService.getDeTaiDangKy(undefined, 'CHO_DUYET', boMonId).subscribe({
+    const trangThai = this.selectedTrangThai || undefined;
+    this.adminService.getDeTaiDangKy(undefined, trangThai, boMonId).subscribe({
       next: (res) => {
         this.isLoading = false;
         if (res.success && res.data) {
@@ -173,48 +196,53 @@ export class DeTaiComponent implements OnInit {
       },
       error: () => {
         this.isLoading = false;
-        this.toastr.error('Không thể tải danh sách đề tài đăng ký');
+        this.toastr.error('Không thể tải danh sách đề tài');
         this.deTaiList = [];
       }
     });
   }
 
-  toggleSelect(id: number): void {
-    const idx = this.selectedDeTais.indexOf(id);
-    if (idx > -1) {
-      this.selectedDeTais.splice(idx, 1);
-    } else {
-      this.selectedDeTais.push(id);
-    }
+  getStatusClass(trangThai: string): string {
+    const map: { [key: string]: string } = {
+      'CHO_BO_MON_DUYET': 'bg-info',
+      'CHO_GV_DUYET': 'bg-warning text-dark',
+      'GV_TU_CHOI': 'bg-warning text-dark',
+      'CHO_GV_PHAN_CONG': 'bg-warning text-dark',
+      'CHO_BO_MON_PHAN_CONG': 'bg-warning text-dark',
+      'DANG_THUC_HIEN': 'bg-primary',
+      'DA_NOP_BAO_CAO': 'bg-info',
+      'DAT_GVHD': 'bg-success',
+      'KHONG_DAT_GVHD': 'bg-danger',
+      'CHO_PHAN_BIEN': 'bg-info',
+      'DAT_PHAN_BIEN': 'bg-success',
+      'KHONG_DAT_PHAN_BIEN': 'bg-danger',
+      'DANG_BAO_VE': 'bg-primary',
+      'HOAN_THANH': 'bg-success',
+      'KHONG_DAT_BAO_VE': 'bg-danger',
+      'BI_TU_CHOI': 'bg-danger'
+    };
+    return map[trangThai] || 'bg-secondary';
   }
 
-  toggleSelectAll(event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
-    if (checked) {
-      this.selectedDeTais = this.deTaiList.map(dt => dt.id);
-    } else {
-      this.selectedDeTais = [];
-    }
-  }
-
-  isAllSelected(): boolean {
-    return this.deTaiList.length > 0 && this.deTaiList.every(dt => this.selectedDeTais.includes(dt.id));
-  }
-
-  guiLenBoMon(): void {
-    if (this.selectedDeTais.length === 0) return;
-    this.adminService.guiNhieuLenBoMon(this.selectedDeTais).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.toastr.success('Đã gửi ' + this.selectedDeTais.length + ' đăng ký lên Bộ môn!');
-          this.selectedDeTais = [];
-          this.loadDeTai();
-        }
-      },
-      error: (err) => {
-        const message = err.error?.message || 'Không thể gửi đề tài lên Bộ môn';
-        this.toastr.error(message);
-      }
-    });
+  getStatusText(trangThai: string): string {
+    const map: { [key: string]: string } = {
+      'CHO_BO_MON_DUYET': 'Chờ Bộ môn duyệt',
+      'CHO_GV_DUYET': 'Chờ GVHD duyệt',
+      'GV_TU_CHOI': 'GVHD từ chối',
+      'CHO_GV_PHAN_CONG': 'Chờ phân công GVHD',
+      'CHO_BO_MON_PHAN_CONG': 'Chờ BM xác nhận',
+      'DANG_THUC_HIEN': 'Đang thực hiện',
+      'DA_NOP_BAO_CAO': 'Đã nộp báo cáo',
+      'DAT_GVHD': 'Đạt GVHD',
+      'KHONG_DAT_GVHD': 'Không đạt GVHD',
+      'CHO_PHAN_BIEN': 'Chờ phản biện',
+      'DAT_PHAN_BIEN': 'Đạt phản biện',
+      'KHONG_DAT_PHAN_BIEN': 'Không đạt PB',
+      'DANG_BAO_VE': 'Đang bảo vệ',
+      'HOAN_THANH': 'Hoàn thành',
+      'KHONG_DAT_BAO_VE': 'Không đạt BV',
+      'BI_TU_CHOI': 'Bị từ chối'
+    };
+    return map[trangThai] || trangThai;
   }
 }

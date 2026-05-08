@@ -10,15 +10,21 @@ import com.quanlydoan.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class GiangVienService {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     private final GiangVienRepository giangVienRepository;
     private final DeTaiRepository deTaiRepository;
@@ -31,9 +37,10 @@ public class GiangVienService {
     private final DiemBaoVeRepository diemBaoVeRepository;
     private final DotBaoCaoTienDoRepository dotBaoCaoTienDoRepository;
     private final BaoCaoTienDoRepository baoCaoTienDoRepository;
+    private final DotDangKyRepository dotDangKyRepository;
 
     // GV Hướng dẫn - Chỉ hiển thị sinh viên đã được duyệt hướng dẫn
-    public List<PhanCongHuongDanResponse> getDeTaiHuongDan(Long giangVienId) {
+    public List<PhanCongHuongDanResponse> getDeTaiHuongDan(Long giangVienId, Long dotId) {
         List<PhanCongHuongDanResponse> responses = new ArrayList<>();
 
         // Lấy các phân công có trạng thái DUYET của GV này
@@ -42,6 +49,14 @@ public class GiangVienService {
                              pc.getGiangVien().getId().equals(giangVienId) &&
                              pc.getTrangThai() == TrangThaiPhanCong.DUYET)
                 .collect(Collectors.toList());
+
+        // Lọc theo đợt nếu có
+        if (dotId != null) {
+            phanCongs = phanCongs.stream()
+                    .filter(pc -> pc.getDeTai().getDotDangKy() != null &&
+                                 pc.getDeTai().getDotDangKy().getId().equals(dotId))
+                    .collect(Collectors.toList());
+        }
 
         for (PhanCongHuongDan pc : phanCongs) {
             responses.add(mapToPhanCongHuongDanResponse(pc, giangVienId));
@@ -72,11 +87,15 @@ public class GiangVienService {
                     .giangVienId(pc.getGiangVien().getId())
                     .hoTenGiangVien(pc.getGiangVien().getHoTen())
                     .trangThai(pc.getTrangThai())
+                    .deTaiTrangThai(dt.getTrangThai() != null ? dt.getTrangThai().name() : null)
                     .sinhVienId(dt.getSinhVien() != null ? dt.getSinhVien().getId() : null)
                     .hoTenSinhVien(dt.getSinhVien() != null ? dt.getSinhVien().getHoTen() : null)
                     .maSinhVien(dt.getSinhVien() != null ? dt.getSinhVien().getMaSinhVien() : null)
                     .lopSinhVien(dt.getSinhVien() != null ? dt.getSinhVien().getLop() : null)
                     .tenBoMon(dt.getSinhVien() != null && dt.getSinhVien().getBoMon() != null ? dt.getSinhVien().getBoMon().getTenBoMon() : null)
+                    .dotDangKyId(dt.getDotDangKy() != null ? dt.getDotDangKy().getId() : null)
+                    .tenDotDangKy(dt.getDotDangKy() != null ? dt.getDotDangKy().getTenDot() : null)
+                    .namHoc(dt.getDotDangKy() != null ? dt.getDotDangKy().getNamHoc() : null)
                     .build();
             responses.add(response);
         }
@@ -86,28 +105,32 @@ public class GiangVienService {
 
     @Transactional
     public PhanCongHuongDanResponse duyetSinhVienHuongDan(Long phanCongId, boolean duyet) {
-        // id là phanCong.id (phân công hướng dẫn)
         PhanCongHuongDan phanCong = phanCongHuongDanRepository.findById(phanCongId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy phân công hướng dẫn"));
-        DeTai deTai = phanCong.getDeTai();
+        
+        // Fetch DeTai trong cùng transaction
+        DeTai deTai = deTaiRepository.findById(phanCong.getDeTai().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đề tài"));
 
         if (duyet) {
-            // GV đồng ý
+            // GV đồng ý → chuyển sang CHO_BO_MON_PHAN_CONG
             phanCong.setTrangThai(TrangThaiPhanCong.DUYET);
             phanCong.setNgayPhanCong(LocalDateTime.now());
-            deTai.setTrangThai(TrangThaiDeTai.DANG_THUC_HIEN);
-            phanCongHuongDanRepository.save(phanCong);
-        } else {
-            // GV từ chối - chỉ xóa phân công cũ, giữ lại giangVienDuKien để hiển thị ai từ chối
-            deTai.setPhanCongHuongDan(null);
-            deTai.setTrangThai(TrangThaiDeTai.CHO_GV_DUYET_LAI);
+            deTai.setTrangThai(TrangThaiDeTai.CHO_BO_MON_PHAN_CONG);
             deTaiRepository.save(deTai);
-            phanCongHuongDanRepository.delete(phanCong);
-            return null; // Trả về null vì đã xóa
+            phanCongHuongDanRepository.save(phanCong);
+            return mapToPhanCongHuongDanResponse(phanCong, phanCong.getGiangVien().getId());
+        } else {
+            // GV từ chối → cập nhật trạng thái DeTai trước
+            deTai.setTrangThai(TrangThaiDeTai.GV_TU_CHOI);
+            // Set null để tránh cascade issues với @OneToOne relationship
+            deTai.setPhanCongHuongDan(null);
+            deTaiRepository.save(deTai);
+            
+            // Xóa bằng ID
+            phanCongHuongDanRepository.deleteById(phanCong.getId());
+            return null;
         }
-
-        deTaiRepository.save(deTai);
-        return mapToPhanCongHuongDanResponse(phanCong, phanCong.getGiangVien().getId());
     }
 
     @Transactional
@@ -138,11 +161,19 @@ public class GiangVienService {
     }
 
     // GV Phản biện
-    public List<DeTaiResponse> getDeTaiPhanBien(Long giangVienId) {
+    public List<DeTaiResponse> getDeTaiPhanBien(Long giangVienId, Long dotId) {
         List<DeTai> deTais = deTaiRepository.findAll().stream()
                 .filter(dt -> dt.getPhanCongPhanBien() != null && 
                              dt.getPhanCongPhanBien().getGiangVien().getId().equals(giangVienId))
                 .collect(Collectors.toList());
+
+        // Lọc theo đợt nếu có
+        if (dotId != null) {
+            deTais = deTais.stream()
+                    .filter(dt -> dt.getDotDangKy() != null && dt.getDotDangKy().getId().equals(dotId))
+                    .collect(Collectors.toList());
+        }
+
         return deTais.stream().map(dt -> mapToDeTaiResponseForPhanBien(dt, giangVienId)).collect(Collectors.toList());
     }
 
@@ -190,8 +221,17 @@ public class GiangVienService {
     }
 
     // GV Hội đồng - chỉ xem danh sách, không chấm điểm
-    public List<HoiDongBaoVeResponse> getHoiDongBaoVe(Long giangVienId) {
+    public List<HoiDongBaoVeResponse> getHoiDongBaoVe(Long giangVienId, Long dotId) {
         List<HoiDongBaoVe> hoiDongs = hoiDongBaoVeRepository.findAllByGiangVienId(giangVienId);
+
+        // Lọc theo đợt nếu có
+        if (dotId != null) {
+            hoiDongs = hoiDongs.stream()
+                    .filter(hd -> hd.getDeTai().getDotDangKy() != null &&
+                                 hd.getDeTai().getDotDangKy().getId().equals(dotId))
+                    .collect(Collectors.toList());
+        }
+
         return hoiDongs.stream().map(hd -> mapToHoiDongBaoVeResponseSimple(hd)).collect(Collectors.toList());
     }
 
@@ -225,9 +265,11 @@ public class GiangVienService {
                 .ngayBaoVe(hd.getNgayBaoVe())
                 .diaDiem(hd.getDiaDiem())
                 .trangThai(hd.getTrangThai())
+                .trangThaiDeTai(deTai.getTrangThai() != null ? deTai.getTrangThai().name() : null)
                 .thanhViens(thanhViens)
                 .diemBaoVe(avgDiem)
                 .nhanXetCham(hd.getNhanXetBaoVe())
+                .dotDangKyId(deTai.getDotDangKy() != null ? deTai.getDotDangKy().getId() : null)
                 .build();
     }
 
@@ -242,12 +284,16 @@ public class GiangVienService {
                 .giangVienId(pc.getGiangVien().getId())
                 .hoTenGiangVien(pc.getGiangVien().getHoTen())
                 .trangThai(pc.getTrangThai())
+                .deTaiTrangThai(pc.getDeTai().getTrangThai() != null ? pc.getDeTai().getTrangThai().name() : null)
                 .ngayPhanCong(pc.getNgayPhanCong())
                 .sinhVienId(pc.getDeTai().getSinhVien() != null ? pc.getDeTai().getSinhVien().getId() : null)
                 .hoTenSinhVien(pc.getDeTai().getSinhVien() != null ? pc.getDeTai().getSinhVien().getHoTen() : null)
                 .maSinhVien(pc.getDeTai().getSinhVien() != null ? pc.getDeTai().getSinhVien().getMaSinhVien() : null)
                 .lopSinhVien(pc.getDeTai().getSinhVien() != null ? pc.getDeTai().getSinhVien().getLop() : null)
                 .tenBoMon(pc.getDeTai().getSinhVien() != null && pc.getDeTai().getSinhVien().getBoMon() != null ? pc.getDeTai().getSinhVien().getBoMon().getTenBoMon() : null)
+                .dotDangKyId(pc.getDeTai().getDotDangKy() != null ? pc.getDeTai().getDotDangKy().getId() : null)
+                .tenDotDangKy(pc.getDeTai().getDotDangKy() != null ? pc.getDeTai().getDotDangKy().getTenDot() : null)
+                .namHoc(pc.getDeTai().getDotDangKy() != null ? pc.getDeTai().getDotDangKy().getNamHoc() : null)
                 .daChamDiem(diemHD != null && diemHD.getDiem() != null)
                 .diemCham(diemHD != null ? diemHD.getDiem() : null)
                 .nhanXetCham(diemHD != null ? diemHD.getNhanXet() : null)
@@ -286,6 +332,8 @@ public class GiangVienService {
                 .daChamDiemPB(daChamPB)
                 .diemPhanBien(diemPB != null ? diemPB.getDiem() : null)
                 .nhanXetPhanBien(diemPB != null ? diemPB.getNhanXet() : null)
+                .dotDangKyId(dt.getDotDangKy() != null ? dt.getDotDangKy().getId() : null)
+                .tenDotDangKy(dt.getDotDangKy() != null ? dt.getDotDangKy().getTenDot() : null)
                 .build();
     }
 
@@ -314,15 +362,23 @@ public class GiangVienService {
     }
 
     // Lấy báo cáo của sinh viên mà GV đang hướng dẫn
-    public List<BaoCaoResponse> getBaoCaoCuaSinhVien(Long giangVienId) {
+    public List<BaoCaoResponse> getBaoCaoCuaSinhVien(Long giangVienId, Long dotId) {
         List<BaoCaoResponse> responses = new ArrayList<>();
-        
+
         // Lấy các đề tài GV đang hướng dẫn
         List<PhanCongHuongDan> phanCongs = phanCongHuongDanRepository.findByGiangVienId(giangVienId);
-        
+
         for (PhanCongHuongDan pc : phanCongs) {
             if (pc.getTrangThai() == TrangThaiPhanCong.DUYET) {
                 DeTai deTai = pc.getDeTai();
+
+                // Lọc theo đợt nếu có
+                if (dotId != null) {
+                    if (deTai.getDotDangKy() == null || !deTai.getDotDangKy().getId().equals(dotId)) {
+                        continue;
+                    }
+                }
+
                 if (deTai.getBaoCao() != null) {
                     BaoCao bc = deTai.getBaoCao();
                     BaoCaoResponse.BaoCaoResponseBuilder builder = BaoCaoResponse.builder()
@@ -332,17 +388,17 @@ public class GiangVienService {
                             .fileBaoCao(bc.getFileBaoCao())
                             .ngayNop(bc.getNgayNop())
                             .trangThai(bc.getTrangThai());
-                    
+
                     if (deTai.getSinhVien() != null) {
                         builder.hoTenSinhVien(deTai.getSinhVien().getHoTen())
                                .maSinhVien(deTai.getSinhVien().getMaSinhVien());
                     }
-                    
+
                     responses.add(builder.build());
                 }
             }
         }
-        
+
         return responses;
     }
 
@@ -496,6 +552,7 @@ public class GiangVienService {
                     .lop(sv.getLop())
                     .tenDeTai(dt.getTenDeTai())
                     .daChamDiem(daChamDiem)
+                    .dotDangKyId(dt.getDotDangKy() != null ? dt.getDotDangKy().getId() : null)
                     .build();
         }).collect(Collectors.toList());
     }
@@ -550,5 +607,20 @@ public class GiangVienService {
                 .nhanXet(bc.getNhanXet())
                 .ngayNhanXet(bc.getNgayNhanXet())
                 .build();
+    }
+
+    // Lấy danh sách đợt đăng ký theo bộ môn
+    public List<DotDangKyResponse> getDotDangKyByBoMon(Long boMonId) {
+        List<DotDangKy> dots = dotDangKyRepository.findByBoMonId(boMonId);
+
+        return dots.stream().map(dot -> DotDangKyResponse.builder()
+                .id(dot.getId())
+                .tenDot(dot.getTenDot())
+                .namHoc(dot.getNamHoc())
+                .hocKy(dot.getHocKy())
+                .ngayBatDau(dot.getNgayBatDau())
+                .ngayKetThuc(dot.getNgayKetThuc())
+                .trangThai(dot.getTrangThai())
+                .build()).collect(Collectors.toList());
     }
 }

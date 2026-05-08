@@ -98,7 +98,7 @@ public class SinhVienService {
                 .tenDeTai(request.getTenDeTai())
                 .noiDungDuKien(request.getNoiDungDuKien())
                 .congNgheSuDung(request.getCongNgheSuDung())
-                .trangThai(TrangThaiDeTai.CHO_DUYET)
+                .trangThai(TrangThaiDeTai.CHO_BO_MON_DUYET)
                 .dotDangKy(dotDangKy)
                 .sinhVien(sinhVien)
                 .giangVienDuKien(gvDuKien)
@@ -142,7 +142,7 @@ public class SinhVienService {
         deTai.setCongNgheSuDung(request.getCongNgheSuDung());
         deTai.setDotDangKy(dotDangKy);
         deTai.setGiangVienDuKien(gvDuKien);
-        deTai.setTrangThai(TrangThaiDeTai.CHO_DUYET);
+        deTai.setTrangThai(TrangThaiDeTai.CHO_BO_MON_DUYET);
         deTai.setGhiChu(null);
 
         deTai = deTaiRepository.save(deTai);
@@ -541,31 +541,36 @@ public class SinhVienService {
         SinhVien sv = sinhVienRepository.findById(sinhVienId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sinh viên"));
 
-        // Lấy đề tài của SV
+        // Lấy đề tài của SV đang thực hiện
         List<DeTai> deTais = deTaiRepository.findBySinhVienId(sinhVienId);
         if (deTais.isEmpty()) {
             return new ArrayList<>();
         }
-        DeTai deTai = deTais.get(0);
 
-        // KIỂM TRA: Chỉ khi đề tài đang thực hiện mới cho xem báo cáo tiến độ
-        if (deTai.getTrangThai() != TrangThaiDeTai.DANG_THUC_HIEN) {
+        // Tìm đề tài đang thực hiện (DANG_THUC_HIEN hoặc DA_NOP_BAO_CAO)
+        DeTai deTai = deTais.stream()
+                .filter(dt -> dt.getTrangThai() == TrangThaiDeTai.DANG_THUC_HIEN ||
+                              dt.getTrangThai() == TrangThaiDeTai.DA_NOP_BAO_CAO)
+                .findFirst()
+                .orElse(null);
+
+        if (deTai == null) {
             return new ArrayList<>();
         }
 
-        // KIỂM TRA: Chỉ khi GVHD đã DUYỆT mới cho xem báo cáo tiến độ
-        if (deTai.getPhanCongHuongDan() == null || 
+        // Kiểm tra đề tài có giảng viên hướng dẫn đã được duyệt
+        if (deTai.getPhanCongHuongDan() == null ||
             deTai.getPhanCongHuongDan().getGiangVien() == null ||
             deTai.getPhanCongHuongDan().getTrangThai() != TrangThaiPhanCong.DUYET) {
             return new ArrayList<>();
         }
-        
+
         Long gvhdId = deTai.getPhanCongHuongDan().getGiangVien().getId();
 
-        // Lấy các đợt báo cáo của GVHD
+        // Lấy các đợt báo cáo của đúng GVHD đang mở
         List<DotBaoCaoTienDo> dots = dotBaoCaoTienDoRepository.findAllByGiangVien(gvhdId);
 
-        // Filter chỉ lấy đợt đang mở (chỉ phụ thuộc trạng thái MO)
+        // Filter chỉ lấy đợt đang mở
         List<DotBaoCaoTienDo> dotsDangMo = dots.stream()
                 .filter(d -> d.getTrangThai() == TrangThaiDotBaoCao.MO)
                 .collect(Collectors.toList());
@@ -585,30 +590,41 @@ public class SinhVienService {
         SinhVien sv = sinhVienRepository.findById(sinhVienId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sinh viên"));
 
-        // Lấy đề tài của SV
+        // Lấy đề tài của SV đang thực hiện
         List<DeTai> deTais = deTaiRepository.findBySinhVienId(sinhVienId);
         if (deTais.isEmpty()) {
             throw new BadRequestException("Sinh viên chưa có đề tài");
         }
-        DeTai deTai = deTais.get(0);
 
-        // KIỂM TRA: Chỉ khi đề tài đang thực hiện mới cho nộp báo cáo tiến độ
-        if (deTai.getTrangThai() != TrangThaiDeTai.DANG_THUC_HIEN) {
+        DeTai deTai = deTais.stream()
+                .filter(dt -> dt.getTrangThai() == TrangThaiDeTai.DANG_THUC_HIEN ||
+                              dt.getTrangThai() == TrangThaiDeTai.DA_NOP_BAO_CAO)
+                .findFirst()
+                .orElse(null);
+
+        if (deTai == null) {
             throw new BadRequestException("Đề tài chưa được duyệt hoặc không trong giai đoạn thực hiện");
         }
 
-        // KIỂM TRA: Chỉ khi GVHD đã DUYỆT mới cho nộp báo cáo tiến độ
-        if (deTai.getPhanCongHuongDan() == null || 
+        // Kiểm tra có giảng viên hướng dẫn đã được duyệt
+        if (deTai.getPhanCongHuongDan() == null ||
             deTai.getPhanCongHuongDan().getGiangVien() == null ||
             deTai.getPhanCongHuongDan().getTrangThai() != TrangThaiPhanCong.DUYET) {
             throw new BadRequestException("Giảng viên hướng dẫn chưa duyệt đề tài của bạn");
         }
 
+        Long gvhdId = deTai.getPhanCongHuongDan().getGiangVien().getId();
+
         // Kiểm tra đợt báo cáo
         DotBaoCaoTienDo dot = dotBaoCaoTienDoRepository.findById(request.getDotBaoCaoTienDoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đợt báo cáo"));
 
-        // Kiểm tra đợt còn mở (chỉ phụ thuộc trạng thái MO)
+        // Kiểm tra đợt do đúng GVHD tạo
+        if (!dot.getGiangVien().getId().equals(gvhdId)) {
+            throw new BadRequestException("Đợt báo cáo không thuộc giảng viên hướng dẫn của bạn");
+        }
+
+        // Kiểm tra đợt còn mở
         if (dot.getTrangThai() != TrangThaiDotBaoCao.MO) {
             throw new BadRequestException("Đợt báo cáo đã đóng");
         }

@@ -12,20 +12,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
-    private final KhoaRepository khoaRepository;
-    private final BoMonRepository boMonRepository;
     private final TaiKhoanRepository taiKhoanRepository;
-    private final GiangVienRepository giangVienRepository;
-    private final SinhVienRepository sinhVienRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) {
 
-        if (!taiKhoanRepository.existsByEmail("admin@gmail.com")) {
+        if (!taiKhoanRepository.existsByEmail("admin@humg.edu.vn")) {
             TaiKhoan admin = TaiKhoan.builder()
-                    .email("admin@gmail.com")
-                    .password(passwordEncoder.encode("admin123"))
+                    .email("admin@humg.edu.vn")
+                    .password(passwordEncoder.encode("123456"))
                     .role(Role.ADMIN)
                     .trangThai(true)
                     .build();

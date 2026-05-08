@@ -1,0 +1,212 @@
+// Theo dõi tiến trình styles
+
+// Timeline styles
+.timeline-view {
+  .timeline-track {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    padding: 1.5rem 0;
+    overflow-x: auto;
+  }
+
+  .timeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 280px;
+    padding: 1rem;
+    border: 2px solid #dee2e6;
+    border-radius: 12px;
+    background: white;
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    &.active {
+      border-color: currentColor;
+    }
+  }
+
+  .timeline-step-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    .material-symbols-outlined {
+      font-size: 24px;
+    }
+  }
+
+  .timeline-step-content {
+    text-align: center;
+    width: 100%;
+
+    h6 {
+      font-weight: 600;
+    }
+  }
+
+  .timeline-connector {
+    width: 60px;
+    height: 4px;
+    background: #dee2e6;
+    margin-top: 2.5rem;
+    flex-shrink: 0;
+    position: relative;
+
+    &.completed {
+      background: #198754;
+    }
+  }
+}
+
+// Kanban styles
+.kanban-view {
+  width: 100%;
+  overflow-x: auto;
+
+  .kanban-container {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(180px, 1fr));
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .kanban-column {
+    min-height: 200px;
+    width: 100%;
+  }
+
+  .kanban-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 1199px) {
+  .kanban-view .kanban-container {
+    grid-template-columns: repeat(4, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 991px) {
+  .kanban-view .kanban-container {
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .kanban-view .kanban-container {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 575px) {
+  .kanban-view .kanban-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Progress bar animation
+.progress {
+  border-radius: 10px;
+  overflow: hidden;
+
+  .progress-bar {
+    transition: width 0.6s ease;
+    animation: progressAnimation 1s ease-in-out;
+  }
+}
+
+@keyframes progressAnimation {
+  from {
+    width: 0;
+  }
+}
+
+// Accordion styles
+.accordion-item {
+  overflow: hidden;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  .accordion-button {
+    font-weight: 500;
+
+    &:not(.collapsed) {
+      background-color: rgba(13, 110, 253, 0.05);
+    }
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
+}
+
+// Table styles
+.table {
+  th {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  td {
+    vertical-align: middle;
+  }
+}
+
+// Badge styles
+.badge {
+  font-weight: 500;
+  padding: 0.35em 0.65em;
+}
+
+// Responsive
+@media (max-width: 992px) {
+  .timeline-view {
+    .timeline-track {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .timeline-step {
+      min-width: 100%;
+    }
+
+    .timeline-connector {
+      width: 4px;
+      height: 30px;
+      margin: 0 auto;
+      margin-top: 0;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .kanban-view {
+    .card-body {
+      max-height: 400px !important;
+    }
+  }
+}

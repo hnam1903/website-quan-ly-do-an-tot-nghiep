@@ -107,6 +107,11 @@ import { filter } from 'rxjs/operators';
             </li>
           </ul>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/giang-vien/theo-doi-tien-trinh" routerLinkActive="active" (click)="closeSidebar()">
+            <span class="material-symbols-outlined">timeline</span>Theo dõi tiến trình
+          </a>
+        </li>
       </ul>
     </nav>
 

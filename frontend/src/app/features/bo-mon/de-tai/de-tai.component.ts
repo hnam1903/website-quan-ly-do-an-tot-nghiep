@@ -13,13 +13,19 @@ import { ToastrService } from 'ngx-toastr';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
-      <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center gap-3 flex-wrap">
         <div class="page-icon bg-primary-subtle">
           <span class="material-symbols-outlined">menu_book</span>
         </div>
         <div>
           <h2>Danh sách đề tài</h2>
           <p class="mb-0">Theo dõi và quản lý đề tài theo trạng thái</p>
+        </div>
+        <div class="ms-auto">
+          <select class="form-select" style="width: 200px;" [(ngModel)]="selectedDotId" (change)="loadDeTai()">
+            <option [ngValue]="null">Tất cả đợt</option>
+            <option *ngFor="let dot of dotList" [ngValue]="dot.id">{{ dot.tenDot }}</option>
+          </select>
         </div>
       </div>
     </div>
@@ -367,6 +373,8 @@ export class DeTaiBoMonComponent implements OnInit {
   deTaiKhongDat: DeTaiResponse[] = [];
   chiTietDeTai: DeTaiResponse | null = null;
   chiTietBaoCao: BaoCaoResponse | null = null;
+  dotList: any[] = [];
+  selectedDotId: number | null = null;
 
   constructor(
     private boMonService: BoMonService,
@@ -374,7 +382,18 @@ export class DeTaiBoMonComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadDotList();
     this.loadDeTai();
+  }
+
+  loadDotList(): void {
+    this.boMonService.getAllDotDangKy().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.dotList = res.data;
+        }
+      }
+    });
   }
 
   switchTab(tab: string): void {
@@ -382,50 +401,46 @@ export class DeTaiBoMonComponent implements OnInit {
   }
 
   loadDeTai(): void {
+    this.deTaiDangThucHien = [];
+
+    const dotId = this.selectedDotId ?? undefined;
     // Load đề tài đang thực hiện
-    this.boMonService.getDeTai('CHO_GV_DUYET').subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.deTaiDangThucHien = [...res.data];
-        }
-      }
-    });
-    this.boMonService.getDeTai('DANG_THUC_HIEN').subscribe({
+    this.boMonService.getDeTai('DANG_THUC_HIEN', dotId).subscribe({
       next: (res) => {
         if (res.success) {
           this.deTaiDangThucHien = [...this.deTaiDangThucHien, ...res.data];
         }
       }
     });
-    this.boMonService.getDeTai('DA_NOP_BAO_CAO').subscribe({
+    this.boMonService.getDeTai('DA_NOP_BAO_CAO', dotId).subscribe({
       next: (res) => {
         if (res.success) {
           this.deTaiDangThucHien = [...this.deTaiDangThucHien, ...res.data];
         }
       }
     });
-    this.boMonService.getDeTai('DAT_GVHD').subscribe({
+    this.boMonService.getDeTai('DAT_GVHD', dotId).subscribe({
       next: (res) => {
         if (res.success) {
           this.deTaiDangThucHien = [...this.deTaiDangThucHien, ...res.data];
         }
       }
     });
-    this.boMonService.getDeTai('CHO_PHAN_BIEN').subscribe({
+    this.boMonService.getDeTai('CHO_PHAN_BIEN', dotId).subscribe({
       next: (res) => {
         if (res.success) {
           this.deTaiDangThucHien = [...this.deTaiDangThucHien, ...res.data];
         }
       }
     });
-    this.boMonService.getDeTai('DAT_PHAN_BIEN').subscribe({
+    this.boMonService.getDeTai('DAT_PHAN_BIEN', dotId).subscribe({
       next: (res) => {
         if (res.success) {
           this.deTaiDangThucHien = [...this.deTaiDangThucHien, ...res.data];
         }
       }
     });
-    this.boMonService.getDeTai('DANG_BAO_VE').subscribe({
+    this.boMonService.getDeTai('DANG_BAO_VE', dotId).subscribe({
       next: (res) => {
         if (res.success) {
           this.deTaiDangThucHien = [...this.deTaiDangThucHien, ...res.data];
@@ -434,7 +449,7 @@ export class DeTaiBoMonComponent implements OnInit {
     });
 
     // Load đề tài hoàn thành (HOAN_THANH)
-    this.boMonService.getDeTaiHoanThanh().subscribe({
+    this.boMonService.getDeTaiHoanThanh(dotId).subscribe({
       next: (res) => {
         if (res.success) {
           this.deTaiHoanThanh = res.data;
@@ -452,9 +467,9 @@ export class DeTaiBoMonComponent implements OnInit {
       obs.pipe(catchError(() => of(emptyOk())));
 
     forkJoin({
-      gvhd: safe(this.boMonService.getDeTai('KHONG_DAT_GVHD')),
-      phanBien: safe(this.boMonService.getDeTai('KHONG_DAT_PHAN_BIEN')),
-      baoVe: safe(this.boMonService.getDeTai('KHONG_DAT_BAO_VE'))
+      gvhd: safe(this.boMonService.getDeTai('KHONG_DAT_GVHD', dotId)),
+      phanBien: safe(this.boMonService.getDeTai('KHONG_DAT_PHAN_BIEN', dotId)),
+      baoVe: safe(this.boMonService.getDeTai('KHONG_DAT_BAO_VE', dotId))
     }).subscribe({
       next: ({ gvhd, phanBien, baoVe }) => {
         const merged: DeTaiResponse[] = [];

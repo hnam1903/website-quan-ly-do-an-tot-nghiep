@@ -1,43 +1,60 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { GiangVienService } from '../../../core/services/giang-vien.service';
 import { HoiDongBaoVeResponse } from '../../../core/models/models';
 
 @Component({
   selector: 'app-danh-sach-bao-ve',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
-      <h2>Danh sách hội đồng bảo vệ</h2>
-     
+      <div class="d-flex align-items-center gap-3">
+        <div class="page-icon bg-success-subtle">
+          <span class="material-symbols-outlined text-success">groups</span>
+        </div>
+        <div>
+          <h2>Danh sách hội đồng bảo vệ</h2>
+          <p class="mb-0">Xem lịch và thông tin hội đồng bảo vệ</p>
+        </div>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <select class="form-select" [(ngModel)]="selectedDotId" (change)="onDotChange()" style="width: 220px;">
+          <option [ngValue]="null">Tất cả các đợt</option>
+          <option *ngFor="let dot of dotDangKyList" [ngValue]="dot.id">{{ dot.tenDot }}</option>
+        </select>
+        <span class="badge bg-success">{{ filteredList.length }} hội đồng</span>
+      </div>
     </div>
 
     <div class="card">
-      <div class="card-body">
-        <table class="table table-hover" *ngIf="hoiDongList.length > 0">
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0" *ngIf="filteredList.length > 0">
           <thead class="table-light">
             <tr>
-              <th>STT</th>
-              <th>Mã SV</th>
-              <th>Họ tên SV</th>
-              <th>Lớp</th>
+              <th class="text-center" style="width: 60px">STT</th>
+              <th style="width: 100px">Mã SV</th>
+              <th style="width: 160px">Họ tên SV</th>
+              <th style="width: 100px">Lớp</th>
               <th>Tên đề tài</th>
-              <th>Ngày bảo vệ</th>
-              <th>Phòng</th>
-              <th>Thành viên hội đồng</th>
+              <th style="width: 110px">Ngày bảo vệ</th>
+              <th style="width: 80px">Phòng</th>
+              <th style="width: 140px" class="text-center">Thành viên</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let hd of hoiDongList; let i = index">
-              <td>{{ i + 1 }}</td>
-              <td>{{ hd.maSinhVien || '-' }}</td>
-              <td>{{ hd.hoTenSinhVien || '-' }}</td>
+            <tr *ngFor="let hd of filteredList; let i = index" class="align-middle">
+              <td class="text-center"><span class="stt-badge">{{ i + 1 }}</span></td>
+              <td><code>{{ hd.maSinhVien || '-' }}</code></td>
+              <td><strong>{{ hd.hoTenSinhVien || '-' }}</strong></td>
               <td>{{ hd.lopSinhVien || '-' }}</td>
-              <td>{{ hd.tenDeTai }}</td>
+              <td>
+                <span class="text-truncate d-inline-block" style="max-width: 280px">{{ hd.tenDeTai }}</span>
+              </td>
               <td>{{ hd.ngayBaoVe | date:'dd/MM/yyyy' }}</td>
               <td>{{ hd.diaDiem || '-' }}</td>
-              <td>
+              <td class="text-center">
                 <button class="btn btn-sm btn-outline-primary" (click)="xemThanhVien(hd)">
                   <span class="material-symbols-outlined me-1">group</span> Xem ({{ hd.thanhViens?.length || 0 }})
                 </button>
@@ -46,9 +63,11 @@ import { HoiDongBaoVeResponse } from '../../../core/models/models';
           </tbody>
         </table>
 
-        <div *ngIf="hoiDongList.length === 0" class="text-center py-5">
-          <span class="material-symbols-outlined" style="font-size: 3rem; color: #ccc;">inbox</span>
-          <p class="text-muted mt-2">Bạn không có hội đồng nào</p>
+        <div *ngIf="filteredList.length === 0" class="text-center py-5">
+          <div class="empty-state">
+            <span class="material-symbols-outlined" style="font-size: 3rem; color: #ccc;">inbox</span>
+            <p class="text-muted mt-2">Bạn không có hội đồng nào</p>
+          </div>
         </div>
       </div>
     </div>
@@ -100,23 +119,55 @@ import { HoiDongBaoVeResponse } from '../../../core/models/models';
 })
 export class DanhSachBaoVeComponent implements OnInit {
   hoiDongList: HoiDongBaoVeResponse[] = [];
+  filteredList: HoiDongBaoVeResponse[] = [];
   selected: HoiDongBaoVeResponse | null = null;
+
+  dotDangKyList: any[] = [];
+  selectedDotId: number | null = null;
 
   constructor(private gvService: GiangVienService) {}
 
   ngOnInit(): void {
-    this.loadData();
+    this.loadDotList();
+  }
+
+  loadDotList(): void {
+    this.gvService.getDotDangKy().subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.dotDangKyList = res.data || [];
+          if (this.dotDangKyList.length > 0) {
+            this.selectedDotId = this.dotDangKyList[0].id;
+          }
+        }
+        this.loadData();
+      },
+      error: () => {
+        this.dotDangKyList = [];
+        this.loadData();
+      }
+    });
   }
 
   loadData(): void {
-    this.gvService.getHoiDongBaoVe().subscribe({
+    const dotId = this.selectedDotId ?? undefined;
+    this.gvService.getHoiDongBaoVe(dotId).subscribe({
       next: (res) => {
         if (res.success) {
           this.hoiDongList = res.data;
+          this.applyFilter();
         }
       },
       error: (err) => console.error('Lỗi load:', err)
     });
+  }
+
+  onDotChange(): void {
+    this.loadData();
+  }
+
+  applyFilter(): void {
+    this.filteredList = this.hoiDongList;
   }
 
   xemThanhVien(hd: HoiDongBaoVeResponse): void {

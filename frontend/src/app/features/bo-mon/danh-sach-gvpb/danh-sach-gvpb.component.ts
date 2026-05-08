@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { BoMonService } from '../../../core/services/bo-mon.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { DeTaiResponse } from '../../../core/models/models';
+import { DeTaiResponse, PhanCongPhanBienResponse } from '../../../core/models/models';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-danh-sach-gvpb',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
@@ -18,6 +19,12 @@ import { ToastrService } from 'ngx-toastr';
         <div>
           <h2>Danh sách GVPB</h2>
           <p class="mb-0">Xem danh sách phân công giảng viên phản biện</p>
+        </div>
+        <div class="ms-auto">
+          <select class="form-select" style="width: 200px;" [(ngModel)]="selectedDotId" (change)="loadData()">
+            <option [ngValue]="null">Tất cả đợt</option>
+            <option *ngFor="let dot of dotList" [ngValue]="dot.id">{{ dot.tenDot }}</option>
+          </select>
         </div>
       </div>
     </div>
@@ -101,6 +108,8 @@ export class DanhSachGvpbComponent implements OnInit {
   gvpbGroups: { hoTenGvpb: string; soLuong: number; deTaiList: DeTaiResponse[] }[] = [];
   loading = false;
   expandedGvpb: string | null = null;
+  selectedDotId: number | null = null;
+  dotList: any[] = [];
 
   constructor(
     private boMonService: BoMonService,
@@ -109,22 +118,38 @@ export class DanhSachGvpbComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadDotList();
     this.loadData();
+  }
+
+  loadDotList(): void {
+    this.boMonService.getAllDotDangKy().subscribe((res: any) => {
+      if (res.success) {
+        this.dotList = res.data;
+      }
+    });
   }
 
   loadData(): void {
     this.loading = true;
-    const currentUser = this.authService.getCurrentUser();
-    const boMonId = currentUser?.boMonId;
+    const dotId = this.selectedDotId ?? undefined;
 
-    this.boMonService.getDeTai(undefined, boMonId).subscribe({
+    this.boMonService.getDanhSachGvpb(dotId).subscribe({
       next: (res) => {
         this.loading = false;
         if (res.success) {
-          const filtered = res.data.filter(dt =>
-            dt.hoTenGiangVienPhanBien
-          );
-          this.nhomTheoGvpb(filtered);
+          const data = (res.data.map(pc => ({
+            id: pc.id,
+            deTaiId: pc.deTaiId,
+            tenDeTai: pc.tenDeTai,
+            hoTenSinhVien: pc.hoTenSinhVien,
+            maSinhVien: pc.maSinhVien,
+            lopSinhVien: pc.lopSinhVien,
+            hoTenGiangVienPhanBien: pc.hoTenGiangVien,
+            trangThai: pc.deTaiTrangThai
+          })) as unknown) as DeTaiResponse[];
+          
+          this.nhomTheoGvpb(data);
         }
       },
       error: (err) => {
@@ -157,18 +182,19 @@ export class DanhSachGvpbComponent implements OnInit {
   }
 
   getBadgeClass(trangThai: string): string {
+    if (!trangThai) return 'bg-secondary';
     switch (trangThai) {
       case 'DANG_THUC_HIEN': return 'bg-success';
-      case 'CHO_GV_DUYET': return 'bg-warning';
-      case 'DA_DUYET': return 'bg-primary';
-      case 'DAT_GVHD': return 'bg-info';
-      case 'CHO_PHAN_CONG_HD': return 'bg-warning';
-      case 'CHO_PHAN_CONG_PB': return 'bg-warning';
-      case 'DA_PHAN_CONG_PB': return 'bg-secondary';
-      case 'DA_PHAN_CONG_HD': return 'bg-info';
-      case 'DA_CHAM_DIEM': return 'bg-primary';
-      case 'DA_BAO_VE': return 'bg-success';
-      case 'KET_QUA': return 'bg-success';
+      case 'DAT_GVHD': return 'bg-primary';
+      case 'CHO_PHAN_BIEN': return 'bg-info';
+      case 'DAT_PHAN_BIEN': return 'bg-warning text-dark';
+      case 'CHO_BO_MON_DUYET': return 'bg-warning text-dark';
+      case 'CHO_GV_DUYET': return 'bg-warning text-dark';
+      case 'GV_TU_CHOI': return 'bg-warning text-dark';
+      case 'CHO_GV_PHAN_CONG': return 'bg-warning text-dark';
+      case 'CHO_BO_MON_PHAN_CONG': return 'bg-warning text-dark';
+      case 'HOAN_THANH': return 'bg-success';
+      case 'KHONG_DAT_BAO_VE': return 'bg-danger';
       default: return 'bg-secondary';
     }
   }

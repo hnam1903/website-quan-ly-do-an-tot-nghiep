@@ -1,0 +1,198 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h2 class="mb-1">
+            <span class="material-symbols-outlined me-2">view_kanban</span>
+            Theo dõi tiến trình đồ án
+          </h2>
+          <p class="text-muted mb-0 small" *ngIf="userInfo">
+            {{ userInfo.hoTen }} | Bộ môn: {{ userInfo.tenBoMon }}
+          </p>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <!-- Filter theo đợt -->
+          <div class="input-group" style="width: 280px;">
+            <span class="input-group-text bg-white">
+              <span class="material-symbols-outlined">filter_list</span>
+            </span>
+            <select class="form-select" [(ngModel)]="selectedDotId" (change)="onDotChange()">
+              <option [ngValue]="null">Tất cả đợt</option>
+              <option *ngFor="let dot of dotDangKyList" [ngValue]="dot.id">
+                {{ dot.tenDot }} {{ dot.namHoc ? '- ' + dot.namHoc : '' }}
+              </option>
+            </select>
+          </div>
+          
+          <button class="btn btn-outline-secondary" (click)="refresh()" [disabled]="loading">
+            <span class="material-symbols-outlined">sync</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Đang tải dữ liệu...</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading">
+    <!-- Tổng quan stats -->
+    <div class="row mb-4">
+      <div class="col-lg-2 col-md-4 col-6 mb-3">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body text-center py-3">
+            <h3 class="mb-1 text-primary">{{ totalDeTai }}</h3>
+            <p class="text-muted mb-0 small">Tổng đề tài</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-4 col-6 mb-3">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body text-center py-3">
+            <h3 class="mb-1 text-success">{{ totalDaHoanThanh }}</h3>
+            <p class="text-muted mb-0 small">Hoàn thành</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-4 col-6 mb-3">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body text-center py-3">
+            <h3 class="mb-1 text-warning">{{ totalDangXuLy }}</h3>
+            <p class="text-muted mb-0 small">Đang xử lý</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 col-md-8 mb-3">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body py-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="small fw-medium">Tiến độ tổng thể</span>
+              <span class="badge bg-primary">{{ tiLeHoanThanh }}%</span>
+            </div>
+            <div class="progress" style="height: 12px;">
+              <div class="progress-bar bg-success"
+                   [style.width.%]="tiLeHoanThanh"
+                   [attr.aria-valuenow]="tiLeHoanThanh"
+                   role="progressbar">
+              </div>
+            </div>
+            <div class="d-flex justify-content-between mt-1 small text-muted">
+              <span>{{ totalDaHoanThanh }}/{{ totalDeTai }} đề tài</span>
+              <span>Hoàn thành</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kanban View -->
+    <div class="kanban-view">
+      <div class="kanban-container">
+        <ng-container *ngFor="let giaiDoan of giaiDoans">
+          <div class="kanban-column">
+            <div class="card h-100 border-0 shadow-sm">
+              <!-- Kanban Header -->
+              <div class="card-header bg-white border-bottom d-flex align-items-center py-3"
+                   [style.border-left]="'4px solid ' + giaiDoan.color + ' !important'">
+                <span class="material-symbols-outlined me-2" [style.color]="giaiDoan.color">
+                  {{ giaiDoan.icon }}
+                </span>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0" [style.color]="giaiDoan.color">{{ giaiDoan.ten }}</h6>
+                  <small class="text-muted">{{ giaiDoan.soLuong }} đề tài</small>
+                </div>
+                <div class="d-flex gap-1">
+                  <span class="badge rounded-pill" [style.background-color]="'rgba(' + hexToRgb(giaiDoan.color) + ', 0.15)'" [style.color]="giaiDoan.color" title="Đang xử lý">
+                    {{ giaiDoan.soLuong }}
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Kanban Body -->
+              <div class="card-body p-2" style="max-height: 600px; overflow-y: auto;">
+                <div>
+                  <ng-container *ngFor="let dt of getDeTaiByGiaiDoan(giaiDoan)">
+                    <div class="kanban-card mb-2 p-3 rounded"
+                         [style.border-left]="'3px solid ' + giaiDoan.color">
+                      <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge" [class]="getTrangThaiDisplay(dt.trangThai).class">
+                          {{ getTrangThaiDisplay(dt.trangThai).text }}
+                        </span>
+                        <div class="d-flex gap-1">
+                          <span *ngIf="dt.hoanThanhHD" title="Hoàn thành HD" 
+                                class="material-symbols-outlined text-success" style="font-size: 16px;">check_circle</span>
+                          <span *ngIf="dt.hoanThanhPB" title="Hoàn thành PB" 
+                                class="material-symbols-outlined text-info" style="font-size: 16px;">check_circle</span>
+                          <span *ngIf="dt.hoanThanhBV" title="Hoàn thành BV" 
+                                class="material-symbols-outlined text-primary" style="font-size: 16px;">check_circle</span>
+                        </div>
+                      </div>
+                      <h6 class="mb-2 text-truncate" [title]="dt.tenDeTai">
+                        {{ dt.tenDeTai }}
+                      </h6>
+                      <div class="small text-muted mb-2">
+                        <span class="material-symbols-outlined" style="font-size: 14px;">person</span>
+                        {{ dt.hoTenSinhVien }}
+                        <span class="text-secondary">({{ dt.maSinhVien }})</span>
+                      </div>
+                      <div class="small text-muted mb-1">
+                        <span class="material-symbols-outlined" style="font-size: 14px;">school</span>
+                        {{ dt.lop }}
+                      </div>
+                      
+                      <div class="row g-1 mt-1 small text-center">
+                        <div class="col-4">
+                          <div class="p-1 rounded bg-light">
+                            <div class="text-muted small">HD</div>
+                            <span *ngIf="dt.diemHuongDan !== undefined" 
+                                  class="badge bg-primary">{{ dt.diemHuongDan }}</span>
+                            <span *ngIf="dt.diemHuongDan === undefined" class="text-muted">-</span>
+                          </div>
+                        </div>
+                        <div class="col-4">
+                          <div class="p-1 rounded bg-light">
+                            <div class="text-muted small">PB</div>
+                            <span *ngIf="dt.diemPhanBien !== undefined" 
+                                  class="badge bg-info">{{ dt.diemPhanBien }}</span>
+                            <span *ngIf="dt.diemPhanBien === undefined" class="text-muted">-</span>
+                          </div>
+                        </div>
+                        <div class="col-4">
+                          <div class="p-1 rounded bg-light">
+                            <div class="text-muted small">BV</div>
+                            <span *ngIf="dt.diemBaoVe !== undefined" 
+                                  class="badge"
+                                  [class.bg-success]="dt.diemBaoVe && dt.diemBaoVe >= 5"
+                                  [class.bg-danger]="dt.diemBaoVe && dt.diemBaoVe < 5">
+                              {{ dt.diemBaoVe }}
+                            </span>
+                            <span *ngIf="dt.diemBaoVe === undefined" class="text-muted">-</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </ng-container>
+                  
+                  <!-- Empty state -->
+                  <div *ngIf="getDeTaiByGiaiDoan(giaiDoan).length === 0" 
+                       class="text-center text-muted py-4">
+                    <span class="material-symbols-outlined d-block mb-2" style="font-size: 2rem;">inbox</span>
+                    <small>Không có đề tài</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

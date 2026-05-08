@@ -215,6 +215,11 @@ export class DuyetHuongDanComponent implements OnInit {
 
   xemChiTiet(item: PhanCongHuongDanResponse): void {
     this.chiTietDeTai = item;
+    const modalEl = document.getElementById('chiTietModal');
+    if (modalEl) {
+      const modal = new (window as any).bootstrap.Modal(modalEl);
+      modal.show();
+    }
   }
 
   duyet(item: PhanCongHuongDanResponse): void {

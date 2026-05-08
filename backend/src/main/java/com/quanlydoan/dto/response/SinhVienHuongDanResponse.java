@@ -13,4 +13,5 @@ public class SinhVienHuongDanResponse {
     private String lop;
     private String tenDeTai;
     private Boolean daChamDiem;
+    private Long dotDangKyId;
 }

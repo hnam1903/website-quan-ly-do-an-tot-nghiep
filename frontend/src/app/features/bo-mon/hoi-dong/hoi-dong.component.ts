@@ -153,7 +153,7 @@ export class HoiDongComponent implements OnInit {
 
   loadData(): void {
     const currentUser = this.authService.getCurrentUser();
-    this.boMonService.getDeTai('DAT_PHAN_BIEN', currentUser?.boMonId).subscribe({
+    this.boMonService.getDeTai('DAT_PHAN_BIEN', undefined, currentUser?.boMonId).subscribe({
       next: (res) => {
         if (res.success) this.svDatPB = res.data;
       }

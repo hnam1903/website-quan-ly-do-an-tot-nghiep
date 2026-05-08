@@ -156,7 +156,7 @@ export class LanhDaoBoMonDashboardComponent implements OnInit {
     const boMonId = this.userInfo?.boMonId;
 
     // Load đề tài
-    this.boMonService.getDeTai(undefined, boMonId).subscribe({
+    this.boMonService.getDeTai(undefined, undefined, boMonId).subscribe({
       next: (res: ApiResponse<DeTaiResponse[]>) => {
         const deTais = res.data || [];
         this.tongDeTai = deTais.length;

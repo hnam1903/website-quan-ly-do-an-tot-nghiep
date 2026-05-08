@@ -18,9 +18,11 @@ import { ToastrService } from 'ngx-toastr';
           <h4 class="mb-1">Quản lý Điểm</h4>
           <p class="text-muted mb-0">Tổng hợp điểm sinh viên bộ môn</p>
         </div>
-        <div class="d-flex align-items-center">
-          <input type="text" class="form-control me-3" placeholder="Tìm kiếm..." 
-                 [(ngModel)]="searchText" (input)="filterData()" style="width: 200px;">
+        <div class="d-flex align-items-center gap-3">
+          <select class="form-select" style="width: 180px;" [(ngModel)]="selectedDotId" (change)="loadData()">
+            <option [ngValue]="null">Tất cả đợt</option>
+            <option *ngFor="let dot of dotList" [ngValue]="dot.id">{{ dot.tenDot }}</option>
+          </select>
           <button class="btn btn-success" (click)="exportExcel()">
             <span class="material-symbols-outlined me-2">table</span>Xuất Excel
           </button>
@@ -121,39 +123,37 @@ import { ToastrService } from 'ngx-toastr';
 export class QuanLyDiemBoMonComponent implements OnInit {
   data: QuanLyDiemResponse[] = [];
   filteredData: QuanLyDiemResponse[] = [];
-  searchText = '';
+  selectedDotId: number | null = null;
+  dotList: any[] = [];
 
   constructor(private boMonService: BoMonService, private toastr: ToastrService) {}
 
   ngOnInit(): void {
+    this.loadDotList();
     this.loadData();
   }
 
+  loadDotList(): void {
+    this.boMonService.getAllDotDangKy().subscribe((res: any) => {
+      if (res.success) {
+        this.dotList = res.data;
+      }
+    });
+  }
+
   loadData(): void {
-    this.boMonService.getQuanLyDiem().subscribe({
+    const dotId = this.selectedDotId ?? undefined;
+    this.boMonService.getQuanLyDiem(dotId).subscribe({
       next: (res) => {
         if (res.success) {
           this.data = res.data;
-          this.filterData();
+          this.filteredData = res.data;
         }
       },
       error: (err) => {
         console.error('Lỗi khi tải dữ liệu điểm:', err);
       }
     });
-  }
-
-  filterData(): void {
-    if (this.searchText) {
-      const search = this.searchText.toLowerCase();
-      this.filteredData = this.data.filter(item =>
-        item.hoTen?.toLowerCase().includes(search) ||
-        item.maSinhVien?.toLowerCase().includes(search) ||
-        item.tenDeTai?.toLowerCase().includes(search)
-      );
-    } else {
-      this.filteredData = [...this.data];
-    }
   }
 
   getDiemClass(diem: number | undefined | null): string {

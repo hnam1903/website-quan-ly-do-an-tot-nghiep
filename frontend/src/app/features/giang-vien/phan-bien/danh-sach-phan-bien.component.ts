@@ -20,6 +20,13 @@ import { ToastrService } from 'ngx-toastr';
           <p class="mb-0">Xem và chấm điểm phản biện</p>
         </div>
       </div>
+      <div class="d-flex align-items-center gap-3">
+        <select class="form-select" [(ngModel)]="selectedDotId" (change)="onDotChange()" style="width: 220px;">
+          <option [ngValue]="null">Tất cả các đợt</option>
+          <option *ngFor="let dot of dotDangKyList" [ngValue]="dot.id">{{ dot.tenDot }}</option>
+        </select>
+        <span class="badge bg-info">{{ filteredList.length }} sinh viên</span>
+      </div>
     </div>
 
     <div class="card">
@@ -28,11 +35,11 @@ import { ToastrService } from 'ngx-toastr';
           <span class="spinner-border spinner-border-sm me-2"></span> Đang tải dữ liệu...
         </div>
 
-        <div *ngIf="!isLoading && deTaiList.length === 0" class="alert alert-info m-4">
+        <div *ngIf="!isLoading && filteredList.length === 0" class="alert alert-info m-4">
           <span class="material-symbols-outlined me-2">info</span> Không có sinh viên nào được phân công phản biện
         </div>
 
-        <div class="table-responsive" *ngIf="!isLoading && deTaiList.length > 0">
+        <div class="table-responsive" *ngIf="!isLoading && filteredList.length > 0">
           <table class="table table-hover mb-0">
             <thead>
               <tr>
@@ -45,7 +52,7 @@ import { ToastrService } from 'ngx-toastr';
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let dt of deTaiList" class="align-middle">
+              <tr *ngFor="let dt of filteredList" class="align-middle">
                 <td class="text-center"><code>{{ dt.maSinhVien }}</code></td>
                 <td><strong>{{ dt.hoTenSinhVien }}</strong></td>
                 <td>{{ dt.lopSinhVien || '-' }}</td>
@@ -132,8 +139,12 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class DanhSachPhanBienComponent implements OnInit {
   deTaiList: DeTaiResponse[] = [];
+  filteredList: DeTaiResponse[] = [];
   deTaiChon: DeTaiResponse | null = null;
   isLoading = false;
+
+  dotDangKyList: any[] = [];
+  selectedDotId: number | null = null;
 
   constructor(
     private gvService: GiangVienService,
@@ -141,12 +152,31 @@ export class DanhSachPhanBienComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadData();
+    this.loadDotList();
+  }
+
+  loadDotList(): void {
+    this.gvService.getDotDangKy().subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.dotDangKyList = res.data || [];
+          if (this.dotDangKyList.length > 0) {
+            this.selectedDotId = this.dotDangKyList[0].id;
+          }
+        }
+        this.loadData();
+      },
+      error: () => {
+        this.dotDangKyList = [];
+        this.loadData();
+      }
+    });
   }
 
   loadData(): void {
     this.isLoading = true;
-    this.gvService.getDeTaiPhanBien().subscribe({
+    const dotId = this.selectedDotId ?? undefined;
+    this.gvService.getDeTaiPhanBien(dotId).subscribe({
       next: (res) => {
         if (res.success) {
           this.deTaiList = res.data || [];
@@ -159,6 +189,7 @@ export class DanhSachPhanBienComponent implements OnInit {
             if ((a.lopSinhVien || '') > (b.lopSinhVien || '')) return 1;
             return (a.tenDeTai || '').localeCompare(b.tenDeTai || '');
           });
+          this.applyFilter();
         }
         this.isLoading = false;
       },
@@ -167,6 +198,14 @@ export class DanhSachPhanBienComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  onDotChange(): void {
+    this.loadData();
+  }
+
+  applyFilter(): void {
+    this.filteredList = this.deTaiList;
   }
 
   moModalChiTiet(dt: DeTaiResponse): void {

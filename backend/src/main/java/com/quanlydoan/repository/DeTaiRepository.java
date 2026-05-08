@@ -54,4 +54,10 @@ public interface DeTaiRepository extends JpaRepository<DeTai, Long> {
     
     @Query("SELECT dt FROM DeTai dt JOIN dt.sinhVien sv WHERE sv.boMon.id = :boMonId AND dt.trangThai IN :trangThais")
     List<DeTai> findByBoMonIdAndTrangThaiIn(@Param("boMonId") Long boMonId, @Param("trangThais") List<TrangThaiDeTai> trangThais);
+
+    @Query("SELECT dt FROM DeTai dt JOIN FETCH dt.sinhVien sv LEFT JOIN FETCH sv.boMon WHERE sv.boMon.id = :boMonId AND dt.dotDangKy.id = :dotDangKyId")
+    List<DeTai> findByBoMonIdAndDotDangKyId(@Param("boMonId") Long boMonId, @Param("dotDangKyId") Long dotDangKyId);
+
+    @Query("SELECT dt FROM DeTai dt JOIN FETCH dt.sinhVien sv LEFT JOIN FETCH sv.boMon WHERE sv.boMon.id = :boMonId AND dt.trangThai = :trangThai AND dt.dotDangKy.id = :dotDangKyId")
+    List<DeTai> findByBoMonIdAndTrangThaiAndDotDangKyId(@Param("boMonId") Long boMonId, @Param("trangThai") TrangThaiDeTai trangThai, @Param("dotDangKyId") Long dotDangKyId);
 }

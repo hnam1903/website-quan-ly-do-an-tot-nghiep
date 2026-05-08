@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { BoMonService } from '../../../core/services/bo-mon.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { DeTaiResponse, PhanCongHuongDanResponse } from '../../../core/models/models';
@@ -8,7 +9,7 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-danh-sach-gvhd',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
@@ -18,6 +19,12 @@ import { ToastrService } from 'ngx-toastr';
         <div>
           <h2>Danh sách Giảng viên hướng dẫn</h2>
           <p class="mb-0">Theo dõi phân công GVHD theo từng giảng viên</p>
+        </div>
+        <div class="ms-auto">
+          <select class="form-select" style="width: 200px;" [(ngModel)]="selectedDotId" (change)="loadData()">
+            <option [ngValue]="null">Tất cả đợt</option>
+            <option *ngFor="let dot of dotList" [ngValue]="dot.id">{{ dot.tenDot }}</option>
+          </select>
         </div>
       </div>
     </div>
@@ -101,6 +108,8 @@ export class DanhSachGvhdComponent implements OnInit {
   gvhdGroups: { hoTenGvhd: string; soLuong: number; deTaiList: DeTaiResponse[] }[] = [];
   loading = false;
   expandedGvhd: string | null = null;
+  selectedDotId: number | null = null;
+  dotList: any[] = [];
 
   constructor(
     private boMonService: BoMonService,
@@ -109,13 +118,23 @@ export class DanhSachGvhdComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadDotList();
     this.loadData();
+  }
+
+  loadDotList(): void {
+    this.boMonService.getAllDotDangKy().subscribe((res: any) => {
+      if (res.success) {
+        this.dotList = res.data;
+      }
+    });
   }
 
   loadData(): void {
     this.loading = true;
+    const dotId = this.selectedDotId ?? undefined;
 
-    this.boMonService.getDanhSachGvhd().subscribe({
+    this.boMonService.getDanhSachGvhd(dotId).subscribe({
       next: (res) => {
         this.loading = false;
         if (res.success) {
@@ -171,7 +190,10 @@ export class DanhSachGvhdComponent implements OnInit {
       case 'CHO_PHAN_BIEN': return 'bg-info';
       case 'DAT_PHAN_BIEN': return 'bg-warning text-dark';
       case 'CHO_BO_MON_DUYET': return 'bg-warning text-dark';
-      case 'DA_GUI_BO_MON': return 'bg-warning text-dark';
+      case 'CHO_GV_DUYET': return 'bg-warning text-dark';
+      case 'GV_TU_CHOI': return 'bg-warning text-dark';
+      case 'CHO_GV_PHAN_CONG': return 'bg-warning text-dark';
+      case 'CHO_BO_MON_PHAN_CONG': return 'bg-warning text-dark';
       case 'HOAN_THANH': return 'bg-success';
       case 'KHONG_DAT_BAO_VE': return 'bg-danger';
       default: return 'bg-secondary';

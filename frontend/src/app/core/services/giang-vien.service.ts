@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DiemHuongDanResponse, DiemPhanBienResponse, HoiDongBaoVeResponse, BaoCaoResponse, DotBaoCaoTienDoResponse, BaoCaoTienDoResponse } from '../models/models';
+import { ApiResponse, PhanCongHuongDanResponse, DeTaiResponse, DiemHuongDanResponse, DiemPhanBienResponse, HoiDongBaoVeResponse, BaoCaoResponse, DotBaoCaoTienDoResponse, BaoCaoTienDoResponse, DotDangKyResponse } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +12,12 @@ export class GiangVienService {
   constructor(private http: HttpClient) {}
 
   // GV Hướng dẫn
-  getDeTaiHuongDan(): Observable<ApiResponse<PhanCongHuongDanResponse[]>> {
-    return this.http.get<ApiResponse<PhanCongHuongDanResponse[]>>(`${this.apiUrl}/huong-dan`);
+  getDeTaiHuongDan(dotId?: number): Observable<ApiResponse<PhanCongHuongDanResponse[]>> {
+    let params = new HttpParams();
+    if (dotId) {
+      params = params.set('dotId', dotId.toString());
+    }
+    return this.http.get<ApiResponse<PhanCongHuongDanResponse[]>>(`${this.apiUrl}/huong-dan`, { params });
   }
 
   getDeTaiChoDuyet(): Observable<ApiResponse<PhanCongHuongDanResponse[]>> {
@@ -29,8 +33,12 @@ export class GiangVienService {
   }
 
   // GV Phản biện
-  getDeTaiPhanBien(): Observable<ApiResponse<DeTaiResponse[]>> {
-    return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/phan-bien`);
+  getDeTaiPhanBien(dotId?: number): Observable<ApiResponse<DeTaiResponse[]>> {
+    let params = new HttpParams();
+    if (dotId) {
+      params = params.set('dotId', dotId.toString());
+    }
+    return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/phan-bien`, { params });
   }
 
   chamDiemPhanBien(data: any): Observable<ApiResponse<DiemPhanBienResponse>> {
@@ -38,13 +46,21 @@ export class GiangVienService {
   }
 
   // GV Hội đồng - chỉ xem danh sách
-  getHoiDongBaoVe(): Observable<ApiResponse<HoiDongBaoVeResponse[]>> {
-    return this.http.get<ApiResponse<HoiDongBaoVeResponse[]>>(`${this.apiUrl}/hoi-dong`);
+  getHoiDongBaoVe(dotId?: number): Observable<ApiResponse<HoiDongBaoVeResponse[]>> {
+    let params = new HttpParams();
+    if (dotId) {
+      params = params.set('dotId', dotId.toString());
+    }
+    return this.http.get<ApiResponse<HoiDongBaoVeResponse[]>>(`${this.apiUrl}/hoi-dong`, { params });
   }
 
   // Xem báo cáo sinh viên
-  getBaoCaoSinhVien(): Observable<ApiResponse<BaoCaoResponse[]>> {
-    return this.http.get<ApiResponse<BaoCaoResponse[]>>(`${this.apiUrl}/bao-cao`);
+  getBaoCaoSinhVien(dotId?: number): Observable<ApiResponse<BaoCaoResponse[]>> {
+    let params = new HttpParams();
+    if (dotId) {
+      params = params.set('dotId', dotId.toString());
+    }
+    return this.http.get<ApiResponse<BaoCaoResponse[]>>(`${this.apiUrl}/bao-cao`, { params });
   }
 
   getBaoCaoChiTiet(deTaiId: number): Observable<ApiResponse<BaoCaoResponse>> {
@@ -83,5 +99,10 @@ export class GiangVienService {
 
   getBaoCaoTienDoBySinhVien(sinhVienId: number): Observable<ApiResponse<BaoCaoTienDoResponse[]>> {
     return this.http.get<ApiResponse<BaoCaoTienDoResponse[]>>(`${this.apiUrl}/bao-cao-tien-do/sinh-vien/${sinhVienId}`);
+  }
+
+  // Đợt đăng ký
+  getDotDangKy(): Observable<ApiResponse<DotDangKyResponse[]>> {
+    return this.http.get<ApiResponse<DotDangKyResponse[]>>(`${this.apiUrl}/dot-dang-ky`);
   }
 }

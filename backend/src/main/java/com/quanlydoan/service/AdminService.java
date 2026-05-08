@@ -186,15 +186,11 @@ public class AdminService {
                 .collect(Collectors.toList());
 
         // Lấy ID sinh viên có đề tài chưa hoàn thành quy trình (không được đăng ký đề tài mới)
-        // Chỉ được đăng ký lại khi đề tài ở trạng thái KHONG_DAT_GVHD, KHONG_DAT_PHAN_BIEN, KHONG_DAT_BAO_VE
-        // Tất cả các trạng thái khác đều coi là chưa hoàn thành (không được đăng ký mới)
+        // Chỉ được đăng ký lại khi đề tài ở trạng thái KHONG_DAT_GVHD, KHONG_DAT_PHAN_BIEN, KHONG_DAT_BAO_VE, BI_TU_CHOI
         List<TrangThaiDeTai> trangThaiChuaHoanThanh = Arrays.asList(
-                TrangThaiDeTai.CHO_DUYET,
-                TrangThaiDeTai.DA_GUI_BO_MON,
-                TrangThaiDeTai.BI_TU_CHOI,
                 TrangThaiDeTai.CHO_BO_MON_DUYET,
                 TrangThaiDeTai.CHO_GV_DUYET,
-                TrangThaiDeTai.CHO_GV_DUYET_LAI,
+                TrangThaiDeTai.GV_TU_CHOI,
                 TrangThaiDeTai.DANG_THUC_HIEN,
                 TrangThaiDeTai.DA_NOP_BAO_CAO,
                 TrangThaiDeTai.DAT_GVHD,
@@ -225,8 +221,9 @@ public class AdminService {
                 .build();
     }
 
-    // ==================== Gửi lên Bộ môn ====================
+    // ==================== Đề tài ====================
 
+    // Lấy danh sách đề tài (filter theo đợt, trạng thái, bộ môn)
     public List<DeTaiResponse> getDeTaiDangKy(Long dotDangKyId, TrangThaiDeTai trangThai, Long boMonId) {
         List<DeTai> deTais;
 
@@ -250,41 +247,6 @@ public class AdminService {
         return deTais.stream()
                 .map(this::mapToDeTaiResponse)
                 .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public List<DeTaiResponse> guiNhieuLenBoMon(List<Long> ids) {
-        List<DeTai> deTais = deTaiRepository.findAllById(ids);
-        if (deTais.isEmpty()) {
-            throw new ResourceNotFoundException("Không tìm thấy đề tài nào");
-        }
-
-        List<DeTaiResponse> results = new ArrayList<>();
-        for (DeTai deTai : deTais) {
-            if (deTai.getTrangThai() != TrangThaiDeTai.CHO_DUYET) {
-                throw new BadRequestException("Chỉ có thể gửi đề tài đang chờ duyệt lên Bộ môn");
-            }
-            deTai.setTrangThai(TrangThaiDeTai.DA_GUI_BO_MON);
-            DeTai saved = deTaiRepository.save(deTai);
-            results.add(mapToDeTaiResponse(saved));
-        }
-
-        return results;
-    }
-
-    @Transactional
-    public DeTaiResponse guiLenBoMon(Long id) {
-        DeTai deTai = deTaiRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đề tài"));
-
-        if (deTai.getTrangThai() != TrangThaiDeTai.CHO_DUYET) {
-            throw new BadRequestException("Chỉ có thể gửi đề tài đang chờ duyệt lên Bộ môn");
-        }
-
-        deTai.setTrangThai(TrangThaiDeTai.DA_GUI_BO_MON);
-        deTai = deTaiRepository.save(deTai);
-
-        return mapToDeTaiResponse(deTai);
     }
 
     // ==================== Đề tài không đạt ====================
@@ -561,14 +523,18 @@ public class AdminService {
 
     // ==================== Quản lý điểm ====================
 
-    public List<QuanLyDiemResponse> getQuanLyDiem(Long boMonId) {
+    public List<QuanLyDiemResponse> getQuanLyDiem(Long boMonId, Long dotDangKyId) {
         List<DeTai> deTais;
 
-        if (boMonId != null) {
+        if (boMonId != null || dotDangKyId != null) {
             deTais = deTaiRepository.findAll().stream()
-                    .filter(dt -> dt.getSinhVien() != null &&
-                            dt.getSinhVien().getBoMon() != null &&
-                            dt.getSinhVien().getBoMon().getId().equals(boMonId))
+                    .filter(dt -> dt.getSinhVien() != null)
+                    .filter(dt -> boMonId == null ||
+                            (dt.getSinhVien().getBoMon() != null &&
+                             dt.getSinhVien().getBoMon().getId().equals(boMonId)))
+                    .filter(dt -> dotDangKyId == null ||
+                            (dt.getDotDangKy() != null &&
+                             dt.getDotDangKy().getId().equals(dotDangKyId)))
                     .collect(Collectors.toList());
         } else {
             deTais = deTaiRepository.findAll().stream()
@@ -646,7 +612,7 @@ public class AdminService {
                 .tongSoGiangVien(giangVienRepository.count())
                 .tongSoSinhVien(sinhVienRepository.count())
                 .tongSoDeTai(deTaiRepository.count())
-                .deTaiChoDuyet(deTaiRepository.countByTrangThai(TrangThaiDeTai.CHO_DUYET))
+                .deTaiChoDuyet(deTaiRepository.countByTrangThai(TrangThaiDeTai.CHO_BO_MON_DUYET))
                 .deTaiDangThucHien(deTaiRepository.countByTrangThai(TrangThaiDeTai.DANG_THUC_HIEN) +
                         deTaiRepository.countByTrangThai(TrangThaiDeTai.DA_NOP_BAO_CAO))
                 .deTaiHoanThanh(deTaiRepository.countByTrangThai(TrangThaiDeTai.HOAN_THANH))

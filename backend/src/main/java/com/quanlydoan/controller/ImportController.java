@@ -55,8 +55,8 @@ public class ImportController {
 
                 Map<String, Integer> colIndex = buildColumnIndex(headerRow, formatter);
 
-                if (!colIndex.containsKey("email") || !colIndex.containsKey("hoten") || !colIndex.containsKey("hocvi")) {
-                    return ResponseEntity.badRequest().body(ApiResponse.error("File thiếu cột bắt buộc: email, hoten, hocvi"));
+                if (!colIndex.containsKey("hoten") || !colIndex.containsKey("hocvi")) {
+                    return ResponseEntity.badRequest().body(ApiResponse.error("File thiếu cột bắt buộc: hoten, hocvi"));
                 }
 
                 for (int i = 1; i <= sheet.getLastRowNum(); i++) {
@@ -65,13 +65,15 @@ public class ImportController {
                     if (row == null) continue;
 
                     try {
-                        String email = getCellValue(row, colIndex.get("email"), formatter);
                         String hoTen = getCellValue(row, colIndex.get("hoten"), formatter);
                         String hocVi = getCellValue(row, colIndex.get("hocvi"), formatter);
                         String boMonTen = getCellValue(row, colIndex.get("bomon"), formatter);
 
-                        if (email.isEmpty() || hoTen.isEmpty()) {
-                            errors.add("Dòng " + rowNum + ": Email hoặc Họ tên trống");
+                        // Tự động tạo email từ họ tên
+                        String email = normalizeEmail(hoTen) + "@humg.edu.vn";
+
+                        if (hoTen.isEmpty()) {
+                            errors.add("Dòng " + rowNum + ": Họ tên trống");
                             continue;
                         }
 
@@ -146,9 +148,17 @@ public class ImportController {
                     colIndex.put("masinhvien", colIndex.get("masv"));
                 }
 
-                if (!colIndex.containsKey("masinhvien") || !colIndex.containsKey("hoten") || !colIndex.containsKey("email")) {
-                    return ResponseEntity.badRequest().body(ApiResponse.error("File thiếu cột bắt buộc: masinhvien (hoặc masv), hoten, email"));
+                if (!colIndex.containsKey("masinhvien") || !colIndex.containsKey("hoten") || !colIndex.containsKey("lop")) {
+                    return ResponseEntity.badRequest().body(ApiResponse.error("File thiếu cột bắt buộc: masinhvien (hoặc masv), hoten, lop"));
                 }
+
+                // Map mã bộ môn với tên bộ môn
+                Map<String, String> boMonMap = new HashMap<>();
+                boMonMap.put("07", "Khoa học máy tính");
+                boMonMap.put("05", "Công Nghệ Phần Mềm");
+                boMonMap.put("06", "Mạng Máy Tính");
+                boMonMap.put("04", "Tin Học Kinh Tế");
+                boMonMap.put("08", "Tin Học Trắc Địa");
 
                 for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                     rowNum++;
@@ -168,12 +178,13 @@ public class ImportController {
 
                     String maSV = getCellValue(row, colIndex.get("masinhvien"), formatter);
                     String hoTen = getCellValue(row, colIndex.get("hoten"), formatter);
-                    String email = getCellValue(row, colIndex.get("email"), formatter);
                     String lop = getCellValue(row, colIndex.get("lop"), formatter);
-                    String boMonTen = getCellValue(row, colIndex.get("bomon"), formatter);
 
-                    if (maSV.isEmpty() || hoTen.isEmpty() || email.isEmpty()) {
-                        errors.add("Dòng " + rowNum + ": Mã SV, Họ tên hoặc Email trống");
+                    // Tự động tạo email từ mã sinh viên
+                    String email = maSV.toLowerCase() + "@humg.edu.vn";
+
+                    if (maSV.isEmpty() || hoTen.isEmpty() || lop.isEmpty()) {
+                        errors.add("Dòng " + rowNum + ": Mã SV, Họ tên hoặc Lớp trống");
                         continue;
                     }
 
@@ -202,8 +213,16 @@ public class ImportController {
                             .lop(lop)
                             .build();
 
-                    if (!boMonTen.isEmpty()) {
-                        boMonRepository.findByTenBoMonIgnoreCase(boMonTen).ifPresent(sv::setBoMon);
+                    // Xác định bộ môn từ mã lớp (2 ký tự sau dấu _)
+                    if (lop.contains("_")) {
+                        String[] parts = lop.split("_");
+                        if (parts.length >= 2) {
+                            String maBoMon = parts[1].substring(0, Math.min(2, parts[1].length()));
+                            String tenBoMon = boMonMap.get(maBoMon);
+                            if (tenBoMon != null) {
+                                boMonRepository.findByTenBoMonIgnoreCase(tenBoMon).ifPresent(sv::setBoMon);
+                            }
+                        }
                     }
 
                     createdList.add(sinhVienRepository.save(sv));
@@ -232,6 +251,19 @@ public class ImportController {
         Cell cell = row.getCell(colIndex);
         if (cell == null) return "";
         return formatter.formatCellValue(cell).trim();
+    }
+
+    
+    private String normalizeEmail(String hoTen) {
+        if (hoTen == null || hoTen.isEmpty()) return "";
+        String nfd = Normalizer.normalize(hoTen, Normalizer.Form.NFD);
+        String withoutAccents = nfd.replaceAll("\\p{M}", "");
+        String[] parts = withoutAccents.split("\\s+");
+        StringBuilder email = new StringBuilder();
+        for (String part : parts) {
+            email.append(part.toLowerCase());
+        }
+        return email.toString();
     }
 
     /**

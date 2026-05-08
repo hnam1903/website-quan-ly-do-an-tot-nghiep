@@ -1,0 +1,163 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h2 class="mb-1">
+            <span class="material-symbols-outlined me-2">view_kanban</span>
+            Theo dõi tiến trình đồ án
+          </h2>
+          <p class="text-muted mb-0 small" *ngIf="userInfo">
+            {{ userInfo.hoTen }} | Bộ môn: {{ userInfo.tenBoMon }}
+          </p>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <!-- Filter theo đợt -->
+          <div class="input-group" style="width: 280px;">
+            <span class="input-group-text bg-white">
+              <span class="material-symbols-outlined">filter_list</span>
+            </span>
+            <select class="form-select" [(ngModel)]="selectedDotId" (change)="onDotChange()">
+              <option [ngValue]="null">Tất cả đợt</option>
+              <option *ngFor="let dot of dotDangKyList" [ngValue]="dot.id">
+                {{ dot.tenDot }} {{ dot.namHoc ? '- ' + dot.namHoc : '' }}
+              </option>
+            </select>
+          </div>
+          
+          <button class="btn btn-outline-secondary" (click)="refresh()" [disabled]="loading">
+            <span class="material-symbols-outlined">sync</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Đang tải dữ liệu...</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading">
+    <!-- Kanban View -->
+    <div class="kanban-view">
+      <div class="kanban-container">
+        <ng-container *ngFor="let giaiDoan of giaiDoans">
+          <div class="kanban-column">
+            <div class="card h-100 border-0 shadow-sm">
+              <!-- Kanban Header -->
+              <div class="card-header bg-white border-bottom d-flex align-items-center py-3">
+                <span class="material-symbols-outlined me-2" [style.color]="giaiDoan.color">
+                  {{ giaiDoan.icon }}
+                </span>
+                <div class="flex-grow-1">
+                  <h6 class="mb-0" [style.color]="giaiDoan.color">{{ giaiDoan.ten }}</h6>
+                  <small class="text-muted">{{ giaiDoan.soLuong }} đề tài</small>
+                </div>
+                <div class="d-flex gap-1">
+                  <span class="badge rounded-pill" 
+                        [style.background-color]="'rgba(' + hexToRgb(giaiDoan.color) + ', 0.15)'" 
+                        [style.color]="giaiDoan.color" 
+                        title="Đang xử lý">
+                    {{ giaiDoan.soLuong }}
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Kanban Body -->
+              <div class="card-body p-2" style="max-height: 600px; overflow-y: auto;">
+                <div>
+                  <ng-container *ngFor="let dt of getDeTaiByGiaiDoan(giaiDoan)">
+                    <div class="kanban-card mb-2 p-3 rounded"
+                         [style.border-left]="'3px solid ' + giaiDoan.color">
+                      <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge" [ngClass]="getVaiTroDisplay(dt.vaiTro).class">
+                          {{ getVaiTroDisplay(dt.vaiTro).text }}
+                        </span>
+                        <span class="badge" [ngClass]="getTrangThaiDisplay(dt.trangThai).class">
+                          {{ getTrangThaiDisplay(dt.trangThai).text }}
+                        </span>
+                      </div>
+                      <h6 class="mb-2 text-truncate" [title]="dt.tenDeTai">
+                        {{ dt.tenDeTai }}
+                      </h6>
+                      <div class="small text-muted mb-2">
+                        <span class="material-symbols-outlined" style="font-size: 14px;">person</span>
+                        {{ dt.hoTenSinhVien }}
+                        <span class="text-secondary">({{ dt.maSinhVien }})</span>
+                      </div>
+                      <div class="small text-muted mb-1">
+                        <span class="material-symbols-outlined" style="font-size: 14px;">school</span>
+                        {{ dt.lop }}
+                      </div>
+                      
+                      <!-- Diem info -->
+                      <div class="row g-1 mt-2 small text-center" *ngIf="dt.vaiTro === 'HUONG_DAN' || dt.vaiTro === 'PHAN_BIEN' || dt.vaiTro === 'HOI_DONG'">
+                        <div class="col-4" *ngIf="dt.vaiTro === 'HUONG_DAN'">
+                          <div class="p-1 rounded bg-light">
+                            <div class="text-muted small">HD</div>
+                            <span *ngIf="dt.diemHuongDan !== undefined" 
+                                  class="badge bg-primary">{{ dt.diemHuongDan }}</span>
+                            <span *ngIf="dt.diemHuongDan === undefined && dt.canChamDiemHD" class="badge bg-warning text-dark">Chấm</span>
+                            <span *ngIf="dt.diemHuongDan === undefined && !dt.canChamDiemHD" class="text-muted">-</span>
+                          </div>
+                        </div>
+                        <div class="col-4" *ngIf="dt.vaiTro === 'PHAN_BIEN'">
+                          <div class="p-1 rounded bg-light">
+                            <div class="text-muted small">PB</div>
+                            <span *ngIf="dt.diemPhanBien !== undefined" 
+                                  class="badge bg-info">{{ dt.diemPhanBien }}</span>
+                            <span *ngIf="dt.diemPhanBien === undefined && dt.canChamDiemPB" class="badge bg-warning text-dark">Chấm</span>
+                            <span *ngIf="dt.diemPhanBien === undefined && !dt.canChamDiemPB" class="text-muted">-</span>
+                          </div>
+                        </div>
+                        <div class="col-4" *ngIf="dt.vaiTro === 'HOI_DONG'">
+                          <div class="p-1 rounded bg-light">
+                            <div class="text-muted small">BV</div>
+                            <span *ngIf="dt.diemBaoVe !== undefined" 
+                                  class="badge"
+                                  [class.bg-success]="dt.diemBaoVe && dt.diemBaoVe >= 5"
+                                  [class.bg-danger]="dt.diemBaoVe && dt.diemBaoVe < 5">
+                              {{ dt.diemBaoVe }}
+                            </span>
+                            <span *ngIf="dt.diemBaoVe === undefined" class="text-muted">-</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Action buttons -->
+                      <div class="mt-2 pt-2 border-top">
+                        <a *ngIf="giaiDoan.ten === 'Chờ chấm hướng dẫn'" 
+                           routerLink="/giang-vien/huong-dan/cham-diem" 
+                           class="btn btn-sm btn-outline-primary w-100">
+                          Chấm điểm HD
+                        </a>
+                        <a *ngIf="giaiDoan.ten === 'Chờ chấm phản biện'" 
+                           routerLink="/giang-vien/phan-bien/cham-diem" 
+                           class="btn btn-sm btn-outline-primary w-100">
+                          Chấm điểm PB
+                        </a>
+                      </div>
+                    </div>
+                  </ng-container>
+                  
+                  <!-- Empty state -->
+                  <div *ngIf="getDeTaiByGiaiDoan(giaiDoan).length === 0" 
+                       class="text-center text-muted py-4">
+                    <span class="material-symbols-outlined d-block mb-2" style="font-size: 2rem;">inbox</span>
+                    <small>Không có đề tài</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

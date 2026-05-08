@@ -32,4 +32,8 @@ public class PhanCongHuongDanResponse {
     private Boolean daChamDiem;
     private BigDecimal diemCham;
     private String nhanXetCham;
+    // Thông tin đợt đăng ký
+    private Long dotDangKyId;
+    private String tenDotDangKy;
+    private String namHoc;
 }

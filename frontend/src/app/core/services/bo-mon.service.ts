@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiResponse, DeTaiResponse, GiangVienResponse, SinhVienResponse, PhanCongHuongDanResponse, PhanCongPhanBienResponse, HoiDongBaoVeResponse, BoMonResponse, BaoCaoResponse, DotBaoCaoTienDoResponse, ThongKePhanCongResponse, QuanLyDiemResponse } from '../models/models';
+import { ApiResponse, DeTaiResponse, GiangVienResponse, SinhVienResponse, PhanCongHuongDanResponse, PhanCongPhanBienResponse, HoiDongBaoVeResponse, BoMonResponse, BaoCaoResponse, DotBaoCaoTienDoResponse, ThongKePhanCongResponse, QuanLyDiemResponse, DotDangKyResponse } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -11,10 +11,13 @@ export class BoMonService {
 
   constructor(private http: HttpClient) {}
 
-  getDeTai(trangThai?: string, boMonId?: number): Observable<ApiResponse<DeTaiResponse[]>> {
+  getDeTai(trangThai?: string, dotId?: number, boMonId?: number): Observable<ApiResponse<DeTaiResponse[]>> {
     let params = new HttpParams();
     if (trangThai) {
       params = params.set('trangThai', trangThai);
+    }
+    if (dotId) {
+      params = params.set('dotId', dotId.toString());
     }
     if (boMonId) {
       params = params.set('boMonId', boMonId.toString());
@@ -36,6 +39,11 @@ export class BoMonService {
     return this.http.put<ApiResponse<DeTaiResponse>>(`${this.apiUrl}/de-tai/${id}/tu-choi`, { ghiChu });
   }
 
+  // Lấy đề tài đang chờ bộ môn duyệt (sinh viên vừa đăng ký)
+  getDeTaiChoBoMonDuyet(): Observable<ApiResponse<DeTaiResponse[]>> {
+    return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/de-tai/cho-bo-mon-duyet`);
+  }
+
   getDeTaiKhongDat(loai: string, boMonId?: number): Observable<ApiResponse<DeTaiResponse[]>> {
     let params = new HttpParams().set('loai', loai);
     if (boMonId) {
@@ -44,8 +52,12 @@ export class BoMonService {
     return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/de-tai/khong-dat`, { params });
   }
 
-  getDeTaiHoanThanh(): Observable<ApiResponse<DeTaiResponse[]>> {
-    return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/de-tai/hoan-thanh`);
+  getDeTaiHoanThanh(dotId?: number): Observable<ApiResponse<DeTaiResponse[]>> {
+    let params = new HttpParams();
+    if (dotId) {
+      params = params.set('dotId', dotId.toString());
+    }
+    return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/de-tai/hoan-thanh`, { params });
   }
 
   getGiangVien(boMonId?: number): Observable<ApiResponse<GiangVienResponse[]>> {
@@ -75,8 +87,20 @@ export class BoMonService {
     return this.http.get<ApiResponse<PhanCongHuongDanResponse[]>>(`${this.apiUrl}/de-tai/cho-gv-duyet`);
   }
 
-  getDanhSachGvhd(): Observable<ApiResponse<PhanCongHuongDanResponse[]>> {
-    return this.http.get<ApiResponse<PhanCongHuongDanResponse[]>>(`${this.apiUrl}/danh-sach-gvhd`);
+  getDanhSachGvhd(dotId?: number): Observable<ApiResponse<PhanCongHuongDanResponse[]>> {
+    let params = new HttpParams();
+    if (dotId) {
+      params = params.set('dotId', dotId.toString());
+    }
+    return this.http.get<ApiResponse<PhanCongHuongDanResponse[]>>(`${this.apiUrl}/danh-sach-gvhd`, { params });
+  }
+
+  getDanhSachGvpb(dotId?: number): Observable<ApiResponse<PhanCongPhanBienResponse[]>> {
+    let params = new HttpParams();
+    if (dotId) {
+      params = params.set('dotId', dotId.toString());
+    }
+    return this.http.get<ApiResponse<PhanCongPhanBienResponse[]>>(`${this.apiUrl}/danh-sach-gvpb`, { params });
   }
 
   phanCongPhanBien(deTaiId: number, giangVienId: number): Observable<ApiResponse<PhanCongPhanBienResponse>> {
@@ -90,8 +114,12 @@ export class BoMonService {
     return this.http.post<ApiResponse<HoiDongBaoVeResponse>>(`${this.apiUrl}/hoi-dong`, data);
   }
 
-  getHoiDongBaoVe(): Observable<ApiResponse<HoiDongBaoVeResponse[]>> {
-    return this.http.get<ApiResponse<HoiDongBaoVeResponse[]>>(`${this.apiUrl}/hoi-dong`);
+  getHoiDongBaoVe(dotId?: number): Observable<ApiResponse<HoiDongBaoVeResponse[]>> {
+    let params = new HttpParams();
+    if (dotId) {
+      params = params.set('dotId', dotId.toString());
+    }
+    return this.http.get<ApiResponse<HoiDongBaoVeResponse[]>>(`${this.apiUrl}/hoi-dong`, { params });
   }
 
   getBoMonList(): Observable<ApiResponse<BoMonResponse[]>> {
@@ -135,6 +163,10 @@ export class BoMonService {
     return this.http.get<ApiResponse<any>>(`${this.apiUrl}/thong-ke`);
   }
 
+  getAllDotDangKy(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/dot-dang-ky`);
+  }
+
   getDotBaoCaoTienDo(): Observable<ApiResponse<DotBaoCaoTienDoResponse[]>> {
     return this.http.get<ApiResponse<DotBaoCaoTienDoResponse[]>>(`${this.apiUrl}/bao-cao-tien-do`);
   }
@@ -147,7 +179,11 @@ export class BoMonService {
     return this.http.get<ApiResponse<ThongKePhanCongResponse>>(`${this.apiUrl}/thong-ke-phan-cong`);
   }
 
-  getQuanLyDiem(): Observable<ApiResponse<QuanLyDiemResponse[]>> {
-    return this.http.get<ApiResponse<QuanLyDiemResponse[]>>(`${this.apiUrl}/quan-ly-diem`);
+  getQuanLyDiem(dotId?: number): Observable<ApiResponse<QuanLyDiemResponse[]>> {
+    let params = new HttpParams();
+    if (dotId) {
+      params = params.set('dotId', dotId.toString());
+    }
+    return this.http.get<ApiResponse<QuanLyDiemResponse[]>>(`${this.apiUrl}/quan-ly-diem`, { params });
   }
 }

@@ -20,11 +20,18 @@ import { ToastrService } from 'ngx-toastr';
           <p class="mb-0">Nhập điểm và nhận xét cho sinh viên được hướng dẫn</p>
         </div>
       </div>
+      <div class="d-flex align-items-center gap-3">
+        <select class="form-select" [(ngModel)]="selectedDotId" (change)="onDotChange()" style="width: 220px;">
+          <option [ngValue]="null">Tất cả các đợt</option>
+          <option *ngFor="let dot of dotDangKyList" [ngValue]="dot.id">{{ dot.tenDot }}</option>
+        </select>
+        <span class="badge bg-warning text-dark">{{ filteredList.length }} sinh viên</span>
+      </div>
     </div>
 
     <div class="card">
       <div class="card-body p-0">
-        <table class="table table-hover mb-0" *ngIf="huongDanList.length > 0">
+        <table class="table table-hover mb-0" *ngIf="filteredList.length > 0">
           <thead>
             <tr>
               <th class="text-center" style="width: 60px">STT</th>
@@ -37,7 +44,7 @@ import { ToastrService } from 'ngx-toastr';
             </tr>
           </thead>
           <tbody>
-            <ng-container *ngFor="let pc of huongDanList; let i = index">
+            <ng-container *ngFor="let pc of filteredList; let i = index">
               <tr class="align-middle">
                 <td class="text-center"><span class="stt-badge">{{ i + 1 }}</span></td>
                 <td><strong>{{ pc.hoTenSinhVien || '-' }}</strong></td>
@@ -95,7 +102,7 @@ import { ToastrService } from 'ngx-toastr';
           </tbody>
         </table>
 
-        <div *ngIf="huongDanList.length === 0" class="text-center py-5">
+        <div *ngIf="filteredList.length === 0" class="text-center py-5">
           <div class="empty-state">
             <span class="material-symbols-outlined text-success fs-2 d-block mb-3">task_alt</span>
             <p class="mb-1 fw-semibold">Không có sinh viên cần chấm điểm</p>
@@ -108,9 +115,13 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class ChamDiemHuongDanComponent implements OnInit {
   huongDanList: PhanCongHuongDanResponse[] = [];
+  filteredList: PhanCongHuongDanResponse[] = [];
   diemMap: any = {};
   nhanXetMap: any = {};
   activeFormId: number | null = null;
+
+  dotDangKyList: any[] = [];
+  selectedDotId: number | null = null;
 
   constructor(
     private gvService: GiangVienService,
@@ -118,18 +129,46 @@ export class ChamDiemHuongDanComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadData();
+    this.loadDotList();
+  }
+
+  loadDotList(): void {
+    this.gvService.getDotDangKy().subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.dotDangKyList = res.data || [];
+          if (this.dotDangKyList.length > 0) {
+            this.selectedDotId = this.dotDangKyList[0].id;
+          }
+        }
+        this.loadData();
+      },
+      error: () => {
+        this.dotDangKyList = [];
+        this.loadData();
+      }
+    });
   }
 
   loadData(): void {
-    this.gvService.getDeTaiHuongDan().subscribe({
+    const dotId = this.selectedDotId ?? undefined;
+    this.gvService.getDeTaiHuongDan(dotId).subscribe({
       next: (res) => {
         if (res.success) {
           this.huongDanList = res.data;
+          this.applyFilter();
         }
       },
       error: (err) => console.error('Lỗi load:', err)
     });
+  }
+
+  onDotChange(): void {
+    this.loadData();
+  }
+
+  applyFilter(): void {
+    this.filteredList = this.huongDanList;
   }
 
   showForm(pc: PhanCongHuongDanResponse): void {

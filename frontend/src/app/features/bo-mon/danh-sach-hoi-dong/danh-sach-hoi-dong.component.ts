@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { BoMonService } from '../../../core/services/bo-mon.service';
 import { HoiDongBaoVeResponse } from '../../../core/models/models';
 import { ToastrService } from 'ngx-toastr';
@@ -7,7 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-danh-sach-hoi-dong',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="page-header">
       <div class="d-flex align-items-center gap-3">
@@ -17,6 +18,12 @@ import { ToastrService } from 'ngx-toastr';
         <div>
           <h2>Danh sách hội đồng bảo vệ</h2>
           <p class="mb-0">Xem thông tin hội đồng đã thành lập</p>
+        </div>
+        <div class="ms-auto">
+          <select class="form-select" style="width: 200px;" [(ngModel)]="selectedDotId" (change)="loadData()">
+            <option [ngValue]="null">Tất cả đợt</option>
+            <option *ngFor="let dot of dotList" [ngValue]="dot.id">{{ dot.tenDot }}</option>
+          </select>
         </div>
       </div>
     </div>
@@ -98,6 +105,8 @@ export class DanhSachHoiDongComponent implements OnInit {
   hoiDongList: any[] = [];
   loading = false;
   expandedHd: number | null = null;
+  selectedDotId: number | null = null;
+  dotList: any[] = [];
 
   constructor(
     private boMonService: BoMonService,
@@ -105,12 +114,23 @@ export class DanhSachHoiDongComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loadDotList();
     this.loadData();
+  }
+
+  loadDotList(): void {
+    this.boMonService.getAllDotDangKy().subscribe((res: any) => {
+      if (res.success) {
+        this.dotList = res.data;
+      }
+    });
   }
 
   loadData(): void {
     this.loading = true;
-    this.boMonService.getHoiDongBaoVe().subscribe({
+    const dotId = this.selectedDotId ?? undefined;
+    
+    this.boMonService.getHoiDongBaoVe(dotId).subscribe({
       next: (res) => {
         this.loading = false;
         if (res.success) {

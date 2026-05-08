@@ -60,7 +60,98 @@
       </div>
     </div>
 
-    <!-- Row 2: 3 Điểm cùng hàng -->
+    <!-- Row 2: Timeline tiến trình -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-muted mb-3">
+              <span class="material-symbols-outlined me-2">timeline</span>Tiến trình đồ án
+            </h5>
+            
+            <div *ngIf="deTai; else chuaDangKyTimeline">
+              <!-- Desktop Timeline (Horizontal) -->
+              <div class="timeline-horizontal d-none d-md-block">
+                <div class="timeline-track">
+                  <div class="timeline-line"></div>
+                  <div class="timeline-steps">
+                    <div *ngFor="let step of timelineSteps; let i = index" 
+                         class="timeline-step-wrapper"
+                         [class.completed]="step.status === 'completed'"
+                         [class.active]="step.status === 'active'"
+                         [class.pending]="step.status === 'pending'">
+                      
+                      <!-- Dot -->
+                      <div class="timeline-dot" 
+                           [class.completed]="step.status === 'completed'"
+                           [class.active]="step.status === 'active'"
+                           [class.pending]="step.status === 'pending'">
+                        <span *ngIf="step.status === 'completed'" class="material-symbols-outlined">check</span>
+                        <span *ngIf="step.status === 'active'" class="material-symbols-outlined">change_history</span>
+                      </div>
+                      
+                      <!-- Content -->
+                      <div class="timeline-step-content">
+                        <div class="step-icon">
+                          <span class="material-symbols-outlined">{{ step.icon }}</span>
+                        </div>
+                        <div class="step-label" [class.completed]="step.status === 'completed'"
+                                                [class.active]="step.status === 'active'"
+                                                [class.pending]="step.status === 'pending'">
+                          {{ step.label }}
+                        </div>
+                        <div *ngIf="step.sublabel" class="step-sublabel">
+                          {{ step.sublabel }}
+                        </div>
+                        <div *ngIf="step.diem" class="step-diem">
+                          <span class="badge bg-success">{{ step.diem }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mobile Timeline (Vertical) -->
+              <div class="timeline-vertical d-md-none">
+                <div *ngFor="let step of timelineSteps; let i = index; let last = last"
+                     class="timeline-item"
+                     [class.completed]="step.status === 'completed'"
+                     [class.active]="step.status === 'active'"
+                     [class.pending]="step.status === 'pending'">
+                  
+                  <div class="timeline-item-line" *ngIf="!last"></div>
+                  <div class="timeline-item-dot"
+                       [class.completed]="step.status === 'completed'"
+                       [class.active]="step.status === 'active'"
+                       [class.pending]="step.status === 'pending'">
+                    <span *ngIf="step.status === 'completed'" class="material-symbols-outlined">check</span>
+                    <span *ngIf="step.status === 'active'" class="material-symbols-outlined">change_history</span>
+                  </div>
+                  <div class="timeline-item-content">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="material-symbols-outlined">{{ step.icon }}</span>
+                      <span class="step-label">{{ step.label }}</span>
+                      <span *ngIf="step.diem" class="badge bg-success ms-auto">{{ step.diem }}</span>
+                    </div>
+                    <div *ngIf="step.sublabel" class="step-sublabel ms-4">{{ step.sublabel }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ng-template #chuaDangKyTimeline>
+              <div class="text-center py-4">
+                <span class="material-symbols-outlined text-warning" style="font-size: 2rem;">info</span>
+                <p class="mt-2 mb-0 text-muted">Bạn chưa đăng ký đề tài</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 4: 3 Điểm cùng hàng -->
     <div class="row mb-4">
       <!-- Điểm Hướng dẫn -->
       <div class="col-lg-4 mb-4">
@@ -125,7 +216,7 @@
       </div>
     </div>
 
-    <!-- Row 3: Lịch bảo vệ -->
+    <!-- Row 5: Lịch bảo vệ -->
     <div class="row mb-4">
       <div class="col-12">
         <div class="card shadow-sm">
