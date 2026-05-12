@@ -62,7 +62,7 @@ export class TheoDoiTienTrinhComponent implements OnInit {
       color: '#6c757d',
       bgColor: 'rgba(108, 117, 125, 0.1)',
       borderColor: '#6c757d',
-      trangThaiList: ['CHO_BO_MON_DUYET', 'CHO_GV_PHAN_CONG', 'CHO_GV_DUYET', 'GV_TU_CHOI', 'CHO_BO_MON_PHAN_CONG'],
+      trangThaiList: ['CHO_BO_MON_DUYET', 'CHO_GV_PHAN_CONG', 'CHO_GV_DUYET', 'GV_TU_CHOI', 'CHO_BO_MON_PHAN_CONG', 'BI_TU_CHOI'],
       soLuong: 0,
       daHoanThanh: 0,
       dangXuLy: 0,
@@ -105,12 +105,24 @@ export class TheoDoiTienTrinhComponent implements OnInit {
       choXuLy: 0
     },
     {
-      ten: 'Kết thúc',
+      ten: 'Hoàn thành',
       icon: 'task_alt',
       color: '#198754',
       bgColor: 'rgba(25, 135, 84, 0.1)',
       borderColor: '#198754',
-      trangThaiList: ['HOAN_THANH', 'BI_TU_CHOI', 'KHONG_DAT_GVHD', 'KHONG_DAT_PHAN_BIEN', 'KHONG_DAT_BAO_VE'],
+      trangThaiList: ['HOAN_THANH'],
+      soLuong: 0,
+      daHoanThanh: 0,
+      dangXuLy: 0,
+      choXuLy: 0
+    },
+    {
+      ten: 'Không đạt',
+      icon: 'cancel',
+      color: '#dc3545',
+      bgColor: 'rgba(220, 53, 69, 0.1)',
+      borderColor: '#dc3545',
+      trangThaiList: ['KHONG_DAT_GVHD', 'KHONG_DAT_PHAN_BIEN', 'KHONG_DAT_BAO_VE'],
       soLuong: 0,
       daHoanThanh: 0,
       dangXuLy: 0,
@@ -213,9 +225,12 @@ export class TheoDoiTienTrinhComponent implements OnInit {
       this.totalChoXuLy += gd.choXuLy;
     });
 
-    // Tính tỷ lệ hoàn thành
+    // Tính tỷ lệ hoàn thành: Hoàn thành / Tổng đề tài
+    const hoanThanhGiaiDoan = this.giaiDoans.find(gd => gd.ten === 'Hoàn thành');
     if (this.totalDeTai > 0) {
-      this.tiLeHoanThanh = Math.round((this.totalDaHoanThanh / this.totalDeTai) * 100);
+      this.tiLeHoanThanh = Math.round(((hoanThanhGiaiDoan?.soLuong || 0) / this.totalDeTai) * 100);
+    } else {
+      this.tiLeHoanThanh = 0;
     }
   }
 
@@ -237,16 +252,19 @@ export class TheoDoiTienTrinhComponent implements OnInit {
           dt.trangThai === 'DAT_PHAN_BIEN'
         ).length;
       case 'Chờ bảo vệ':
-        // Hoàn thành = đã bảo vệ
+        // Hoàn thành = đã đạt phản biện, sẵn sàng bảo vệ
         return deTais.filter(dt => 
-          dt.trangThai === 'HOAN_THANH' ||
-          dt.trangThai === 'KHONG_DAT_BAO_VE'
+          dt.trangThai === 'DAT_PHAN_BIEN' ||
+          dt.trangThai === 'DANG_BAO_VE'
         ).length;
-      case 'Kết thúc':
-        // Hoàn thành = đạt
+      case 'Hoàn thành':
+        // Hoàn thành = đã hoàn thành
         return deTais.filter(dt => 
           dt.trangThai === 'HOAN_THANH'
         ).length;
+      case 'Không đạt':
+        // Không đạt không tính hoàn thành
+        return 0;
       default:
         return 0;
     }
@@ -256,28 +274,26 @@ export class TheoDoiTienTrinhComponent implements OnInit {
     switch (tenGiaiDoan) {
       case 'Chờ duyệt & GVHD':
         // Chờ xử lý = bị từ chối
-        return deTais.filter(dt => 
+        return deTais.filter(dt =>
           dt.trangThai === 'GV_TU_CHOI' ||
           dt.trangThai === 'BI_TU_CHOI'
         ).length;
       case 'Đang thực hiện':
         // Chờ xử lý = không đạt HD
-        return deTais.filter(dt => 
+        return deTais.filter(dt =>
           dt.trangThai === 'KHONG_DAT_GVHD'
         ).length;
       case 'Chờ phản biện':
         // Chờ xử lý = không đạt phản biện
-        return deTais.filter(dt => 
+        return deTais.filter(dt =>
           dt.trangThai === 'KHONG_DAT_PHAN_BIEN'
         ).length;
       case 'Chờ bảo vệ':
         // Không có gì cần xử lý
         return 0;
-      case 'Kết thúc':
-        // Chờ xử lý = không đạt
-        return deTais.filter(dt => 
-          dt.trangThai === 'KHONG_DAT_BAO_VE'
-        ).length;
+      case 'Không đạt':
+        // Tất cả đều là "chờ xử lý" (hiển thị all)
+        return deTais.length;
       default:
         return 0;
     }

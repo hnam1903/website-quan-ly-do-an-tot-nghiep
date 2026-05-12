@@ -17,4 +17,5 @@ public class BoMonResponse {
     private String tenKhoa;
     private Integer soLuongGiangVien;
     private Integer soLuongSinhVien;
+    private Integer soLuongDeTai;
 }

@@ -47,9 +47,7 @@ export class DashboardComponent implements OnInit {
   public boMonChartData: ChartData<'bar'> = {
     labels: [],
     datasets: [
-      { data: [], label: 'Đề tài', backgroundColor: 'rgba(54, 162, 235, 0.8)' },
-      { data: [], label: 'Sinh viên', backgroundColor: 'rgba(75, 192, 192, 0.8)' },
-      { data: [], label: 'Giảng viên', backgroundColor: 'rgba(153, 102, 255, 0.8)' }
+      { data: [], label: 'Đề tài', backgroundColor: 'rgba(54, 162, 235, 0.8)' }
     ]
   };
 
@@ -57,8 +55,8 @@ export class DashboardComponent implements OnInit {
     responsive: true,
     maintainAspectRatio: true,
     plugins: {
-      legend: { position: 'bottom', labels: { padding: 15, usePointStyle: true } },
-      title: { display: true, text: 'Thống kê theo Bộ môn', font: { size: 14, weight: 'bold' } }
+      legend: { display: false },
+      title: { display: true, text: 'Số lượng đề tài theo bộ môn', font: { size: 14, weight: 'bold' } }
     },
     scales: {
       y: { beginAtZero: true, title: { display: true, text: 'Số lượng' } }
@@ -125,7 +123,5 @@ export class DashboardComponent implements OnInit {
 
     this.boMonChartData.labels = this.boMons.map(bm => bm.tenBoMon);
     this.boMonChartData.datasets[0].data = this.boMons.map(bm => bm.soLuongDeTai || 0);
-    this.boMonChartData.datasets[1].data = this.boMons.map(bm => bm.soLuongSinhVien || 0);
-    this.boMonChartData.datasets[2].data = this.boMons.map(bm => bm.soLuongGiangVien || 0);
   }
 }

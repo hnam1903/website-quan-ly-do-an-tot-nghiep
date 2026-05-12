@@ -45,10 +45,11 @@ interface SinhVienBaoCao {
             <thead class="table-light">
               <tr>
                 <th width="5%" class="text-center">STT</th>
-                <th width="30%">Tên đợt</th>
-                <th width="20%">Ngày bắt đầu</th>
-                <th width="20%">Hạn nộp</th>
-                <th width="15%">Trạng thái</th>
+                <th width="25%">Tên đợt</th>
+                <th width="18%">Đợt ĐK đề tài</th>
+                <th width="15%">Ngày bắt đầu</th>
+                <th width="15%">Hạn nộp</th>
+                <th width="12%">Trạng thái</th>
                 <th width="10%" class="text-center">Thao tác</th>
               </tr>
             </thead>
@@ -56,6 +57,13 @@ interface SinhVienBaoCao {
               <tr *ngFor="let dot of dots; let i = index">
                 <td class="text-center">{{ i + 1 }}</td>
                 <td><strong>{{ dot.tenDot }}</strong></td>
+                <td>
+                  <span *ngIf="dot.tenDotDangKy" class="badge bg-info">
+                    {{ dot.tenDotDangKy }}
+                    <span *ngIf="dot.namHoc"> ({{ dot.namHoc }})</span>
+                  </span>
+                  <span *ngIf="!dot.tenDotDangKy" class="text-muted">-</span>
+                </td>
                 <td>{{ dot.ngayBatDau | date:'dd/MM/yyyy HH:mm' }}</td>
                 <td [class.text-danger]="isQuaHan(dot)">
                   <i class="fas fa-clock me-1"></i>{{ dot.ngayKetThuc | date:'dd/MM/yyyy HH:mm' }}
@@ -67,11 +75,11 @@ interface SinhVienBaoCao {
                 </td>
                 <td class="text-center">
                   <div class="btn-group btn-group-sm">
-                    <button class="btn" 
+                    <button class="btn"
                             [class.btn-success]="!isDong(dot)"
                             [class.btn-warning]="isDong(dot)"
                             (click)="dongMoDot(dot)">
-                      <i class="fas" [class.fa-lock-open]="!isDong(dot)" 
+                      <i class="fas" [class.fa-lock-open]="!isDong(dot)"
                          [class.fa-lock]="isDong(dot)"></i>
                       {{ isDong(dot) ? 'Mở' : 'Đóng' }}
                     </button>
@@ -220,6 +228,16 @@ interface SinhVienBaoCao {
             <div class="mb-3">
               <label class="form-label">Tên đợt báo cáo *</label>
               <input type="text" class="form-control" [(ngModel)]="dotMoi.tenDot" placeholder="Nhập tên đợt báo cáo">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Đợt đăng ký đề tài (tùy chọn)</label>
+              <select class="form-select" [(ngModel)]="dotMoi.dotDangKyId">
+                <option [ngValue]="null">-- Không gắn đợt đăng ký --</option>
+                <option *ngFor="let dot of dotDangKyList" [ngValue]="dot.id">
+                  {{ dot.tenDot }} ({{ dot.namHoc }})
+                </option>
+              </select>
+              <small class="text-muted">Chọn đợt đăng ký để sinh viên biết đợt báo cáo thuộc đợt nào</small>
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
@@ -447,6 +465,7 @@ export class BaoCaoTienDoComponent implements OnInit {
 
   hienThiTaoDot(): void {
     this.dotMoi = {};
+    this.loadDotDangKy();
     const modal = new (window as any).bootstrap.Modal(document.getElementById('modalTaoDot'));
     modal.show();
   }

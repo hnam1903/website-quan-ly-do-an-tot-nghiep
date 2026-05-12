@@ -264,6 +264,12 @@ export interface DotBaoCaoTienDoResponse {
   trangThai: string;
   createdAt: string;
   soLuongSinhVienNop?: number;
+
+  // Thông tin đợt đăng ký liên kết (nullable)
+  dotDangKyId?: number;
+  tenDotDangKy?: string;
+  namHoc?: string;
+  hocKy?: number;
 }
 
 export interface BaoCaoTienDoResponse {

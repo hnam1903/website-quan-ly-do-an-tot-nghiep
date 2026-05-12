@@ -25,12 +25,17 @@ import { AuthService } from '../../../core/services/auth.service';
         <div class="col-lg-6 mb-3" *ngFor="let dot of dotDangMos">
           <div class="card h-100 shadow-sm border-warning">
             <div class="card-body">
-              <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="d-flex justify-content-between align-items-start mb-2">
                 <div>
                   <h5 class="card-title mb-1 text-warning">{{ dot.tenDot }}</h5>
                   <p class="text-muted mb-0 small">
                     <span class="material-symbols-outlined me-1" style="font-size: 16px;">person</span>
                     GVHD: {{ dot.hoTenGiangVien }}
+                  </p>
+                  <p *ngIf="dot.tenDotDangKy" class="text-info mb-0 small mt-1">
+                    <span class="material-symbols-outlined me-1" style="font-size: 16px;">event_note</span>
+                    Đợt ĐK: {{ dot.tenDotDangKy }}
+                    <span *ngIf="dot.namHoc"> ({{ dot.namHoc }})</span>
                   </p>
                 </div>
                 <span class="badge bg-warning text-dark">

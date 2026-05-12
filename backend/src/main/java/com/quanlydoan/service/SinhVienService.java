@@ -565,14 +565,19 @@ public class SinhVienService {
             return new ArrayList<>();
         }
 
+        // Lấy đợt đăng ký của đề tài để filter đợt báo cáo
+        Long dotDangKyId = deTai.getDotDangKy() != null ? deTai.getDotDangKy().getId() : null;
+
         Long gvhdId = deTai.getPhanCongHuongDan().getGiangVien().getId();
 
         // Lấy các đợt báo cáo của đúng GVHD đang mở
         List<DotBaoCaoTienDo> dots = dotBaoCaoTienDoRepository.findAllByGiangVien(gvhdId);
 
-        // Filter chỉ lấy đợt đang mở
+        // Filter chỉ lấy đợt đang mở VÀ thuộc cùng đợt đăng ký với đề tài của SV
         List<DotBaoCaoTienDo> dotsDangMo = dots.stream()
                 .filter(d -> d.getTrangThai() == TrangThaiDotBaoCao.MO)
+                .filter(d -> dotDangKyId == null || 
+                           (d.getDotDangKy() != null && d.getDotDangKy().getId().equals(dotDangKyId)))
                 .collect(Collectors.toList());
 
         return dotsDangMo.stream().map(this::mapToDotBaoCaoTienDoResponse).collect(Collectors.toList());
@@ -669,6 +674,10 @@ public class SinhVienService {
                 .trangThai(dot.getTrangThai())
                 .createdAt(dot.getCreatedAt())
                 .soLuongSinhVienNop(soLuongNop)
+                .dotDangKyId(dot.getDotDangKy() != null ? dot.getDotDangKy().getId() : null)
+                .tenDotDangKy(dot.getDotDangKy() != null ? dot.getDotDangKy().getTenDot() : null)
+                .namHoc(dot.getDotDangKy() != null ? dot.getDotDangKy().getNamHoc() : null)
+                .hocKy(dot.getDotDangKy() != null ? dot.getDotDangKy().getHocKy() : null)
                 .build();
     }
 

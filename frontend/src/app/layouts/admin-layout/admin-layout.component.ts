@@ -144,6 +144,23 @@ import { Router } from '@angular/router';
       overflow-x: hidden;
       display: flex;
       flex-direction: column;
+      
+      /* Custom Scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.3) transparent;
+    }
+    .sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .sidebar::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 4px;
+    }
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.5);
     }
     .main-wrapper {
       margin-left: var(--sidebar-width);

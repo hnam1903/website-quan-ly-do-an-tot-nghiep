@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { BoMonService } from '../../../core/services/bo-mon.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { ApiResponse, UserResponse, DeTaiResponse, SinhVienResponse, GiangVienResponse, ThongKePhanCongResponse } from '../../../core/models/models';
+import { ApiResponse, UserResponse, DeTaiResponse, SinhVienResponse, GiangVienResponse } from '../../../core/models/models';
 import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration, ChartData } from 'chart.js';
 
@@ -45,15 +45,13 @@ export class LanhDaoBoMonDashboardComponent implements OnInit {
   tongSinhVien: number = 0;
   
   // Đề tài theo trạng thái
+  deTaiChoDuyet: number = 0;
   deTaiDangThucHien: number = 0;
   deTaiHoanThanh: number = 0;
   deTaiKhongDat: number = 0;
   
   // Hội đồng
   soHoiDong: number = 0;
-  
-  // Thống kê phân công
-  thongKePhanCong: ThongKePhanCongResponse | null = null;
   
   // Thống kê điểm
   thongKeDiem: ThongKeDiem | null = null;
@@ -161,7 +159,17 @@ export class LanhDaoBoMonDashboardComponent implements OnInit {
         const deTais = res.data || [];
         this.tongDeTai = deTais.length;
         
-        this.deTaiDangThucHien = deTais.filter(dt => 
+        // Chờ duyệt: trước khi bắt đầu thực hiện (bao gồm cả bị từ chối)
+        this.deTaiChoDuyet = deTais.filter(dt =>
+          dt.trangThai === 'CHO_BO_MON_DUYET' ||
+          dt.trangThai === 'CHO_GV_DUYET' ||
+          dt.trangThai === 'CHO_GV_PHAN_CONG' ||
+          dt.trangThai === 'CHO_BO_MON_PHAN_CONG' ||
+          dt.trangThai === 'BI_TU_CHOI'
+        ).length;
+        
+        // Đang thực hiện
+        this.deTaiDangThucHien = deTais.filter(dt =>
           dt.trangThai === 'DANG_THUC_HIEN' ||
           dt.trangThai === 'DA_NOP_BAO_CAO' ||
           dt.trangThai === 'DAT_GVHD' ||
@@ -172,8 +180,8 @@ export class LanhDaoBoMonDashboardComponent implements OnInit {
         
         this.deTaiHoanThanh = deTais.filter(dt => dt.trangThai === 'HOAN_THANH').length;
         
-        this.deTaiKhongDat = deTais.filter(dt => 
-          dt.trangThai === 'BI_TU_CHOI' ||
+        // Không đạt
+        this.deTaiKhongDat = deTais.filter(dt =>
           dt.trangThai === 'KHONG_DAT_GVHD' ||
           dt.trangThai === 'KHONG_DAT_PHAN_BIEN' ||
           dt.trangThai === 'KHONG_DAT_BAO_VE'
@@ -181,6 +189,7 @@ export class LanhDaoBoMonDashboardComponent implements OnInit {
       },
       error: () => {
         this.tongDeTai = 0;
+        this.deTaiChoDuyet = 0;
         this.deTaiDangThucHien = 0;
         this.deTaiHoanThanh = 0;
         this.deTaiKhongDat = 0;
@@ -222,20 +231,10 @@ export class LanhDaoBoMonDashboardComponent implements OnInit {
       next: (res: ApiResponse<any>) => {
         this.thongKeDiem = res.data;
         this.updateCharts();
-      },
-      error: () => {
-        this.thongKeDiem = null;
-      }
-    });
-
-    // Load thống kê phân công
-    this.boMonService.getThongKePhanCong().subscribe({
-      next: (res: ApiResponse<ThongKePhanCongResponse>) => {
-        this.thongKePhanCong = res.data;
         this.loading = false;
       },
       error: () => {
-        this.thongKePhanCong = null;
+        this.thongKeDiem = null;
         this.loading = false;
       }
     });

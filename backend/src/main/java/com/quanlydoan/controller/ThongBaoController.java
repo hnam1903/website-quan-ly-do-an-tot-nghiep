@@ -17,13 +17,12 @@ public class ThongBaoController {
 
     private final ThongBaoService thongBaoService;
 
-    // ==================== PUBLIC (Landing Page) ====================
+
     @GetMapping("/api/public/thong-bao")
     public ResponseEntity<ApiResponse<List<ThongBaoResponse>>> getThongBaoPublic() {
         return ResponseEntity.ok(ApiResponse.success(thongBaoService.getAllHienThi()));
     }
 
-    // ==================== ADMIN CRUD ====================
     @GetMapping("/api/admin/thong-bao")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<ThongBaoResponse>>> getAll() {

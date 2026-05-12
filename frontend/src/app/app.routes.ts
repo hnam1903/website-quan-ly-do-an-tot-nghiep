@@ -43,6 +43,7 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', loadComponent: () => import('./features/bo-mon/dashboard/bo-mon-gv-dashboard.component').then(m => m.BoMonGvDashboardComponent) },
       { path: 'ld-dashboard', loadComponent: () => import('./features/bo-mon/dashboard/lanh-dao-bo-mon-dashboard.component').then(m => m.LanhDaoBoMonDashboardComponent) },
+      { path: 'gv-theo-doi-tien-trinh', loadComponent: () => import('./features/giang-vien/theo-doi-tien-trinh/gv-theo-doi-tien-trinh.component').then(m => m.GvTheoDoiTienTrinhComponent) },
       { path: 'theo-doi-tien-trinh', loadComponent: () => import('./features/bo-mon/theo-doi-tien-trinh/theo-doi-tien-trinh.component').then(m => m.TheoDoiTienTrinhComponent) },
       { path: 'duyet-de-tai', loadComponent: () => import('./features/bo-mon/duyet-de-tai/duyet-de-tai.component').then(m => m.DuyetDeTaiComponent) },
       { path: 'de-tai', loadComponent: () => import('./features/bo-mon/de-tai/de-tai.component').then(m => m.DeTaiBoMonComponent) },

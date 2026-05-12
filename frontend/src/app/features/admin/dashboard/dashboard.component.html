@@ -64,15 +64,15 @@
         </a>
       </div>
 
-      <div class="summary-card cho-duyet-card">
+      <div class="summary-card bo-mon-card">
         <div class="card-icon">
-          <span class="material-symbols-outlined">hourglass_empty</span>
+          <span class="material-symbols-outlined">account_tree</span>
         </div>
         <div class="card-content">
-          <span class="card-label">Chờ duyệt</span>
-          <span class="card-value">{{ dashboard.deTaiChoDuyet }}</span>
+          <span class="card-label">Bộ môn</span>
+          <span class="card-value">{{ boMons.length }}</span>
         </div>
-        <a routerLink="/admin/de-tai" class="card-action">
+        <a routerLink="/admin/bo-mon" class="card-action">
           <span class="material-symbols-outlined">arrow_forward</span>
         </a>
       </div>
@@ -96,49 +96,18 @@
         </div>
       </div>
 
-      <!-- Status Overview -->
+      <!-- Bar Chart: Đề tài theo bộ môn -->
       <div class="chart-card">
         <div class="chart-card-header">
-          <h4><span class="material-symbols-outlined me-2">view_kanban</span>Tình trạng đề tài</h4>
+          <h4><span class="material-symbols-outlined me-2">bar_chart</span>Số lượng đề tài theo bộ môn</h4>
         </div>
         <div class="chart-card-body">
-          <div class="status-grid">
-            <div class="status-item cho-duyet">
-              <div class="status-icon">
-                <span class="material-symbols-outlined">hourglass_empty</span>
-              </div>
-              <div class="status-info">
-                <span class="status-count">{{ dashboard.deTaiChoDuyet }}</span>
-                <span class="status-label">Chờ duyệt</span>
-              </div>
-            </div>
-            <div class="status-item dang-thuc-hien">
-              <div class="status-icon">
-                <span class="material-symbols-outlined">play_circle</span>
-              </div>
-              <div class="status-info">
-                <span class="status-count">{{ dashboard.deTaiDangThucHien }}</span>
-                <span class="status-label">Đang thực hiện</span>
-              </div>
-            </div>
-            <div class="status-item hoan-thanh">
-              <div class="status-icon">
-                <span class="material-symbols-outlined">check_circle</span>
-              </div>
-              <div class="status-info">
-                <span class="status-count">{{ dashboard.deTaiHoanThanh }}</span>
-                <span class="status-label">Hoàn thành</span>
-              </div>
-            </div>
-            <div class="status-item khong-dat">
-              <div class="status-icon">
-                <span class="material-symbols-outlined">cancel</span>
-              </div>
-              <div class="status-info">
-                <span class="status-count">{{ dashboard.deTaiKhongDat }}</span>
-                <span class="status-label">Không đạt</span>
-              </div>
-            </div>
+          <div class="chart-wrapper">
+            <canvas baseChart
+              [data]="boMonChartData"
+              [options]="boMonChartOptions"
+              type="bar">
+            </canvas>
           </div>
         </div>
       </div>

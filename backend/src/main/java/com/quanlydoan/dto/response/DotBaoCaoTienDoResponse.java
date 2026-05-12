@@ -19,4 +19,10 @@ public class DotBaoCaoTienDoResponse {
     private LocalDateTime createdAt;
     private Integer soLuongSinhVienNop;
     private Integer soLuongSinhVienChuaNop;
+
+    // Thông tin đợt đăng ký liên kết (nullable)
+    private Long dotDangKyId;
+    private String tenDotDangKy;
+    private String namHoc;
+    private Integer hocKy;
 }

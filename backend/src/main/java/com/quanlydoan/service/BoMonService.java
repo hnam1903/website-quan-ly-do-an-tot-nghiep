@@ -695,6 +695,8 @@ public class BoMonService {
     }
 
     private BoMonResponse mapToBoMonResponse(BoMon boMon) {
+        long soLuongDeTai = deTaiRepository.countByBoMonId(boMon.getId());
+        
         return BoMonResponse.builder()
                 .id(boMon.getId())
                 .tenBoMon(boMon.getTenBoMon())
@@ -703,6 +705,7 @@ public class BoMonService {
                 .tenKhoa(boMon.getKhoa() != null ? boMon.getKhoa().getTenKhoa() : null)
                 .soLuongGiangVien(boMon.getGiangViens() != null ? boMon.getGiangViens().size() : 0)
                 .soLuongSinhVien(boMon.getSinhViens() != null ? boMon.getSinhViens().size() : 0)
+                .soLuongDeTai((int) soLuongDeTai)
                 .build();
     }
 
@@ -932,41 +935,60 @@ public class BoMonService {
     public ThongKePhanCongResponse getThongKePhanCong(Long boMonId) {
         List<DeTai> deTais = deTaiRepository.findAllByBoMonId(boMonId);
 
-        int tongSinhVien = 0;
+        // Các trạng thái cần phân công HD (sau khi đề tài được duyệt bởi bộ môn)
+        List<TrangThaiDeTai> canPhanCongHDStatuses = Arrays.asList(
+                TrangThaiDeTai.CHO_GV_DUYET,
+                TrangThaiDeTai.CHO_GV_PHAN_CONG,
+                TrangThaiDeTai.CHO_BO_MON_PHAN_CONG,
+                TrangThaiDeTai.GV_TU_CHOI
+        );
+
+        // Các trạng thái cần phân công PB (sau khi đã có GVHD được duyệt)
+        List<TrangThaiDeTai> canPhanCongPBStatuses = Arrays.asList(
+                TrangThaiDeTai.CHO_GV_PHAN_CONG,
+                TrangThaiDeTai.CHO_BO_MON_PHAN_CONG,
+                TrangThaiDeTai.CHO_PHAN_BIEN
+        );
+
         int svDaPhanCongHuongDan = 0;
         int svDaPhanCongPhanBien = 0;
         int svChoLapHoiDong = 0;
+        int svCanPhanCongHD = 0;
+        int svCanPhanCongPB = 0;
 
         for (DeTai dt : deTais) {
-            // Chỉ đếm sinh viên có đề tài đã được duyệt (không phải CHO_BO_MON_DUYET, BI_TU_CHOI)
-            if (dt.getTrangThai() != TrangThaiDeTai.CHO_BO_MON_DUYET
-                && dt.getTrangThai() != TrangThaiDeTai.BI_TU_CHOI
-                && dt.getSinhVien() != null) {
-                tongSinhVien++;
+            if (dt.getSinhVien() == null) continue;
+            TrangThaiDeTai trangThai = dt.getTrangThai();
 
-                // Đã phân công HD khi có PhanCongHuongDan
+            // === Đếm đề tài CẦN phân công HD ===
+            if (canPhanCongHDStatuses.contains(trangThai)) {
                 if (dt.getPhanCongHuongDan() != null && dt.getPhanCongHuongDan().getGiangVien() != null) {
                     svDaPhanCongHuongDan++;
+                } else {
+                    svCanPhanCongHD++;
                 }
+            }
 
-                // Đã phân công PB khi có PhanCongPhanBien
+            // === Đếm đề tài CẦN phân công PB ===
+            if (canPhanCongPBStatuses.contains(trangThai)) {
                 if (dt.getPhanCongPhanBien() != null && dt.getPhanCongPhanBien().getGiangVien() != null) {
                     svDaPhanCongPhanBien++;
+                } else {
+                    svCanPhanCongPB++;
                 }
+            }
 
-                // Chờ lập hội đồng: đã đạt phản biện (DAT_PHAN_BIEN) nhưng chưa có hội đồng
-                if (dt.getTrangThai() == TrangThaiDeTai.DAT_PHAN_BIEN && dt.getHoiDongBaoVe() == null) {
-                    svChoLapHoiDong++;
-                }
+            // === Chờ lập hội đồng: đã đạt phản biện nhưng chưa có hội đồng ===
+            if (trangThai == TrangThaiDeTai.DAT_PHAN_BIEN && dt.getHoiDongBaoVe() == null) {
+                svChoLapHoiDong++;
             }
         }
 
         return ThongKePhanCongResponse.builder()
-                .tongSinhVien(tongSinhVien)
                 .svDaPhanCongHuongDan(svDaPhanCongHuongDan)
-                .svChuaPhanCongHuongDan(tongSinhVien - svDaPhanCongHuongDan)
+                .svChuaPhanCongHuongDan(svCanPhanCongHD)
                 .svDaPhanCongPhanBien(svDaPhanCongPhanBien)
-                .svChuaPhanCongPhanBien(tongSinhVien - svDaPhanCongPhanBien)
+                .svChuaPhanCongPhanBien(svCanPhanCongPB)
                 .svChoLapHoiDong(svChoLapHoiDong)
                 .build();
     }

@@ -608,15 +608,62 @@ public class AdminService {
     // ==================== Dashboard ====================
 
     public DashboardResponse getDashboard() {
+        // Đếm đề tài có sinh viên
+        long tongSoDeTai = deTaiRepository.findAll().stream()
+                .filter(dt -> dt.getSinhVien() != null)
+                .count();
+        
+        // Đếm đề tài chờ duyệt (trước khi bắt đầu thực hiện)
+        List<TrangThaiDeTai> choDuyetStatuses = Arrays.asList(
+                TrangThaiDeTai.CHO_BO_MON_DUYET,
+                TrangThaiDeTai.CHO_GV_DUYET,
+                TrangThaiDeTai.CHO_GV_PHAN_CONG,
+                TrangThaiDeTai.CHO_BO_MON_PHAN_CONG
+        );
+        long deTaiChoDuyet = deTaiRepository.findAll().stream()
+                .filter(dt -> dt.getSinhVien() != null)
+                .filter(dt -> choDuyetStatuses.contains(dt.getTrangThai()))
+                .count();
+        
+        // Đếm đề tài đang thực hiện
+        List<TrangThaiDeTai> dangThucHienStatuses = Arrays.asList(
+                TrangThaiDeTai.DANG_THUC_HIEN,
+                TrangThaiDeTai.DA_NOP_BAO_CAO,
+                TrangThaiDeTai.DAT_GVHD,
+                TrangThaiDeTai.CHO_PHAN_BIEN,
+                TrangThaiDeTai.DAT_PHAN_BIEN,
+                TrangThaiDeTai.DANG_BAO_VE
+        );
+        long deTaiDangThucHien = deTaiRepository.findAll().stream()
+                .filter(dt -> dt.getSinhVien() != null)
+                .filter(dt -> dangThucHienStatuses.contains(dt.getTrangThai()))
+                .count();
+        
+        // Đếm đề tài hoàn thành
+        long deTaiHoanThanh = deTaiRepository.findAll().stream()
+                .filter(dt -> dt.getSinhVien() != null)
+                .filter(dt -> dt.getTrangThai() == TrangThaiDeTai.HOAN_THANH)
+                .count();
+        
+        // Đếm đề tài không đạt
+        List<TrangThaiDeTai> khongDatStatuses = Arrays.asList(
+                TrangThaiDeTai.KHONG_DAT_GVHD,
+                TrangThaiDeTai.KHONG_DAT_PHAN_BIEN,
+                TrangThaiDeTai.KHONG_DAT_BAO_VE
+        );
+        long deTaiKhongDat = deTaiRepository.findAll().stream()
+                .filter(dt -> dt.getSinhVien() != null)
+                .filter(dt -> khongDatStatuses.contains(dt.getTrangThai()))
+                .count();
+        
         return DashboardResponse.builder()
                 .tongSoGiangVien(giangVienRepository.count())
                 .tongSoSinhVien(sinhVienRepository.count())
-                .tongSoDeTai(deTaiRepository.count())
-                .deTaiChoDuyet(deTaiRepository.countByTrangThai(TrangThaiDeTai.CHO_BO_MON_DUYET))
-                .deTaiDangThucHien(deTaiRepository.countByTrangThai(TrangThaiDeTai.DANG_THUC_HIEN) +
-                        deTaiRepository.countByTrangThai(TrangThaiDeTai.DA_NOP_BAO_CAO))
-                .deTaiHoanThanh(deTaiRepository.countByTrangThai(TrangThaiDeTai.HOAN_THANH))
-                .deTaiKhongDat(deTaiRepository.countByTrangThai(TrangThaiDeTai.KHONG_DAT_BAO_VE))
+                .tongSoDeTai(tongSoDeTai)
+                .deTaiChoDuyet(deTaiChoDuyet)
+                .deTaiDangThucHien(deTaiDangThucHien)
+                .deTaiHoanThanh(deTaiHoanThanh)
+                .deTaiKhongDat(deTaiKhongDat)
                 .build();
     }
 
@@ -794,6 +841,8 @@ public class AdminService {
     }
 
     private BoMonResponse mapToBoMonResponse(BoMon boMon) {
+        long soLuongDeTai = deTaiRepository.countByBoMonId(boMon.getId());
+        
         return BoMonResponse.builder()
                 .id(boMon.getId())
                 .tenBoMon(boMon.getTenBoMon())
@@ -802,6 +851,7 @@ public class AdminService {
                 .tenKhoa(boMon.getKhoa() != null ? boMon.getKhoa().getTenKhoa() : null)
                 .soLuongGiangVien(boMon.getGiangViens() != null ? boMon.getGiangViens().size() : 0)
                 .soLuongSinhVien(boMon.getSinhViens() != null ? boMon.getSinhViens().size() : 0)
+                .soLuongDeTai((int) soLuongDeTai)
                 .build();
     }
 

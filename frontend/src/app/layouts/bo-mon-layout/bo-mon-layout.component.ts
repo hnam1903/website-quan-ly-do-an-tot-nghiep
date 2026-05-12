@@ -164,6 +164,11 @@ import { filter } from 'rxjs/operators';
           </ul>
         </li>
         <li class="nav-item">
+          <a class="nav-link" routerLink="/bo-mon/gv-theo-doi-tien-trinh" routerLinkActive="active" [class.active]="theoDoiTienTrinhGvActive" (click)="closeSidebar()">
+            <span class="material-symbols-outlined">timeline</span>Theo dõi tiến trình
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" [class.active]="phanBienActive" (click)="toggleNav('phanBienOpen')">
             <span class="material-symbols-outlined">rule</span>Phản biện
             <span class="material-symbols-outlined ms-auto chevron" [class.chevron-open]="phanBienOpen">chevron_right</span>
@@ -396,6 +401,7 @@ export class BoMonLayoutComponent implements OnInit {
   currentUser: any;
   ldDashboardActive = false;
   theoDoiTienTrinhActive = false;
+  theoDoiTienTrinhGvActive = false;
   dashboardActive = false;
   huongDanOpen = false;
   huongDanActive = false;
@@ -433,8 +439,9 @@ export class BoMonLayoutComponent implements OnInit {
     const url = this.router.url;
     this.ldDashboardActive = url === '/bo-mon/ld-dashboard';
     this.theoDoiTienTrinhActive = url.includes('/theo-doi-tien-trinh');
+    this.theoDoiTienTrinhGvActive = url.includes('/gv-theo-doi-tien-trinh');
     this.dashboardActive = url === '/bo-mon' || url === '/bo-mon/' || url === '/bo-mon/dashboard';
-    if (this.dashboardActive || this.ldDashboardActive || this.theoDoiTienTrinhActive) return;
+    if (this.dashboardActive || this.ldDashboardActive || this.theoDoiTienTrinhActive || this.theoDoiTienTrinhGvActive) return;
     this.quanLyDeTaiActive = url.includes('/duyet-de-tai') || url.includes('/de-tai');
     if (this.quanLyDeTaiActive) this.quanLyDeTaiOpen = true;
     this.huongDanActive = url.includes('/gv-huong-dan/');

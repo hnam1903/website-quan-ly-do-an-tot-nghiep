@@ -16,4 +16,6 @@ public class DotBaoCaoTienDoRequest {
 
     @NotNull(message = "Ngày kết thúc không được trống")
     private LocalDateTime ngayKetThuc;
+
+    private Long dotDangKyId;
 }

@@ -448,12 +448,20 @@ public class GiangVienService {
             throw new BadRequestException("Ngày kết thúc phải sau ngày bắt đầu");
         }
 
+        // Tìm đợt đăng ký nếu có
+        DotDangKy dotDangKy = null;
+        if (request.getDotDangKyId() != null) {
+            dotDangKy = dotDangKyRepository.findById(request.getDotDangKyId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đợt đăng ký"));
+        }
+
         DotBaoCaoTienDo dot = DotBaoCaoTienDo.builder()
                 .giangVien(giangVien)
                 .tenDot(request.getTenDot())
                 .ngayBatDau(request.getNgayBatDau())
                 .ngayKetThuc(request.getNgayKetThuc())
                 .trangThai(TrangThaiDotBaoCao.MO)
+                .dotDangKy(dotDangKy)
                 .build();
 
         dot = dotBaoCaoTienDoRepository.save(dot);
@@ -514,7 +522,7 @@ public class GiangVienService {
         return mapToBaoCaoTienDoResponse(baoCao);
     }
 
-    // Xóa đợt báo cáo tiến độ
+    // Xóa đợt báo cáo tiến độ (cascade xóa báo cáo của sinh viên)
     @Transactional
     public void xoaDotBaoCaoTienDo(Long dotId, Long giangVienId) {
         DotBaoCaoTienDo dot = dotBaoCaoTienDoRepository.findById(dotId)
@@ -522,6 +530,12 @@ public class GiangVienService {
 
         if (!dot.getGiangVien().getId().equals(giangVienId)) {
             throw new BadRequestException("Bạn không có quyền xóa đợt báo cáo này");
+        }
+
+        // Xóa cascade: xóa tất cả báo cáo tiến độ của sinh viên trước
+        List<BaoCaoTienDo> baoCaos = baoCaoTienDoRepository.findAllByDotBaoCaoTienDoId(dotId);
+        if (!baoCaos.isEmpty()) {
+            baoCaoTienDoRepository.deleteAll(baoCaos);
         }
 
         dotBaoCaoTienDoRepository.delete(dot);
@@ -583,6 +597,10 @@ public class GiangVienService {
                 .trangThai(dot.getTrangThai())
                 .createdAt(dot.getCreatedAt())
                 .soLuongSinhVienNop(soLuongNop)
+                .dotDangKyId(dot.getDotDangKy() != null ? dot.getDotDangKy().getId() : null)
+                .tenDotDangKy(dot.getDotDangKy() != null ? dot.getDotDangKy().getTenDot() : null)
+                .namHoc(dot.getDotDangKy() != null ? dot.getDotDangKy().getNamHoc() : null)
+                .hocKy(dot.getDotDangKy() != null ? dot.getDotDangKy().getHocKy() : null)
                 .build();
     }
 

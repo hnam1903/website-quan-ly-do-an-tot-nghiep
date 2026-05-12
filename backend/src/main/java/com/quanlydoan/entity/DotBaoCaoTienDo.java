@@ -36,6 +36,10 @@ public class DotBaoCaoTienDo {
     @Builder.Default
     private TrangThaiDotBaoCao trangThai = TrangThaiDotBaoCao.MO;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dot_dang_ky_id")
+    private DotDangKy dotDangKy;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

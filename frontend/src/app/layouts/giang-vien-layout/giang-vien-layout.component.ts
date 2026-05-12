@@ -153,7 +153,7 @@ import { filter } from 'rxjs/operators';
     :host { display: flex; min-height: 100vh; }
     .sidebar {
       width: var(--sidebar-width);
-      min-height: 100vh;
+      height: 100vh;
       position: fixed;
       left: 0;
       top: 0;
@@ -162,6 +162,23 @@ import { filter } from 'rxjs/operators';
       overflow-x: hidden;
       display: flex;
       flex-direction: column;
+      
+      /* Custom Scrollbar */
+      scrollbar-width: thin;
+      scrollbar-color: #94a3b8 transparent;
+    }
+    .sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .sidebar::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 3px;
+    }
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
     }
     .main-wrapper {
       margin-left: var(--sidebar-width);
