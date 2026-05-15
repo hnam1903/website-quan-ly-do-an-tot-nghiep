@@ -135,7 +135,7 @@ import { Router } from '@angular/router';
     }
     .sidebar {
       width: var(--sidebar-width);
-      min-height: 100vh;
+      height: 100vh;
       position: fixed;
       left: 0;
       top: 0;

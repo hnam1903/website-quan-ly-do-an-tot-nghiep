@@ -63,7 +63,6 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success(adminService.getDanhSachSinhVienByDotDangKy(id)));
     }
 
-    // Đề tài (admin chỉ xem, không duyệt)
     @GetMapping("/de-tai")
     public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiDangKy(
             @RequestParam(required = false) Long dotDangKyId,
@@ -72,7 +71,7 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success(adminService.getDeTaiDangKy(dotDangKyId, trangThai, boMonId)));
     }
 
-    // ==================== Đề tài không đạt ====================
+    //  Đề tài không đạt
     @GetMapping("/de-tai/khong-dat")
     public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiKhongDat(
             @RequestParam(required = false) Long dotDangKyId) {
@@ -85,7 +84,7 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success("Xóa đề tài thành công", null));
     }
 
-    // ==================== Bộ môn ====================
+    //  Bộ môn
     @GetMapping("/bo-mon")
     public ResponseEntity<ApiResponse<List<BoMonResponse>>> getAllBoMon() {
         return ResponseEntity.ok(ApiResponse.success(adminService.getAllBoMon()));
@@ -189,7 +188,7 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success(adminService.getQuanLyDiem(boMonId, dotDangKyId)));
     }
 
-    // ==================== Quản lý Tài Khoản ====================
+    //  Quản lý Tài Khoản
 
     @GetMapping("/tai-khoan")
     public ResponseEntity<ApiResponse<List<TaiKhoanResponse>>> getAllTaiKhoan() {

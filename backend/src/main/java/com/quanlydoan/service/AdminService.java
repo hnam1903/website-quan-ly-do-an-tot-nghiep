@@ -48,7 +48,7 @@ public class AdminService {
 
     private final AuthService authService;
 
-    // ==================== Đợt đăng ký ====================
+    //  Đợt đăng ký
     
     @Transactional
     public DotDangKyResponse createDotDangKy(DotDangKyRequest request) {
@@ -221,9 +221,9 @@ public class AdminService {
                 .build();
     }
 
-    // ==================== Đề tài ====================
+    //  Đề tài
 
-    // Lấy danh sách đề tài (filter theo đợt, trạng thái, bộ môn)
+    // Lấy danh sách đề tài
     public List<DeTaiResponse> getDeTaiDangKy(Long dotDangKyId, TrangThaiDeTai trangThai, Long boMonId) {
         List<DeTai> deTais;
 
@@ -249,7 +249,7 @@ public class AdminService {
                 .collect(Collectors.toList());
     }
 
-    // ==================== Đề tài không đạt ====================
+    //  Đề tài không đạt
 
     public List<DeTaiResponse> getDeTaiKhongDat(Long dotDangKyId) {
         List<TrangThaiDeTai> trangThaiKhongDat = Arrays.asList(
@@ -825,7 +825,7 @@ public class AdminService {
         return TaiKhoanResponse.fromEntity(taiKhoan);
     }
 
-    // ==================== Mapping Methods ====================
+    // = Mapping Methods
 
     private DotDangKyResponse mapToDotDangKyResponse(DotDangKy dotDangKy) {
         return DotDangKyResponse.builder()

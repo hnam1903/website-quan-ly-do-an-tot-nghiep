@@ -197,7 +197,7 @@ export class TheoDoiTienTrinhComponent implements OnInit {
       giangVienPhanBien: dt.hoTenGiangVienPhanBien || 'Chưa phân công',
       diemHuongDan: dt.diemHuongDan,
       diemPhanBien: dt.diemPhanBien,
-      diemBaoVe: dt.diemBaoVe,
+      diemBaoVe: dt.diemTongBaoVe,
       hoanThanhHD: dt.daChamDiemHD || false,
       hoanThanhPB: dt.daChamDiemPB || false,
       hoanThanhBV: dt.diemBaoVe !== undefined && dt.diemBaoVe !== null

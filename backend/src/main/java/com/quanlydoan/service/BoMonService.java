@@ -35,6 +35,8 @@ public class BoMonService {
     private final BaoCaoRepository baoCaoRepository;
     private final DiemBaoVeRepository diemBaoVeRepository;
     private final DotDangKyRepository dotDangKyRepository;
+    private final DiemHuongDanRepository diemHuongDanRepository;
+    private final DiemPhanBienRepository diemPhanBienRepository;
     private final AuthService authService;
     private final DiemBaoVeService diemBaoVeService;
 
@@ -498,17 +500,14 @@ public class BoMonService {
         if (dt.getDiemHuongDan() != null) builder.diemHuongDan(dt.getDiemHuongDan().getDiem());
         if (dt.getDiemPhanBien() != null) builder.diemPhanBien(dt.getDiemPhanBien().getDiem());
 
-        // Điểm hội đồng và điểm bảo vệ
         if (dt.getHoiDongBaoVe() != null) {
             HoiDongBaoVe hd = dt.getHoiDongBaoVe();
             if (hd.getThanhViens() != null && !hd.getThanhViens().isEmpty()) {
-                // Ghép tên tất cả thành viên
                 String allTen = hd.getThanhViens().stream()
                         .map(tv -> tv.getGiangVien().getHoTen())
                         .collect(Collectors.joining(", "));
                 builder.hoTenGiangVienHoiDong(allTen);
 
-                // Danh sách chi tiết từng thành viên + điểm
                 List<DeTaiResponse.ThanhVienInfo> tvList = hd.getThanhViens().stream()
                         .map(tv -> {
                             BigDecimal diem = diemBaoVeRepository
@@ -527,12 +526,10 @@ public class BoMonService {
                         .collect(Collectors.toList());
                 builder.thanhVienHoiDongList(tvList);
             }
-            // Tính điểm bảo vệ = tổng điểm 3 thành viên hội đồng (không chia)
+
             BigDecimal sumDiemHoiDong = diemBaoVeRepository.calculateSumDiemByHoiDongId(hd.getId());
             if (sumDiemHoiDong != null && sumDiemHoiDong.compareTo(BigDecimal.ZERO) > 0) {
-                // diemBaoVe = tổng điểm hội đồng (chưa tính PB)
                 builder.diemBaoVe(sumDiemHoiDong.setScale(1, RoundingMode.HALF_UP));
-                // diemTongBaoVe = lấy từ DB (đã tính cả PB)
                 builder.diemTongBaoVe(dt.getDiemTongBaoVe());
             }
         }
