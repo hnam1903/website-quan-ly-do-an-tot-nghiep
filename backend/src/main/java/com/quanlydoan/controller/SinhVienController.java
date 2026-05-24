@@ -116,9 +116,7 @@ public class SinhVienController {
         return ResponseEntity.ok(ApiResponse.success(lichBaoVe));
     }
 
-    // ==================== BÁO CÁO TIẾN ĐỘ ====================
 
-    // Lấy đợt báo cáo tiến độ mà SV có thể nộp
     @GetMapping("/bao-cao-tien-do/dot")
     public ResponseEntity<ApiResponse<List<DotBaoCaoTienDoResponse>>> getDotBaoCaoTienDo() {
         UserResponse currentUser = authService.getCurrentUser();
@@ -127,7 +125,6 @@ public class SinhVienController {
         return ResponseEntity.ok(ApiResponse.success(sinhVienService.getDotBaoCaoTienDoDangMo(sv.getId())));
     }
 
-    // Lấy báo cáo tiến độ của SV
     @GetMapping("/bao-cao-tien-do")
     public ResponseEntity<ApiResponse<List<BaoCaoTienDoResponse>>> getBaoCaoTienDoCuaToi() {
         UserResponse currentUser = authService.getCurrentUser();

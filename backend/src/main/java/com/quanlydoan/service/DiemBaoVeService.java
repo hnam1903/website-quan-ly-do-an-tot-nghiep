@@ -37,17 +37,6 @@ public class DiemBaoVeService {
                 .collect(Collectors.toList());
     }
 
-    public DiemBaoVeResponse getDiemBaoVeById(Long id) {
-        DiemBaoVe diemBaoVe = diemBaoVeRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy điểm bảo vệ"));
-        return mapToResponse(diemBaoVe);
-    }
-
-    public DiemBaoVeResponse getDiemBaoVeByHoiDongAndGiangVien(Long hoiDongId, Long giangVienId) {
-        DiemBaoVe diemBaoVe = diemBaoVeRepository.findByHoiDongIdAndGiangVienId(hoiDongId, giangVienId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy điểm bảo vệ của giảng viên này"));
-        return mapToResponse(diemBaoVe);
-    }
 
     @Transactional
     public List<DiemBaoVeResponse> importDiemBaoVe(DiemBaoVeRequest request) {
@@ -80,27 +69,6 @@ public class DiemBaoVeService {
         return results;
     }
 
-    @Transactional
-    public DiemBaoVeResponse chamDiem(Long hoiDongId, Long giangVienId, BigDecimal diem, String nhanXet) {
-        HoiDongBaoVe hoiDong = hoiDongBaoVeRepository.findById(hoiDongId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hội đồng"));
-
-        GiangVien giangVien = giangVienRepository.findById(giangVienId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên"));
-
-        DiemBaoVe diemBaoVe = diemBaoVeRepository.findByHoiDongIdAndGiangVienId(hoiDongId, giangVienId)
-                .orElse(DiemBaoVe.builder()
-                        .hoiDong(hoiDong)
-                        .giangVien(giangVien)
-                        .build());
-
-        diemBaoVe.setDiem(diem.setScale(1, RoundingMode.HALF_UP));
-        diemBaoVe.setTrangThai(diem != null ? TrangThaiDiem.DU_DIEU_KIEN : TrangThaiDiem.CHUA_CHAM);
-
-        DiemBaoVe saved = diemBaoVeRepository.save(diemBaoVe);
-
-        return mapToResponse(saved);
-    }
 
     @Transactional
     public void updateDiemByGiangVien(Long hoiDongId, Long giangVienId, BigDecimal diem) {
@@ -124,17 +92,6 @@ public class DiemBaoVeService {
         diemBaoVeRepository.save(diemBaoVe);
     }
 
-    public long countChuaChamByHoiDong(Long hoiDongId) {
-        return diemBaoVeRepository.countChuaChamByHoiDongId(hoiDongId);
-    }
-
-    public BigDecimal getAverageDiemByHoiDong(Long hoiDongId) {
-        BigDecimal avg = diemBaoVeRepository.calculateAverageDiemByHoiDongId(hoiDongId);
-        if (avg != null) {
-            avg = avg.setScale(2, java.math.RoundingMode.HALF_UP);
-        }
-        return avg;
-    }
 
     private DiemBaoVeResponse mapToResponse(DiemBaoVe diemBaoVe) {
         return DiemBaoVeResponse.builder()

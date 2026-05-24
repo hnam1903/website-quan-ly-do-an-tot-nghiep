@@ -39,7 +39,6 @@ public class GiangVienService {
     private final BaoCaoTienDoRepository baoCaoTienDoRepository;
     private final DotDangKyRepository dotDangKyRepository;
 
-    // GV Hướng dẫn - Chỉ hiển thị sinh viên đã được duyệt hướng dẫn
     public List<PhanCongHuongDanResponse> getDeTaiHuongDan(Long giangVienId, Long dotId) {
         List<PhanCongHuongDanResponse> responses = new ArrayList<>();
 
@@ -50,7 +49,6 @@ public class GiangVienService {
                              pc.getTrangThai() == TrangThaiPhanCong.DUYET)
                 .collect(Collectors.toList());
 
-        // Lọc theo đợt nếu có
         if (dotId != null) {
             phanCongs = phanCongs.stream()
                     .filter(pc -> pc.getDeTai().getDotDangKy() != null &&
@@ -65,11 +63,9 @@ public class GiangVienService {
         return responses;
     }
 
-    // Lấy đề tài chờ GV duyệt (từ bảng phanCongHuongDan có trạng thái CHO_DUYET)
     public List<PhanCongHuongDanResponse> getDeTaiChoDuyet(Long giangVienId) {
         List<PhanCongHuongDanResponse> responses = new ArrayList<>();
 
-        // Lấy các phân công có trạng thái CHO_DUYET của GV này
         List<PhanCongHuongDan> phanCons = phanCongHuongDanRepository.findAll().stream()
                 .filter(pc -> pc.getGiangVien() != null &&
                              pc.getGiangVien().getId().equals(giangVienId) &&
@@ -107,13 +103,11 @@ public class GiangVienService {
     public PhanCongHuongDanResponse duyetSinhVienHuongDan(Long phanCongId, boolean duyet) {
         PhanCongHuongDan phanCong = phanCongHuongDanRepository.findById(phanCongId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy phân công hướng dẫn"));
-        
-        // Fetch DeTai trong cùng transaction
+
         DeTai deTai = deTaiRepository.findById(phanCong.getDeTai().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đề tài"));
 
         if (duyet) {
-            // GV đồng ý → chuyển sang CHO_BO_MON_PHAN_CONG
             phanCong.setTrangThai(TrangThaiPhanCong.DUYET);
             phanCong.setNgayPhanCong(LocalDateTime.now());
             deTai.setTrangThai(TrangThaiDeTai.CHO_BO_MON_PHAN_CONG);
@@ -121,13 +115,10 @@ public class GiangVienService {
             phanCongHuongDanRepository.save(phanCong);
             return mapToPhanCongHuongDanResponse(phanCong, phanCong.getGiangVien().getId());
         } else {
-            // GV từ chối → cập nhật trạng thái DeTai trước
             deTai.setTrangThai(TrangThaiDeTai.GV_TU_CHOI);
-            // Set null để tránh cascade issues với @OneToOne relationship
             deTai.setPhanCongHuongDan(null);
             deTaiRepository.save(deTai);
-            
-            // Xóa bằng ID
+
             phanCongHuongDanRepository.deleteById(phanCong.getId());
             return null;
         }
@@ -145,7 +136,6 @@ public class GiangVienService {
         diem.setNhanXet(request.getNhanXet());
         diem.setNgayCham(LocalDateTime.now());
 
-        // Kiểm tra điều kiện
         if (request.getDiem().compareTo(BigDecimal.valueOf(5)) >= 0) {
             diem.setTrangThai(TrangThaiDiem.DU_DIEU_KIEN);
             deTai.setTrangThai(TrangThaiDeTai.DAT_GVHD);
@@ -160,14 +150,12 @@ public class GiangVienService {
         return mapToDiemHuongDanResponse(diem);
     }
 
-    // GV Phản biện
     public List<DeTaiResponse> getDeTaiPhanBien(Long giangVienId, Long dotId) {
         List<DeTai> deTais = deTaiRepository.findAll().stream()
                 .filter(dt -> dt.getPhanCongPhanBien() != null && 
                              dt.getPhanCongPhanBien().getGiangVien().getId().equals(giangVienId))
                 .collect(Collectors.toList());
 
-        // Lọc theo đợt nếu có
         if (dotId != null) {
             deTais = deTais.stream()
                     .filter(dt -> dt.getDotDangKy() != null && dt.getDotDangKy().getId().equals(dotId))
@@ -189,16 +177,13 @@ public class GiangVienService {
         diem.setNhanXet(request.getNhanXet());
         diem.setNgayCham(LocalDateTime.now());
 
-        // Kiểm tra điều kiện và cập nhật diemTongBaoVe nếu đạt
         if (request.getDiem().compareTo(BigDecimal.valueOf(5)) >= 0) {
             diem.setTrangThai(TrangThaiDiem.DU_DIEU_KIEN);
             deTai.setTrangThai(TrangThaiDeTai.DAT_PHAN_BIEN);
 
-            // Chỉ tính diemTongBaoVe khi PB >= 5 và điểm hội đồng đã có
             if (deTai.getHoiDongBaoVe() != null) {
                 java.math.BigDecimal sumDiemHoiDong = diemBaoVeRepository.calculateSumDiemByHoiDongId(deTai.getHoiDongBaoVe().getId());
                 if (sumDiemHoiDong != null && sumDiemHoiDong.compareTo(java.math.BigDecimal.ZERO) > 0) {
-                    // Tổng điểm hội đồng + điểm phản biện, chia cho (số TV hội đồng + 1)
                     int soLuongTV = deTai.getHoiDongBaoVe().getThanhViens() != null
                             ? deTai.getHoiDongBaoVe().getThanhViens().size() : 3;
                     java.math.BigDecimal tongDiem = sumDiemHoiDong.add(request.getDiem());
@@ -211,7 +196,7 @@ public class GiangVienService {
         } else {
             diem.setTrangThai(TrangThaiDiem.KHONG_DU_DIEU_KIEN);
             deTai.setTrangThai(TrangThaiDeTai.KHONG_DAT_PHAN_BIEN);
-            deTai.setDiemTongBaoVe(null); // Reset nếu không đạt
+            deTai.setDiemTongBaoVe(null);
         }
 
         diem = diemPhanBienRepository.save(diem);
@@ -220,7 +205,6 @@ public class GiangVienService {
         return mapToDiemPhanBienResponse(diem);
     }
 
-    // GV Hội đồng - chỉ xem danh sách, không chấm điểm
     public List<HoiDongBaoVeResponse> getHoiDongBaoVe(Long giangVienId, Long dotId) {
         List<HoiDongBaoVe> hoiDongs = hoiDongBaoVeRepository.findAllByGiangVienId(giangVienId);
 

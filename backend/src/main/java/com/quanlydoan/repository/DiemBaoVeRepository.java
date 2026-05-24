@@ -14,13 +14,9 @@ import java.util.Optional;
 @Repository
 public interface DiemBaoVeRepository extends JpaRepository<DiemBaoVe, Long> {
 
-    List<DiemBaoVe> findByHoiDong(HoiDongBaoVe hoiDong);
-
     List<DiemBaoVe> findByHoiDongId(Long hoiDongId);
 
     Optional<DiemBaoVe> findByHoiDongIdAndGiangVienId(Long hoiDongId, Long giangVienId);
-
-    boolean existsByHoiDongIdAndGiangVienId(Long hoiDongId, Long giangVienId);
 
     @Query("SELECT ROUND(AVG(d.diem), 2) FROM DiemBaoVe d WHERE d.hoiDong.id = :hoiDongId AND d.diem IS NOT NULL")
     BigDecimal calculateAverageDiemByHoiDongId(@Param("hoiDongId") Long hoiDongId);
@@ -28,6 +24,4 @@ public interface DiemBaoVeRepository extends JpaRepository<DiemBaoVe, Long> {
     @Query("SELECT COALESCE(SUM(d.diem), 0) FROM DiemBaoVe d WHERE d.hoiDong.id = :hoiDongId AND d.diem IS NOT NULL")
     BigDecimal calculateSumDiemByHoiDongId(@Param("hoiDongId") Long hoiDongId);
 
-    @Query("SELECT COUNT(d) FROM DiemBaoVe d WHERE d.hoiDong.id = :hoiDongId AND d.trangThai = 'CHUA_CHAM'")
-    long countChuaChamByHoiDongId(@Param("hoiDongId") Long hoiDongId);
 }

@@ -31,7 +31,8 @@ export const routes: Routes = [
       { path: 'sinh-vien', loadComponent: () => import('./features/admin/sinh-vien/sinh-vien.component').then(m => m.SinhVienComponent) },
       { path: 'thong-bao', loadComponent: () => import('./features/admin/thong-bao/thong-bao.component').then(m => m.ThongBaoComponent) },
       { path: 'thong-ke', loadComponent: () => import('./features/admin/thong-ke/thong-ke.component').then(m => m.ThongKeComponent) },
-      { path: 'quan-ly-diem', loadComponent: () => import('./features/admin/quan-ly-diem/quan-ly-diem.component').then(m => m.QuanLyDiemComponent) }
+      { path: 'quan-ly-diem', loadComponent: () => import('./features/admin/quan-ly-diem/quan-ly-diem.component').then(m => m.QuanLyDiemComponent) },
+      { path: 'phan-cong', loadComponent: () => import('./features/admin/phan-cong/phan-cong.component').then(m => m.PhanCongAdminComponent) }
     ]
   },
   {

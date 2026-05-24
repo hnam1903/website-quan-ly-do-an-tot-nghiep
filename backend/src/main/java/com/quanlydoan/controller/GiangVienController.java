@@ -25,7 +25,6 @@ public class GiangVienController {
     private final AuthService authService;
     private final GiangVienRepository giangVienRepository;
 
-    // GV Hướng dẫn
     @GetMapping("/huong-dan")
     public ResponseEntity<ApiResponse<List<PhanCongHuongDanResponse>>> getDeTaiHuongDan(
             @RequestParam(required = false) Long dotId) {

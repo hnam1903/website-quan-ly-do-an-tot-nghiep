@@ -20,13 +20,10 @@ public class FileController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Resource> downloadFile(@RequestParam String path) {
         try {
-            // Path từ query param đã được encode 1 lần, decode nó
             String decodedPath = path;
             
-            // Nếu path chứa %5C (encoded backslash), thay bằng /
             decodedPath = decodedPath.replace("%5C", "/").replace("\\", "/");
             
-            // Decode URL encoding
             decodedPath = java.net.URLDecoder.decode(decodedPath, StandardCharsets.UTF_8.name());
             
             File file = new File(decodedPath);
@@ -38,14 +35,12 @@ public class FileController {
             Resource resource = new FileSystemResource(file);
             String fileName = file.getName();
             
-            // Lấy extension để xác định content type
             String extension = "";
             int lastDot = fileName.lastIndexOf(".");
             if (lastDot > 0) {
                 extension = fileName.substring(lastDot).toLowerCase();
             }
             
-            // Tạo tên file sạch cho download (dựa vào extension)
             String downloadName = "file" + extension;
             
             String contentType = "application/octet-stream";

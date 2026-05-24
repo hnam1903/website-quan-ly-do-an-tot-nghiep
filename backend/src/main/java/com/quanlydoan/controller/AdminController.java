@@ -19,7 +19,6 @@ public class AdminController {
 
     private final AdminService adminService;
 
-    // Đợt đăng ký
     @GetMapping("/dot-dang-ky")
     public ResponseEntity<ApiResponse<List<DotDangKyResponse>>> getAllDotDangKy() {
         return ResponseEntity.ok(ApiResponse.success(adminService.getAllDotDangKy()));
@@ -208,5 +207,12 @@ public class AdminController {
     @PutMapping("/tai-khoan/{id}/mo")
     public ResponseEntity<ApiResponse<TaiKhoanResponse>> moTaiKhoan(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success("Đã mở tài khoản thành công", adminService.moTaiKhoan(id)));
+    }
+
+    @GetMapping("/phan-cong")
+    public ResponseEntity<ApiResponse<List<PhanCongSummaryResponse>>> getPhanCongSummary(
+            @RequestParam(required = false) Long boMonId,
+            @RequestParam(required = false) Long dotDangKyId) {
+        return ResponseEntity.ok(ApiResponse.success(adminService.getPhanCongSummary(boMonId, dotDangKyId)));
     }
 }

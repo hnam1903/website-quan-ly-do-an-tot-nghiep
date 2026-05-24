@@ -349,3 +349,33 @@ export interface PageResponse<T> {
   first: boolean;
   last: boolean;
 }
+
+export interface PhanCongSummaryResponse {
+  deTaiId: number;
+  tenDeTai: string;
+  sinhVienId: number;
+  hoTenSinhVien: string;
+  maSinhVien: string;
+  lopSinhVien?: string;
+  boMonId?: number;
+  tenBoMon?: string;
+  dotDangKyId?: number;
+  tenDot?: string;
+  namHoc?: string;
+  hocKy?: number;
+  gvhdId?: number;
+  hoTenGvhd?: string;
+  gvpbId?: number;
+  hoTenGvpb?: string;
+  hoiDongId?: number;
+  ngayBaoVe?: string;
+  diaDiem?: string;
+  trangThaiHoiDong?: string;
+  thanhVienHoiDong?: PhanCongThanhVienInfo[];
+}
+
+export interface PhanCongThanhVienInfo {
+  giangVienId: number;
+  hoTen: string;
+  vaiTro?: string;
+}

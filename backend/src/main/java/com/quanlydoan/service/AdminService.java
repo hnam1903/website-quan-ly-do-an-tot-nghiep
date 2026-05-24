@@ -445,8 +445,7 @@ public class AdminService {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên"));
 
         giangVien.setLaLanhDao(isLanhDao);
-        
-        // Update role if needed
+
         TaiKhoan taiKhoan = giangVien.getTaiKhoan();
         if (isLanhDao && taiKhoan.getRole() == Role.GIANG_VIEN) {
             taiKhoan.setRole(Role.LANH_DAO_BO_MON);
@@ -471,8 +470,6 @@ public class AdminService {
             taiKhoanRepository.delete(taiKhoan);
         }
     }
-
-    // ==================== Sinh viên ====================
 
     public List<SinhVienResponse> getAllSinhVien(Long boMonId) {
         List<SinhVien> sinhViens;
@@ -521,7 +518,6 @@ public class AdminService {
         }
     }
 
-    // ==================== Quản lý điểm ====================
 
     public List<QuanLyDiemResponse> getQuanLyDiem(Long boMonId, Long dotDangKyId) {
         List<DeTai> deTais;
@@ -550,11 +546,9 @@ public class AdminService {
     private QuanLyDiemResponse mapToQuanLyDiemResponse(DeTai dt) {
         SinhVien sv = dt.getSinhVien();
 
-        // Lấy điểm
         BigDecimal diemHD = dt.getDiemHuongDan() != null ? dt.getDiemHuongDan().getDiem() : null;
         BigDecimal diemPB = dt.getDiemPhanBien() != null ? dt.getDiemPhanBien().getDiem() : null;
 
-        // Tính điểm bảo vệ = tổng điểm 3 thành viên hội đồng
         BigDecimal diemBV = null;
         List<QuanLyDiemResponse.ThanhVienHoiDongDiem> thanhVienDiemList = null;
         
@@ -564,8 +558,7 @@ public class AdminService {
             if (sumDiemHoiDong != null && sumDiemHoiDong.compareTo(BigDecimal.ZERO) > 0) {
                 diemBV = sumDiemHoiDong.setScale(1, RoundingMode.HALF_UP);
             }
-            
-            // Lấy điểm từng thành viên hội đồng
+
             if (hoiDong.getThanhViens() != null && !hoiDong.getThanhViens().isEmpty()) {
                 // Map từ thanhViens và tìm điểm tương ứng
                 thanhVienDiemList = hoiDong.getThanhViens().stream()
@@ -605,15 +598,13 @@ public class AdminService {
                 .build();
     }
 
-    // ==================== Dashboard ====================
 
     public DashboardResponse getDashboard() {
         // Đếm đề tài có sinh viên
         long tongSoDeTai = deTaiRepository.findAll().stream()
                 .filter(dt -> dt.getSinhVien() != null)
                 .count();
-        
-        // Đếm đề tài chờ duyệt (trước khi bắt đầu thực hiện)
+
         List<TrangThaiDeTai> choDuyetStatuses = Arrays.asList(
                 TrangThaiDeTai.CHO_BO_MON_DUYET,
                 TrangThaiDeTai.CHO_GV_DUYET,
@@ -672,7 +663,6 @@ public class AdminService {
     public List<DeTaiResponse> getThongKeTongHop(Long dotDangKyId, Long boMonId) {
         List<DeTai> deTais;
 
-        // Lọc theo điều kiện
         if (dotDangKyId != null && boMonId != null) {
             deTais = deTaiRepository.findByDotDangKyId(dotDangKyId).stream()
                     .filter(dt -> dt.getSinhVien() != null &&
@@ -691,7 +681,6 @@ public class AdminService {
             deTais = deTaiRepository.findAll();
         }
 
-        // Chỉ lấy các đề tài có sinh viên (đã gán)
         deTais = deTais.stream()
                 .filter(dt -> dt.getSinhVien() != null)
                 .collect(Collectors.toList());
@@ -752,11 +741,11 @@ public class AdminService {
             builder.diemPhanBien(dt.getDiemPhanBien().getDiem());
         }
 
-        // Điểm bảo vệ - lấy chi tiết từng thành viên HĐ từ bảng DiemBaoVe
+        // Điểm bảo vệ
         if (dt.getHoiDongBaoVe() != null && dt.getHoiDongBaoVe().getDiemBaoVes() != null) {
             List<DiemBaoVe> diemBaoVes = dt.getHoiDongBaoVe().getDiemBaoVes();
 
-            // Lấy vai trò từ ThanhVienHoiDong (nếu có)
+            // Lấy vai trò
             Map<Long, VaiTroHoiDong> vaiTroMap = new java.util.HashMap<>();
             if (dt.getHoiDongBaoVe().getThanhViens() != null) {
                 dt.getHoiDongBaoVe().getThanhViens().forEach(tv -> {
@@ -787,9 +776,7 @@ public class AdminService {
         return builder.build();
     }
 
-    // ==================== Mappers ====================
 
-    // ==================== Quản lý Tài Khoản ====================
 
     public List<TaiKhoanResponse> getAllTaiKhoan() {
         return taiKhoanRepository.findAll().stream()
@@ -823,6 +810,73 @@ public class AdminService {
         taiKhoan = taiKhoanRepository.save(taiKhoan);
 
         return TaiKhoanResponse.fromEntity(taiKhoan);
+    }
+
+    // ==================== Xem phân công ====================
+
+    public List<PhanCongSummaryResponse> getPhanCongSummary(Long boMonId, Long dotDangKyId) {
+        List<DeTai> deTais = deTaiRepository.findAll().stream()
+                .filter(dt -> dt.getSinhVien() != null)
+                .filter(dt -> boMonId == null ||
+                        (dt.getSinhVien().getBoMon() != null &&
+                         dt.getSinhVien().getBoMon().getId().equals(boMonId)))
+                .filter(dt -> dotDangKyId == null ||
+                        (dt.getDotDangKy() != null &&
+                         dt.getDotDangKy().getId().equals(dotDangKyId)))
+                .collect(Collectors.toList());
+
+        return deTais.stream()
+                .map(this::mapToPhanCongSummary)
+                .collect(Collectors.toList());
+    }
+
+    private PhanCongSummaryResponse mapToPhanCongSummary(DeTai dt) {
+        SinhVien sv = dt.getSinhVien();
+
+        // Thông tin hội đồng
+        List<PhanCongSummaryResponse.ThanhVienInfo> thanhVienHoiDong = null;
+        if (dt.getHoiDongBaoVe() != null) {
+            HoiDongBaoVe hoiDong = dt.getHoiDongBaoVe();
+            thanhVienHoiDong = hoiDong.getThanhViens() != null ?
+                    hoiDong.getThanhViens().stream()
+                            .filter(tv -> tv.getGiangVien() != null)
+                            .map(tv -> PhanCongSummaryResponse.ThanhVienInfo.builder()
+                                    .giangVienId(tv.getGiangVien().getId())
+                                    .hoTen(tv.getGiangVien().getHoTen())
+                                    .vaiTro(tv.getVaiTro() != null ? tv.getVaiTro().name() : null)
+                                    .build())
+                            .collect(Collectors.toList()) : null;
+        }
+
+        return PhanCongSummaryResponse.builder()
+                .deTaiId(dt.getId())
+                .tenDeTai(dt.getTenDeTai())
+                .sinhVienId(sv.getId())
+                .hoTenSinhVien(sv.getHoTen())
+                .maSinhVien(sv.getMaSinhVien())
+                .lopSinhVien(sv.getLop())
+                .boMonId(sv.getBoMon() != null ? sv.getBoMon().getId() : null)
+                .tenBoMon(sv.getBoMon() != null ? sv.getBoMon().getTenBoMon() : null)
+                .dotDangKyId(dt.getDotDangKy() != null ? dt.getDotDangKy().getId() : null)
+                .tenDot(dt.getDotDangKy() != null ? dt.getDotDangKy().getTenDot() : null)
+                .namHoc(dt.getDotDangKy() != null ? dt.getDotDangKy().getNamHoc() : null)
+                .hocKy(dt.getDotDangKy() != null ? dt.getDotDangKy().getHocKy() : null)
+                .gvhdId(dt.getPhanCongHuongDan() != null && dt.getPhanCongHuongDan().getGiangVien() != null ?
+                        dt.getPhanCongHuongDan().getGiangVien().getId() : null)
+                .hoTenGvhd(dt.getPhanCongHuongDan() != null && dt.getPhanCongHuongDan().getGiangVien() != null ?
+                        dt.getPhanCongHuongDan().getGiangVien().getHoTen() : null)
+                .gvpbId(dt.getPhanCongPhanBien() != null && dt.getPhanCongPhanBien().getGiangVien() != null ?
+                        dt.getPhanCongPhanBien().getGiangVien().getId() : null)
+                .hoTenGvpb(dt.getPhanCongPhanBien() != null && dt.getPhanCongPhanBien().getGiangVien() != null ?
+                        dt.getPhanCongPhanBien().getGiangVien().getHoTen() : null)
+                .hoiDongId(dt.getHoiDongBaoVe() != null ? dt.getHoiDongBaoVe().getId() : null)
+                .ngayBaoVe(dt.getHoiDongBaoVe() != null && dt.getHoiDongBaoVe().getNgayBaoVe() != null ?
+                        dt.getHoiDongBaoVe().getNgayBaoVe().toString() : null)
+                .diaDiem(dt.getHoiDongBaoVe() != null ? dt.getHoiDongBaoVe().getDiaDiem() : null)
+                .trangThaiHoiDong(dt.getHoiDongBaoVe() != null && dt.getHoiDongBaoVe().getTrangThai() != null ?
+                        dt.getHoiDongBaoVe().getTrangThai().name() : null)
+                .thanhVienHoiDong(thanhVienHoiDong)
+                .build();
     }
 
     // = Mapping Methods

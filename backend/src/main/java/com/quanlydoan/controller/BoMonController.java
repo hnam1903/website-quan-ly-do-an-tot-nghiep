@@ -65,7 +65,6 @@ public class BoMonController {
         return ResponseEntity.ok(ApiResponse.success("Duyệt đề tài thành công", boMonService.duyetDeTaiBoMon(id)));
     }
 
-    // Lấy đề tài đang chờ bộ môn duyệt
     @GetMapping("/de-tai/cho-bo-mon-duyet")
     public ResponseEntity<ApiResponse<List<DeTaiResponse>>> getDeTaiChoBoMonDuyet() {
         UserResponse currentUser = authService.getCurrentUser();

@@ -69,7 +69,6 @@ public class ImportController {
                         String hocVi = getCellValue(row, colIndex.get("hocvi"), formatter);
                         String boMonTen = getCellValue(row, colIndex.get("bomon"), formatter);
 
-                        // Tự động tạo email từ họ tên
                         String email = normalizeEmail(hoTen) + "@humg.edu.vn";
 
                         if (hoTen.isEmpty()) {
@@ -152,7 +151,6 @@ public class ImportController {
                     return ResponseEntity.badRequest().body(ApiResponse.error("File thiếu cột bắt buộc: masinhvien (hoặc masv), hoten, lop"));
                 }
 
-                // Map mã bộ môn với tên bộ môn
                 Map<String, String> boMonMap = new HashMap<>();
                 boMonMap.put("07", "Khoa học máy tính");
                 boMonMap.put("05", "Công Nghệ Phần Mềm");
@@ -165,7 +163,6 @@ public class ImportController {
                     Row row = sheet.getRow(i);
                     if (row == null) continue;
 
-                    // Kiểm tra dòng có trống hoàn toàn không
                     boolean isEmptyRow = true;
                     for (int j = 0; j < headerRow.getLastCellNum(); j++) {
                         Cell cell = row.getCell(j);
@@ -180,7 +177,6 @@ public class ImportController {
                     String hoTen = getCellValue(row, colIndex.get("hoten"), formatter);
                     String lop = getCellValue(row, colIndex.get("lop"), formatter);
 
-                    // Tự động tạo email từ mã sinh viên
                     String email = maSV.toLowerCase() + "@humg.edu.vn";
 
                     if (maSV.isEmpty() || hoTen.isEmpty() || lop.isEmpty()) {
@@ -213,7 +209,6 @@ public class ImportController {
                             .lop(lop)
                             .build();
 
-                    // Xác định bộ môn từ mã lớp (2 ký tự sau dấu _)
                     if (lop.contains("_")) {
                         String[] parts = lop.split("_");
                         if (parts.length >= 2) {
@@ -266,9 +261,6 @@ public class ImportController {
         return email.toString();
     }
 
-    /**
-     * Chuẩn hóa tiêu đề cột: "Bộ môn", "bomon", "BỘ MÔN" → bomon để khớp với code.
-     */
     private static Map<String, Integer> buildColumnIndex(Row headerRow, DataFormatter formatter) {
         Map<String, Integer> colIndex = new HashMap<>();
         for (int i = 0; i < headerRow.getLastCellNum(); i++) {

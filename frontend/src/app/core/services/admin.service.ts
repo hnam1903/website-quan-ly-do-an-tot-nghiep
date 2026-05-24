@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiResponse, DotDangKyResponse, BoMonResponse, GiangVienResponse, SinhVienResponse, DeTaiResponse, DashboardResponse, DanhSachSinhVienDotDangKyResponse, ThongBaoResponse, QuanLyDiemResponse } from '../models/models';
+import { ApiResponse, DotDangKyResponse, BoMonResponse, GiangVienResponse, SinhVienResponse, DeTaiResponse, DashboardResponse, DanhSachSinhVienDotDangKyResponse, ThongBaoResponse, QuanLyDiemResponse, PhanCongSummaryResponse } from '../models/models';
 
 @Injectable({
   providedIn: 'root'
@@ -200,5 +200,17 @@ export class AdminService {
 
   moTaiKhoan(id: number): Observable<ApiResponse<any>> {
     return this.http.put<ApiResponse<any>>(`${this.apiUrl}/tai-khoan/${id}/mo`, {});
+  }
+
+  // Xem phân công (Admin)
+  getPhanCongSummary(boMonId?: number, dotDangKyId?: number): Observable<ApiResponse<PhanCongSummaryResponse[]>> {
+    let params = new HttpParams();
+    if (boMonId) {
+      params = params.set('boMonId', boMonId.toString());
+    }
+    if (dotDangKyId) {
+      params = params.set('dotDangKyId', dotDangKyId.toString());
+    }
+    return this.http.get<ApiResponse<PhanCongSummaryResponse[]>>(`${this.apiUrl}/phan-cong`, { params });
   }
 }

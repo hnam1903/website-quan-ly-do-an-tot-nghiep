@@ -2,15 +2,15 @@ package com.quanlydoan.enums;
 
 public enum TrangThaiDeTai {
     // Đăng ký & Duyệt
-    CHO_BO_MON_DUYET,      // SV đăng ký, chờ BoMon duyệt
-    BI_TU_CHOI,            // Bị BoMon từ chối
+    CHO_BO_MON_DUYET,
+    BI_TU_CHOI,
     
-    // Phân công GVHD
-    CHO_GV_DUYET,          // Đã gửi yêu cầu, chờ GVHD duyệt
-    GV_TU_CHOI,            // GVHD từ chối
-    CHO_GV_PHAN_CONG,      // Chờ phân công GVHD (chưa có GV dự kiến)
-    CHO_BO_MON_PHAN_CONG,  // GV đồng ý, chờ BoMon xác nhận phân công
-    DANG_THUC_HIEN,        // Đã phân công xong, đang thực hiện
+    // Phân công
+    CHO_GV_DUYET,
+    GV_TU_CHOI,
+    CHO_GV_PHAN_CONG,
+    CHO_BO_MON_PHAN_CONG,
+    DANG_THUC_HIEN,
     
     // Báo cáo
     DA_NOP_BAO_CAO,

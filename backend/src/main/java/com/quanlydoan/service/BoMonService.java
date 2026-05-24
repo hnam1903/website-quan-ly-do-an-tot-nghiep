@@ -152,7 +152,6 @@ public class BoMonService {
             throw new BadRequestException("Đề tài chưa được sinh viên đăng ký hoặc đã được duyệt");
         }
 
-        // Nếu có GVHD dự kiến → gửi yêu cầu cho GVHD duyệt
         if (deTai.getGiangVienDuKien() != null) {
             PhanCongHuongDan phanCong = PhanCongHuongDan.builder()
                     .deTai(deTai)
@@ -164,7 +163,6 @@ public class BoMonService {
             deTai.setPhanCongHuongDan(phanCong);
             deTai.setTrangThai(TrangThaiDeTai.CHO_GV_DUYET);
         } else {
-            // Không có GVHD dự kiến → vào thẳng trang Phân công GVHD của BoMon
             deTai.setTrangThai(TrangThaiDeTai.CHO_GV_PHAN_CONG);
         }
 
@@ -181,7 +179,6 @@ public class BoMonService {
             throw new BadRequestException("Đề tài chưa được sinh viên đăng ký hoặc đã được duyệt");
         }
 
-        // Từ chối → để sinh viên đăng ký lại
         deTai.setTrangThai(TrangThaiDeTai.BI_TU_CHOI);
         deTai.setGhiChu(ghiChu != null ? ghiChu.trim() : "");
         deTai = deTaiRepository.save(deTai);
@@ -242,7 +239,6 @@ public class BoMonService {
         GiangVien giangVien = giangVienRepository.findById(request.getGiangVienId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên"));
 
-        // Kiểm tra đề tài phải ở trạng thái cho phép phân công
         TrangThaiDeTai currentStatus = deTai.getTrangThai();
         if (currentStatus != TrangThaiDeTai.CHO_GV_PHAN_CONG &&
             currentStatus != TrangThaiDeTai.GV_TU_CHOI &&
@@ -250,7 +246,6 @@ public class BoMonService {
             throw new BadRequestException("Đề tài không ở trạng thái cho phép phân công GVHD");
         }
 
-        // Kiểm tra nếu đã có phân công thì cập nhật lại, không tạo mới
         PhanCongHuongDan phanCong = deTai.getPhanCongHuongDan();
         if (phanCong == null) {
             phanCong = PhanCongHuongDan.builder()
@@ -260,14 +255,12 @@ public class BoMonService {
                     .ngayPhanCong(LocalDateTime.now())
                     .build();
         } else {
-            // Cập nhật giảng viên mới
             phanCong.setGiangVien(giangVien);
             phanCong.setTrangThai(TrangThaiPhanCong.DUYET);
             phanCong.setNgayPhanCong(LocalDateTime.now());
         }
         phanCong = phanCongHuongDanRepository.save(phanCong);
 
-        // Cập nhật trạng thái đề tài → DANG_THUC_HIEN (BoMon đã xác nhận phân công)
         deTai.setTrangThai(TrangThaiDeTai.DANG_THUC_HIEN);
         deTai.setPhanCongHuongDan(phanCong);
         deTaiRepository.save(deTai);
@@ -279,22 +272,17 @@ public class BoMonService {
         List<PhanCongHuongDanResponse> responses = new ArrayList<>();
 
         // Lấy các đề tài cần GVHD duyệt:
-        // 1. CHO_GV_DUYET có PhanCongHuongDan → đang chờ GVHD duyệt
-        // 2. CHO_BO_MON_PHAN_CONG → GV đã đồng ý, chờ BoMon xác nhận (hiển thị để biết ai đồng ý)
         List<DeTai> deTais = deTaiRepository.findAll().stream()
                 .filter(dt -> dt.getSinhVien() != null &&
                              dt.getSinhVien().getBoMon() != null &&
                              dt.getSinhVien().getBoMon().getId().equals(boMonId))
                 .filter(dt -> {
-                    // CHO_GV_DUYET có PhanCongHuongDan → đang chờ GVHD duyệt
                     if (dt.getTrangThai() == TrangThaiDeTai.CHO_GV_DUYET && dt.getPhanCongHuongDan() != null) {
                         return true;
                     }
-                    // GV_TU_CHOI → GV từ chối, cần phân công lại
                     if (dt.getTrangThai() == TrangThaiDeTai.GV_TU_CHOI) {
                         return true;
                     }
-                    // CHO_BO_MON_PHAN_CONG → GV đã đồng ý, chờ BoMon xác nhận
                     if (dt.getTrangThai() == TrangThaiDeTai.CHO_BO_MON_PHAN_CONG) {
                         return true;
                     }
@@ -338,7 +326,6 @@ public class BoMonService {
                               pc.getTrangThai() == TrangThaiPhanCong.DUYET)
                 .collect(Collectors.toList());
 
-        // Lọc theo đợt đăng ký nếu có
         if (dotDangKyId != null) {
             phanCongs = phanCongs.stream()
                     .filter(pc -> pc.getDeTai().getDotDangKy() != null &&
@@ -379,7 +366,6 @@ public class BoMonService {
         GiangVien giangVien = giangVienRepository.findById(request.getGiangVienId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên"));
 
-        // Kiểm tra GVPB không trùng với GVHD
         if (deTai.getPhanCongHuongDan() != null &&
             deTai.getPhanCongHuongDan().getGiangVien() != null) {
             Long gvhdId = deTai.getPhanCongHuongDan().getGiangVien().getId();
@@ -388,7 +374,6 @@ public class BoMonService {
             }
         }
 
-        // Kiểm tra đã có GVPB chưa
         if (deTai.getPhanCongPhanBien() != null) {
             throw new BadRequestException("Đề tài này đã có giảng viên phản biện");
         }
@@ -400,7 +385,6 @@ public class BoMonService {
 
         phanCong = phanCongPhanBienRepository.save(phanCong);
 
-        // Cập nhật trạng thái đề tài
         deTai.setTrangThai(TrangThaiDeTai.CHO_PHAN_BIEN);
         deTai.setPhanCongPhanBien(phanCong);
         deTaiRepository.save(deTai);
@@ -413,7 +397,6 @@ public class BoMonService {
         DeTai deTai = deTaiRepository.findById(request.getDeTaiId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đề tài"));
 
-        // Parse ngày bảo vệ với format cụ thể
         LocalDate ngayBaoVe = null;
         if (request.getNgayBaoVe() != null && !request.getNgayBaoVe().isEmpty()) {
             try {
@@ -446,7 +429,6 @@ public class BoMonService {
             thanhVienHoiDongRepository.save(thanhVien);
         }
 
-        // Cập nhật trạng thái đề tài
         deTai.setTrangThai(TrangThaiDeTai.DANG_BAO_VE);
         deTai.setHoiDongBaoVe(hoiDong);
         deTaiRepository.save(deTai);
@@ -721,29 +703,22 @@ public class BoMonService {
 
 @Transactional
     public HoiDongBaoVeResponse importDiemBaoVe(DiemBaoVeRequest request) {
-        // Sử dụng DiemBaoVeService để lưu điểm của từng giảng viên
         List<DiemBaoVeResponse> diemBaoVes = diemBaoVeService.importDiemBaoVe(request);
 
-        // Lấy hội đồng đã cập nhật
         HoiDongBaoVe hoiDong = hoiDongBaoVeRepository.findById(request.getHoiDongId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hội đồng"));
 
-        // Cập nhật nhận xét vào hội đồng
         hoiDong.setNhanXetBaoVe(request.getNhanXet());
         hoiDong = hoiDongBaoVeRepository.save(hoiDong);
 
-        // Lấy tổng điểm của hội đồng
         java.math.BigDecimal sumDiemHoiDong = diemBaoVeRepository.calculateSumDiemByHoiDongId(hoiDong.getId());
 
-        // Fetch lại DeTai để đảm bảo relationships được load đầy đủ
         DeTai deTai = deTaiRepository.findById(hoiDong.getDeTai().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy đề tài"));
 
-        // Cập nhật trạng thái đề tài dựa trên điểm tổng bảo vệ
         if (sumDiemHoiDong != null && sumDiemHoiDong.compareTo(java.math.BigDecimal.ZERO) > 0) {
             int soLuongThanhVien = hoiDong.getThanhViens() != null ? hoiDong.getThanhViens().size() : 3;
 
-            // Nếu có điểm phản biện thì tính trung bình, không thì chỉ lưu tổng điểm hội đồng
             if (deTai.getDiemPhanBien() != null && deTai.getDiemPhanBien().getDiem() != null) {
                 java.math.BigDecimal tongDiem = sumDiemHoiDong.add(deTai.getDiemPhanBien().getDiem());
                 java.math.BigDecimal diemTongBaoVe = tongDiem.divide(java.math.BigDecimal.valueOf(soLuongThanhVien + 1), 2, RoundingMode.HALF_UP);
@@ -756,7 +731,6 @@ public class BoMonService {
                     deTai.setTrangThai(TrangThaiDeTai.KHONG_DAT_BAO_VE);
                 }
             } else {
-                // Chưa có điểm phản biện, vẫn lưu tổng điểm hội đồng để hiển thị
                 deTai.setDiemTongBaoVe(sumDiemHoiDong.setScale(1, RoundingMode.HALF_UP));
             }
         }
@@ -801,10 +775,8 @@ public class BoMonService {
         if (countWithDiem > 0) {
             hoiDong.setTrangThai(TrangThaiHoiDong.DA_BAO_VE);
 
-            // Tính điểm tổng bảo vệ = (tổng HĐ + PB) / (số TV + 1)
             java.math.BigDecimal sumDiemHoiDong = diemBaoVeRepository.calculateSumDiemByHoiDongId(hoiDongId);
 
-            // Fetch lại DeTai để đảm bảo relationships được load đầy đủ
             DeTai deTai = deTaiRepository.findById(hoiDong.getDeTai().getId())
                     .orElse(null);
 
@@ -824,7 +796,6 @@ public class BoMonService {
                         deTai.setTrangThai(TrangThaiDeTai.KHONG_DAT_BAO_VE);
                     }
                 } else {
-                    // Chưa có điểm phản biện, vẫn lưu tổng điểm hội đồng
                     deTai.setDiemTongBaoVe(sumDiemHoiDong.setScale(1, RoundingMode.HALF_UP));
                 }
                 deTaiRepository.save(deTai);

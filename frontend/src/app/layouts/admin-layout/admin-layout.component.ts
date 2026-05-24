@@ -88,6 +88,11 @@ import { Router } from '@angular/router';
             <span class="material-symbols-outlined">campaign</span>Quản lý Thông báo
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/admin/phan-cong" routerLinkActive="active" (click)="closeSidebar()">
+            <span class="material-symbols-outlined">assignment_ind</span>Xem Phân công
+          </a>
+        </li>
       </ul>
     </nav>
 
