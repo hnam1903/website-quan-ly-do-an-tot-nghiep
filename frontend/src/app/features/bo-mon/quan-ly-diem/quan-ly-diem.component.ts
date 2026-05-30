@@ -188,7 +188,7 @@ export class QuanLyDiemBoMonComponent implements OnInit {
         'Đề tài': item.tenDeTai || '',
         'Điểm Hướng dẫn': item.diemHuongDan != null ? item.diemHuongDan : '',
         'Điểm Phản biện': item.diemPhanBien != null ? item.diemPhanBien : '',
-        'HDBV (theo vai trò)': hdbvDiem,
+        'Điểm Hội đồng bảo vệ': hdbvDiem,
         'Tổng điểm': item.diemTongBaoVe != null ? item.diemTongBaoVe : ''
       };
     });

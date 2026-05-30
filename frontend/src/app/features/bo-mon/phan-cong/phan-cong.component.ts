@@ -41,13 +41,7 @@ import { ToastrService } from 'ngx-toastr';
 
     <!-- Tab 1: Đã có GVHD -->
     <div *ngIf="activeTab === 'co-gvhd'" class="card">
-      <div class="card-header">
-        <h5 class="mb-0">
-          <span class="material-symbols-outlined me-2 text-success">check_circle</span>
-          Đề tài GV đã đồng ý - Chờ xác nhận
-        </h5>
-        <small class="text-muted">Hiển thị tên GVHD dự kiến, lãnh đạo bộ môn xác nhận hoặc chọn GV khác</small>
-      </div>
+      
       <div class="card-body p-0">
         <div *ngIf="svDaDuyet.length === 0" class="alert alert-info m-4">
           <span class="material-symbols-outlined me-2">info</span>Không có đề tài nào cần xác nhận.
@@ -61,7 +55,7 @@ import { ToastrService } from 'ngx-toastr';
                 <th>Sinh viên</th>
                 <th>Tên đề tài</th>
                 <th style="width: 160px">GVHD dự kiến</th>
-                <th style="width: 200px">Xác nhận GVHD</th>
+                <th style="width: 280px">Xác nhận GVHD</th>
                 <th style="width: 120px" class="text-center">Thao tác</th>
               </tr>
             </thead>
@@ -83,15 +77,27 @@ import { ToastrService } from 'ngx-toastr';
                   <span class="badge bg-secondary" *ngIf="!dt.hoTenGiangVienDuKien">Chưa có</span>
                 </td>
                 <td>
-                  <select class="form-select form-select-sm" [(ngModel)]="selectedGvMap[dt.id]">
+                  <select class="form-select form-select-sm" [(ngModel)]="selectedGvMap[dt.id]"
+                          [class.border-danger]="isGvDaySlot(selectedGvMap[dt.id])">
                     <option [value]="null">Chọn GVHD</option>
-                    <option *ngFor="let gv of giangVienList" [value]="gv.id">
+                    <option *ngFor="let gv of giangVienList" [value]="gv.id"
+                            [class.text-danger]="isGvDaySlot(gv.id)">
                       {{ gv.hoTen }} ({{ gv.hocVi }})
+                      <ng-container *ngIf="gv.soDeTaiConLai !== undefined && gv.soDeTaiConLai !== null">
+                        - {{ gv.soDeTaiDangHuongDan || 0 }}/{{ gv.soDeTaiToiDa || 5 }}
+                        <span *ngIf="(gv.soDeTaiConLai || 0) <= 0" class="text-danger">
+                          (Đã đầy)
+                        </span>
+                        <span *ngIf="(gv.soDeTaiConLai || 0) > 0" class="text-success">
+                          (Còn {{ gv.soDeTaiConLai }})
+                        </span>
+                      </ng-container>
                     </option>
-                  </select>
+                    </select>
                 </td>
                 <td class="text-center">
-                  <button class="btn btn-sm btn-success" (click)="phanCongHD(dt.id)">
+                  <button class="btn btn-sm btn-success" (click)="phanCongHD(dt.id)"
+                          [disabled]="isGvDaySlot(selectedGvMap[dt.id])">
                     <span class="material-symbols-outlined me-1">check</span> Xác nhận
                   </button>
                 </td>
@@ -104,13 +110,7 @@ import { ToastrService } from 'ngx-toastr';
 
     <!-- Tab 2: Chưa có GVHD -->
     <div *ngIf="activeTab === 'chua-co-gvhd'" class="card">
-      <div class="card-header">
-        <h5 class="mb-0">
-          <span class="material-symbols-outlined me-2 text-warning">pending</span>
-          Đề tài chưa có GVHD - Cần phân công
-        </h5>
-        <small class="text-muted">GVHD từ chối hoặc không có GVHD dự kiến</small>
-      </div>
+      
       <div class="card-body p-0">
         <div *ngIf="svChuaCoGvhd.length === 0" class="alert alert-info m-4">
           <span class="material-symbols-outlined me-2">info</span>Không có đề tài nào cần phân công GVHD.
@@ -124,7 +124,7 @@ import { ToastrService } from 'ngx-toastr';
                 <th>Sinh viên</th>
                 <th>Tên đề tài</th>
                 <th style="width: 140px">Trạng thái</th>
-                <th style="width: 200px">Chọn GVHD</th>
+                <th style="width: 280px">Chọn GVHD</th>
                 <th style="width: 120px" class="text-center">Thao tác</th>
               </tr>
             </thead>
@@ -144,15 +144,27 @@ import { ToastrService } from 'ngx-toastr';
                   </span>
                 </td>
                 <td>
-                  <select class="form-select form-select-sm" [(ngModel)]="selectedGvMap[dt.id]">
+                  <select class="form-select form-select-sm" [(ngModel)]="selectedGvMap[dt.id]"
+                          [class.border-danger]="isGvDaySlot(selectedGvMap[dt.id])">
                     <option [value]="null">Chọn GVHD</option>
-                    <option *ngFor="let gv of giangVienList" [value]="gv.id">
+                    <option *ngFor="let gv of giangVienList" [value]="gv.id"
+                            [class.text-danger]="isGvDaySlot(gv.id)">
                       {{ gv.hoTen }} ({{ gv.hocVi }})
+                      <ng-container *ngIf="gv.soDeTaiConLai !== undefined && gv.soDeTaiConLai !== null">
+                        - {{ gv.soDeTaiDangHuongDan || 0 }}/{{ gv.soDeTaiToiDa || 5 }}
+                        <span *ngIf="(gv.soDeTaiConLai || 0) <= 0" class="text-danger">
+                          (Đã đầy)
+                        </span>
+                        <span *ngIf="(gv.soDeTaiConLai || 0) > 0" class="text-success">
+                          (Còn {{ gv.soDeTaiConLai }})
+                        </span>
+                      </ng-container>
                     </option>
-                  </select>
+                    </select>
                 </td>
                 <td class="text-center">
-                  <button class="btn btn-sm btn-primary" (click)="phanCongHD(dt.id)">
+                  <button class="btn btn-sm btn-primary" (click)="phanCongHD(dt.id)"
+                          [disabled]="isGvDaySlot(selectedGvMap[dt.id])">
                     <span class="material-symbols-outlined me-1">add</span> Phân công
                   </button>
                 </td>
@@ -183,6 +195,23 @@ export class PhanCongComponent implements OnInit {
 
   switchTab(tab: string): void {
     this.activeTab = tab;
+  }
+
+  // Kiểm tra GV có đã đầy slot không
+  isGvDaySlot(gvId: number): boolean {
+    if (!gvId) return false;
+    const gv = this.giangVienList.find(x => x.id === gvId);
+    if (!gv || gv.soDeTaiConLai === undefined || gv.soDeTaiConLai === null) return false;
+    return gv.soDeTaiConLai <= 0;
+  }
+
+  // Lấy danh sách GV đã đầy slot
+  get gvDaDaySlot(): GiangVienResponse[] {
+    return this.giangVienList.filter(gv =>
+      gv.soDeTaiConLai !== undefined &&
+      gv.soDeTaiConLai !== null &&
+      gv.soDeTaiConLai <= 0
+    );
   }
 
   loadData(): void {
@@ -238,12 +267,27 @@ export class PhanCongComponent implements OnInit {
       this.toastr.warning('Vui lòng chọn giảng viên');
       return;
     }
+
+    const gv = this.giangVienList.find(x => x.id === gvId);
+
+    // Kiểm tra nếu chọn GV đã đầy slot
+    const soDangHD = gv?.soDeTaiDangHuongDan || 0;
+    const soToiDa = gv?.soDeTaiToiDa || 5;
+    if (soDangHD >= soToiDa) {
+      this.toastr.error('Giảng viên ' + gv?.hoTen + ' đã đạt số đề tài tối đa (' + soDangHD + '/' + soToiDa + '). Không thể phân công thêm!');
+      return;
+    }
+
     this.boMonService.phanCongHuongDan(deTaiId, gvId).subscribe({
       next: (res) => {
         if (res.success) {
           this.toastr.success('Phân công thành công!');
           this.loadData();
         }
+      },
+      error: (err) => {
+        const message = err.error?.message || err.error?.error || 'Phân công thất bại!';
+        this.toastr.error(message);
       }
     });
   }

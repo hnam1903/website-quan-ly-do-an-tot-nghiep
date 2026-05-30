@@ -19,4 +19,7 @@ public class GiangVienResponse {
     private Boolean laLanhDao;
     private Long taiKhoanId;
     private Boolean trangThaiTaiKhoan;
+    private Integer soDeTaiToiDa;      // Số đề tài tối đa được hướng dẫn
+    private Integer soDeTaiDangHuongDan; // Số đề tài đang hướng dẫn
+    private Integer soDeTaiConLai;      // Số đề tài còn có thể nhận
 }

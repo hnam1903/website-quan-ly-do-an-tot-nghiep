@@ -75,6 +75,12 @@ public class SinhVienService {
             throw new BadRequestException("Đợt đăng ký đã kết thúc");
         }
 
+        // Validate tên đề tài phải bắt đầu bằng tiền tố hợp lệ
+        validateTenDeTai(request.getTenDeTai());
+
+        // Kiểm tra trùng tên đề tài trong đợt đăng ký
+        kiemTraTrungTenDeTai(request.getTenDeTai(), request.getDotDangKyId(), null);
+
         List<DeTai> existing = deTaiRepository.findBySinhVienId(sinhVien.getId());
         existing = existing.stream()
                 .filter(dt -> dt.getTrangThai() != TrangThaiDeTai.BI_TU_CHOI &&
@@ -106,6 +112,78 @@ public class SinhVienService {
         return mapToDeTaiResponse(deTai);
     }
 
+    private void validateTenDeTai(String tenDeTai) {
+        if (tenDeTai == null || tenDeTai.trim().isEmpty()) {
+            throw new BadRequestException("Tên đề tài không được để trống");
+        }
+
+        String normalizedTenDeTai = tenDeTai.trim().toLowerCase();
+        List<String> tienToHopLe = Arrays.asList(
+            "xây dựng",
+            "nghiên cứu",
+            "phát triển",
+            "thiết kế",
+            "ứng dụng"
+        );
+
+        boolean hopLe = tienToHopLe.stream()
+                .anyMatch(tienTo -> normalizedTenDeTai.startsWith(tienTo));
+
+        if (!hopLe) {
+            throw new BadRequestException(
+                "Tên đề tài phải bắt đầu bằng: " + String.join(", ", tienToHopLe));
+        }
+    }
+
+    // Chuẩn hóa tên đề tài để so sánh trùng (loại bỏ dấu, space thừa)
+    private String chuanHoaTenDeTai(String ten) {
+        if (ten == null) return "";
+        String result = ten.toLowerCase().trim();
+        // Thay thế nhiều space liên tiếp thành 1 space
+        result = result.replaceAll("\\s+", " ");
+        // Loại bỏ dấu tiếng Việt - bao gồm tất cả các ký tự có dấu
+        result = result
+            // Chữ a
+            .replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
+            // Chữ e
+            .replaceAll("[èéẹẻẽêềếệểễ]", "e")
+            // Chữ i
+            .replaceAll("[ìíịỉĩ]", "i")
+            // Chữ o
+            .replaceAll("[òóọỏõôồốộổỗơờớợởỡ]", "o")
+            // Chữ u
+            .replaceAll("[ùúụủũưừứựửữ]", "u")
+            // Chữ y
+            .replaceAll("[ỳýỵỷỹ]", "y")
+            // Chữ d
+            .replaceAll("đ", "d")
+            // Loại bỏ tất cả space
+            .replaceAll(" ", "");
+        return result;
+    }
+
+    // Kiểm tra trùng tên đề tài trong đợt đăng ký
+    // excludeDeTaiId: loại trừ đề tài này (dùng khi đăng ký lại)
+    private void kiemTraTrungTenDeTai(String tenDeTai, Long dotDangKyId, Long excludeDeTaiId) {
+        String tenChuanHoa = chuanHoaTenDeTai(tenDeTai);
+
+        // Lấy tất cả đề tài trong đợt để so sánh
+        List<DeTai> tatCaDeTai = deTaiRepository.findByDotDangKyId(dotDangKyId);
+
+        for (DeTai dt : tatCaDeTai) {
+            // Loại trừ đề tài hiện tại (khi đăng ký lại)
+            if (excludeDeTaiId != null && dt.getId().equals(excludeDeTaiId)) {
+                continue;
+            }
+
+            String tenDBChuanHoa = chuanHoaTenDeTai(dt.getTenDeTai());
+            if (tenChuanHoa.equals(tenDBChuanHoa)) {
+                throw new BadRequestException(
+                    "Đề tài '" + dt.getTenDeTai() + "' đã tồn tại trong đợt đăng ký này!");
+            }
+        }
+    }
+
     @Transactional
     public DeTaiResponse dangKyLaiDeTai(Long deTaiId, DeTaiRequest request, String email) {
         SinhVien sinhVien = sinhVienRepository.findByTaiKhoanEmail(email)
@@ -128,6 +206,12 @@ public class SinhVienService {
         if (dotDangKy.getTrangThai() != TrangThaiDot.DANG_MO) {
             throw new BadRequestException("Đợt đăng ký đã kết thúc");
         }
+
+        // Validate tên đề tài 
+        validateTenDeTai(request.getTenDeTai());
+
+        // Kiểm tra trùng tên đề tài 
+        kiemTraTrungTenDeTai(request.getTenDeTai(), request.getDotDangKyId(), deTaiId);
 
         GiangVien gvDuKien = null;
         if (request.getGiangVienDuKienId() != null) {

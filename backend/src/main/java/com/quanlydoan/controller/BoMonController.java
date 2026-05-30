@@ -108,6 +108,15 @@ public class BoMonController {
         return ResponseEntity.ok(ApiResponse.success(boMonService.getGiangVienByBoMon(targetBoMonId)));
     }
 
+    // Cập nhật giới hạn số đề tài tối đa cho giảng viên
+    @PutMapping("/giang-vien/{id}/gioi-han-de-tai")
+    public ResponseEntity<ApiResponse<GiangVienResponse>> capNhatGioiHanDeTai(
+            @PathVariable Long id,
+            @Valid @RequestBody GioiHanDeTaiRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Cập nhật thành công",
+                boMonService.capNhatGioiHanDeTai(id, request.getSoDeTaiToiDa())));
+    }
+
     @GetMapping("/sinh-vien")
     public ResponseEntity<ApiResponse<List<SinhVienResponse>>> getSinhVien(
             @RequestParam(required = false) Long boMonId) {

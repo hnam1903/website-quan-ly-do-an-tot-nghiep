@@ -56,6 +56,12 @@ export interface GiangVienResponse {
   laLanhDao?: boolean;
   taiKhoanId?: number;
   trangThaiTaiKhoan?: boolean;
+  // Số đề tài tối đa được hướng dẫn
+  soDeTaiToiDa?: number;
+  // Số đề tài đang hướng dẫn
+  soDeTaiDangHuongDan?: number;
+  // Số đề tài còn có thể nhận
+  soDeTaiConLai?: number;
 }
 
 export interface SinhVienResponse {

@@ -232,6 +232,18 @@ public class BoMonService {
         return sinhViens.stream().map(this::mapToSinhVienResponse).collect(Collectors.toList());
     }
 
+    // Cập nhật giới hạn số đề tài tối đa cho giảng viên
+    @Transactional
+    public GiangVienResponse capNhatGioiHanDeTai(Long giangVienId, Integer soDeTaiToiDa) {
+        GiangVien gv = giangVienRepository.findById(giangVienId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giảng viên"));
+
+        gv.setSoDeTaiToiDa(soDeTaiToiDa);
+        gv = giangVienRepository.save(gv);
+
+        return mapToGiangVienResponse(gv);
+    }
+
     @Transactional
     public PhanCongHuongDanResponse phanCongHuongDan(PhanCongHuongDanRequest request) {
         DeTai deTai = deTaiRepository.findById(request.getDeTaiId())
@@ -244,6 +256,18 @@ public class BoMonService {
             currentStatus != TrangThaiDeTai.GV_TU_CHOI &&
             currentStatus != TrangThaiDeTai.CHO_BO_MON_PHAN_CONG) {
             throw new BadRequestException("Đề tài không ở trạng thái cho phép phân công GVHD");
+        }
+
+        // Kiểm tra giới hạn số đề tài của giảng viên
+        if (giangVien.getSoDeTaiToiDa() != null) {
+            long soDeTaiDangHuongDan = phanCongHuongDanRepository
+                    .countDangThucHienByGiangVienId(giangVien.getId(), TrangThaiPhanCong.DUYET);
+
+            if (soDeTaiDangHuongDan >= giangVien.getSoDeTaiToiDa()) {
+                throw new BadRequestException(
+                    "Giảng viên " + giangVien.getHoTen() +
+                    " đã đạt số đề tài tối đa (" + giangVien.getSoDeTaiToiDa() + "). Không thể phân công thêm.");
+            }
         }
 
         PhanCongHuongDan phanCong = deTai.getPhanCongHuongDan();
@@ -530,6 +554,16 @@ public class BoMonService {
     }
 
     private GiangVienResponse mapToGiangVienResponse(GiangVien gv) {
+        // Đếm số đề tài đang hướng dẫn
+        long soDeTaiDangHuongDan = 0;
+        if (phanCongHuongDanRepository != null) {
+            soDeTaiDangHuongDan = phanCongHuongDanRepository
+                    .countDangThucHienByGiangVienId(gv.getId(), TrangThaiPhanCong.DUYET);
+        }
+
+        int soDeTaiToiDa = gv.getSoDeTaiToiDa() != null ? gv.getSoDeTaiToiDa() : 5;
+        int soDeTaiConLai = (int) Math.max(0, soDeTaiToiDa - soDeTaiDangHuongDan);
+
         return GiangVienResponse.builder()
                 .id(gv.getId())
                 .hoTen(gv.getHoTen())
@@ -538,6 +572,9 @@ public class BoMonService {
                 .boMonId(gv.getBoMon() != null ? gv.getBoMon().getId() : null)
                 .tenBoMon(gv.getBoMon() != null ? gv.getBoMon().getTenBoMon() : null)
                 .laLanhDao(gv.getLaLanhDao())
+                .soDeTaiToiDa(soDeTaiToiDa)
+                .soDeTaiDangHuongDan((int) soDeTaiDangHuongDan)
+                .soDeTaiConLai(soDeTaiConLai)
                 .build();
     }
 

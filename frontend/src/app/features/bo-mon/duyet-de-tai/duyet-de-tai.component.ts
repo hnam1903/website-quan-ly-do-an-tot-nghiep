@@ -17,7 +17,6 @@ import { ToastrService } from 'ngx-toastr';
         </div>
         <div>
           <h2>Duyệt đề tài</h2>
-          <p class="mb-0">Xem xét và phê duyệt đề tài từ sinh viên</p>
         </div>
       </div>
       <span class="badge bg-warning text-dark">
@@ -108,7 +107,7 @@ import { ToastrService } from 'ngx-toastr';
             </div>
             <p class="text-muted mb-3">Sinh viên sẽ phải <strong>đăng ký lại đề tài khác</strong>.</p>
             <div class="mb-3">
-              <label class="form-label">Lý do từ chối (không bắt buộc):</label>
+              <label class="form-label">Lý do từ chối</label>
               <textarea class="form-control" rows="3" [(ngModel)]="lyDoTuChoi" placeholder="Nhập lý do từ chối..."></textarea>
             </div>
           </div>
@@ -193,7 +192,6 @@ import { ToastrService } from 'ngx-toastr';
               <strong>{{ selectedDeTai?.tenDeTai }}</strong><br>
               <small>SV: {{ selectedDeTai?.hoTenSinhVien }}</small>
             </div>
-            <p>Đề tài sẽ được đưa vào <strong>danh sách đề tài đang thực hiện</strong>.</p>
             <p class="text-muted small mb-0">Bộ môn sẽ tiến hành phân công giảng viên hướng dẫn.</p>
           </div>
           <div class="modal-footer">

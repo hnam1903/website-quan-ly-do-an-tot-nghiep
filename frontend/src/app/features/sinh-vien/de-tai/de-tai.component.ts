@@ -77,7 +77,22 @@ import { ToastrService } from 'ngx-toastr';
 
               <div class="mb-3">
                 <label class="form-label fw-medium">Tên đề tài <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" [(ngModel)]="formData.tenDeTai" name="tenDeTai" required placeholder="Nhập tên đề tài của bạn">
+                <input type="text" class="form-control" [(ngModel)]="formData.tenDeTai" name="tenDeTai"
+                       required placeholder="Nhập tên đề tài của bạn"
+                       (input)="onTenDeTaiChange()"
+                       [class.is-invalid]="tenDeTaiError || tenDeTaiTrungError">
+                <div class="invalid-feedback d-block" *ngIf="tenDeTaiError">
+                  {{ tenDeTaiError }}
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="tenDeTaiTrungError">
+                  {{ tenDeTaiTrungError }}
+                </div>
+                <small class="text-muted">
+                  <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
+                  Tên đề tài phải bắt đầu bằng:
+                  <strong>Xây dựng</strong>, <strong>Nghiên cứu</strong>, <strong>Phát triển</strong>,
+                  <strong>Thiết kế</strong>, <strong>Ứng dụng</strong>
+                </small>
               </div>
 
               <div class="row g-3 mb-3">
@@ -102,10 +117,10 @@ import { ToastrService } from 'ngx-toastr';
               </div>
 
               <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" [disabled]="!!tenDeTaiError">
                   <span class="material-symbols-outlined me-1">check</span>Đăng ký
                 </button>
-                <button type="button" class="btn btn-outline-secondary" (click)="formData = {}">
+                <button type="button" class="btn btn-outline-secondary" (click)="resetForm()">
                   <span class="material-symbols-outlined me-1">refresh</span>Nhập lại
                 </button>
               </div>
@@ -223,7 +238,16 @@ import { ToastrService } from 'ngx-toastr';
               </div>
               <div class="mb-3">
                 <label class="form-label fw-medium">Tên đề tài <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" [(ngModel)]="formData.tenDeTai" name="tenDeTai" required placeholder="Nhập tên đề tài mới">
+                <input type="text" class="form-control" [(ngModel)]="formData.tenDeTai" name="tenDeTai"
+                       required placeholder="Nhập tên đề tài mới"
+                       (input)="onTenDeTaiChange()"
+                       [class.is-invalid]="tenDeTaiError || tenDeTaiTrungError">
+                <div class="invalid-feedback d-block" *ngIf="tenDeTaiError">
+                  {{ tenDeTaiError }}
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="tenDeTaiTrungError">
+                  {{ tenDeTaiTrungError }}
+                </div>
               </div>
               <div class="mb-3">
                 <label class="form-label fw-medium">Giảng viên hướng dẫn dự kiến</label>
@@ -244,7 +268,7 @@ import { ToastrService } from 'ngx-toastr';
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="submit" class="btn btn-primary">Đăng ký lại</button>
+                <button type="submit" class="btn btn-primary" [disabled]="!!tenDeTaiError">Đăng ký lại</button>
               </div>
             </form>
           </div>
@@ -278,6 +302,11 @@ export class DeTaiSvComponent implements OnInit {
   deTaiCuaToi: DeTaiResponse | null = null;
   daDangKy = false;
   formData: any = {};
+  tenDeTaiError: string | null = null;
+  tenDeTaiTrungError: string | null = null;
+
+  // Danh sách tiền tố hợp lệ
+  tienToHopLe = ['Xây dựng', 'Nghiên cứu', 'Phát triển', 'Thiết kế', 'Ứng dụng'];
 
   constructor(
     private svService: SinhVienService,
@@ -338,6 +367,7 @@ export class DeTaiSvComponent implements OnInit {
         next: (res) => {
           if (res.success) {
             this.toastr.success('Đăng ký lại thành công!');
+            this.tenDeTaiTrungError = null;
             const modalEl = document.getElementById('dangKyLaiModal');
             if (modalEl) {
               const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
@@ -347,7 +377,12 @@ export class DeTaiSvComponent implements OnInit {
           }
         },
         error: (err) => {
-          this.toastr.error(err.error?.message || 'Đăng ký lại thất bại');
+          const msg = err.error?.message || 'Đăng ký lại thất bại';
+          if (msg.includes('đã tồn tại')) {
+            this.tenDeTaiTrungError = msg;
+          } else {
+            this.toastr.error(msg);
+          }
         }
       });
     } else {
@@ -356,6 +391,7 @@ export class DeTaiSvComponent implements OnInit {
         next: (res) => {
           if (res.success) {
             this.toastr.success('Đăng ký đề tài mới thành công!');
+            this.tenDeTaiTrungError = null;
             const modalEl = document.getElementById('dangKyLaiModal');
             if (modalEl) {
               const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
@@ -365,7 +401,12 @@ export class DeTaiSvComponent implements OnInit {
           }
         },
         error: (err) => {
-          this.toastr.error(err.error?.message || 'Đăng ký đề tài thất bại');
+          const msg = err.error?.message || 'Đăng ký đề tài thất bại';
+          if (msg.includes('đã tồn tại')) {
+            this.tenDeTaiTrungError = msg;
+          } else {
+            this.toastr.error(msg);
+          }
         }
       });
     }
@@ -380,11 +421,17 @@ export class DeTaiSvComponent implements OnInit {
       next: (res) => {
         if (res.success) {
           this.toastr.success('Đăng ký thành công!');
+          this.tenDeTaiTrungError = null;
           this.loadData();
         }
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Đăng ký thất bại');
+        const msg = err.error?.message || 'Đăng ký thất bại';
+        if (msg.includes('đã tồn tại')) {
+          this.tenDeTaiTrungError = msg;
+        } else {
+          this.toastr.error(msg);
+        }
       }
     });
   }
@@ -459,5 +506,31 @@ export class DeTaiSvComponent implements OnInit {
 
   isQuaHan(ngayKetThuc: string): boolean {
     return new Date(ngayKetThuc) < new Date();
+  }
+
+  // Validate tên đề tài
+  onTenDeTaiChange(): void {
+    const tenDeTai = this.formData.tenDeTai?.trim();
+    if (!tenDeTai) {
+      this.tenDeTaiError = null;
+      return;
+    }
+
+    const lowerTenDeTai = tenDeTai.toLowerCase();
+    const hopLe = this.tienToHopLe.some(tienTo =>
+      lowerTenDeTai.startsWith(tienTo.toLowerCase())
+    );
+
+    if (!hopLe) {
+      this.tenDeTaiError = 'Tên đề tài phải bắt đầu bằng: ' + this.tienToHopLe.join(', ');
+    } else {
+      this.tenDeTaiError = null;
+    }
+  }
+
+  // Reset form
+  resetForm(): void {
+    this.formData = {};
+    this.tenDeTaiError = null;
   }
 }

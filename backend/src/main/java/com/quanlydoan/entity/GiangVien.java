@@ -36,6 +36,10 @@ public class GiangVien {
     @Builder.Default
     private Boolean laLanhDao = false;
 
+    @Column(name = "so_de_tai_toi_da")
+    @Builder.Default
+    private Integer soDeTaiToiDa = 5;  
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

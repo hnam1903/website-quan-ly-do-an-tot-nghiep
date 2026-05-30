@@ -27,7 +27,6 @@ export class BoMonService {
 
   getDeTaiByTrangThai(trangThais: string[]): Observable<ApiResponse<DeTaiResponse[]>> {
     let params = new HttpParams();
-    // Backend chưa hỗ trợ nhiều trạng thái nên gọi lần lượt
     return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/de-tai?trangThai=${trangThais[0]}`, { params });
   }
 
@@ -39,7 +38,6 @@ export class BoMonService {
     return this.http.put<ApiResponse<DeTaiResponse>>(`${this.apiUrl}/de-tai/${id}/tu-choi`, { ghiChu });
   }
 
-  // Lấy đề tài đang chờ bộ môn duyệt (sinh viên vừa đăng ký)
   getDeTaiChoBoMonDuyet(): Observable<ApiResponse<DeTaiResponse[]>> {
     return this.http.get<ApiResponse<DeTaiResponse[]>>(`${this.apiUrl}/de-tai/cho-bo-mon-duyet`);
   }
@@ -158,7 +156,6 @@ export class BoMonService {
     });
   }
 
-  // Dashboard thống kê
   getThongKe(): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(`${this.apiUrl}/thong-ke`);
   }
@@ -185,5 +182,11 @@ export class BoMonService {
       params = params.set('dotId', dotId.toString());
     }
     return this.http.get<ApiResponse<QuanLyDiemResponse[]>>(`${this.apiUrl}/quan-ly-diem`, { params });
+  }
+
+  capNhatGioiHanDeTai(gvId: number, soDeTaiToiDa: number): Observable<ApiResponse<GiangVienResponse>> {
+    return this.http.put<ApiResponse<GiangVienResponse>>(`${this.apiUrl}/giang-vien/${gvId}/gioi-han-de-tai`, {
+      soDeTaiToiDa
+    });
   }
 }
