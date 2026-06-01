@@ -232,7 +232,6 @@ public class BoMonService {
         return sinhViens.stream().map(this::mapToSinhVienResponse).collect(Collectors.toList());
     }
 
-    // Cập nhật giới hạn số đề tài tối đa cho giảng viên
     @Transactional
     public GiangVienResponse capNhatGioiHanDeTai(Long giangVienId, Integer soDeTaiToiDa) {
         GiangVien gv = giangVienRepository.findById(giangVienId)
@@ -258,7 +257,6 @@ public class BoMonService {
             throw new BadRequestException("Đề tài không ở trạng thái cho phép phân công GVHD");
         }
 
-        // Kiểm tra giới hạn số đề tài của giảng viên
         if (giangVien.getSoDeTaiToiDa() != null) {
             long soDeTaiDangHuongDan = phanCongHuongDanRepository
                     .countDangThucHienByGiangVienId(giangVien.getId(), TrangThaiPhanCong.DUYET);

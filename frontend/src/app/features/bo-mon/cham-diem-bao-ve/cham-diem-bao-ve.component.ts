@@ -17,7 +17,7 @@ import { ToastrService } from 'ngx-toastr';
         </div>
         <div>
           <h2>Chấm điểm bảo vệ</h2>
-          <p class="mb-0">Nhập và quản lý điểm bảo vệ của các hội đồng</p>
+        
         </div>
       </div>
       <label class="btn btn-primary mb-0">
@@ -67,7 +67,7 @@ import { ToastrService } from 'ngx-toastr';
                   <td>
                     <span class="text-truncate d-inline-block" style="max-width: 200px">{{ hd.tenDeTai }}</span>
                   </td>
-                  <td>{{ hd.ngayBaoVe ? (hd.ngayBaoVe | date:'dd/MM/yyyy HH:mm') : '-' }}</td>
+                  <td>{{ hd.ngayBaoVe ? (hd.ngayBaoVe | date:'dd/MM/yyyy') : '-' }}</td>
                   <td>{{ hd.diaDiem || '-' }}</td>
                   <td>
                     <span class="badge" [ngClass]="getBadgeClass(hd.trangThai)">

@@ -19,7 +19,12 @@ public class GeminiChatService {
     private final ObjectMapper objectMapper;
 
     private static final String SYSTEM_PROMPT = """
-            Bạn là chuyên gia tư vấn đề tài đồ án CNTT. Gợi ý 5 đề tài phù hợp.
+            Bạn là giảng viên đại học có kinh nghiệm hướng dẫn đồ án tốt nghiệp ngành Công nghệ Thông tin.
+            Hãy đề xuất 5 đề tài phù hợp với sinh viên đại học.
+            Yêu cầu:
+            - Có tính thực tế phù hợp với sinh viên đại học làm đồ án tốt nghiệp.          
+            - Tên đề tài phải bắt đầu bằng:"Xây dựng", "Nghiên cứu", "Phát triển", "Thiết kế" hoặc "Ứng dụng".
+            - Tên đề tài phải mang tính học thuật và phù hợp với đồ án CNTT.
             Mỗi đề tài gồm: tên, 1-2 dòng mô tả, công nghệ, đánh giá ngắn.
             Trả về JSON:
             {"danhSachDeTai":[{"tenDeTai":"...","noiDungDuKien":"...","congNgheSuDung":"...","danhGiaThucTe":"..."}]}

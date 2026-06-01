@@ -18,7 +18,6 @@ import { ToastrService } from 'ngx-toastr';
         </div>
         <div>
           <h2>Phân công Giảng viên phản biện</h2>
-          <p class="mb-0">Gán giảng viên phản biện cho sinh viên</p>
         </div>
       </div>
     </div>
@@ -61,8 +60,14 @@ import { ToastrService } from 'ngx-toastr';
                 <td>
                   <select class="form-select form-select-sm" [(ngModel)]="selectedGvPbMap[dt.id]">
                     <option [value]="null">Chọn GVPB</option>
-                    <option *ngFor="let gv of giangVienList" [value]="gv.id">
-                      {{ gv.hoTen }} ({{ gv.hocVi }})
+                    <option *ngFor="let gv of giangVienList" [value]="gv.id"
+                            [disabled]="isGvTrungVoiGvhd(dt, gv.id)"
+                            [class.text-danger]="isGvTrungVoiGvhd(dt, gv.id)"
+                            [class.bg-warning]="isGvTrungVoiGvhd(dt, gv.id)">
+                      {{ gv.hoTen }}
+                      <span *ngIf="isGvTrungVoiGvhd(dt, gv.id)" class="text-danger fw-bold">
+                        [Trùng GVHD]
+                      </span>
                     </option>
                   </select>
                 </td>
@@ -109,6 +114,11 @@ export class PhanCongPhanBienBmComponent implements OnInit {
         if (res.success) this.giangVienList = res.data || [];
       }
     });
+  }
+
+  // Kiểm tra GV phản biện có trùng với GV hướng dẫn không
+  isGvTrungVoiGvhd(dt: DeTaiResponse, gvId: number): boolean {
+    return dt.giangVienHuongDanId === gvId;
   }
 
   phanCongPB(deTaiId: number): void {

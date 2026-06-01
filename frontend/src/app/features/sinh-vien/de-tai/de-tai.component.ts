@@ -42,7 +42,7 @@ import { ToastrService } from 'ngx-toastr';
               <p class="mb-0 small" [class.text-danger]="isQuaHan(dot.ngayKetThuc)">
                 <span class="material-symbols-outlined me-1" style="font-size: 16px;">schedule</span>
                 Hạn: {{ dot.ngayKetThuc | date:'dd/MM/yyyy' }}
-                <span *ngIf="isQuaHan(dot.ngayKetThuc)" class="badge bg-danger ms-2">Đã hết hạn</span>
+                
               </p>
             </div>
           </div>
@@ -305,7 +305,6 @@ export class DeTaiSvComponent implements OnInit {
   tenDeTaiError: string | null = null;
   tenDeTaiTrungError: string | null = null;
 
-  // Danh sách tiền tố hợp lệ
   tienToHopLe = ['Xây dựng', 'Nghiên cứu', 'Phát triển', 'Thiết kế', 'Ứng dụng'];
 
   constructor(
@@ -359,9 +358,6 @@ export class DeTaiSvComponent implements OnInit {
       return;
     }
 
-    // Hybrid approach:
-    // - BI_TU_CHOI: cập nhật đề tài cũ (dangKyLaiDeTai)
-    // - KHONG_DAT_*: tạo đề tài mới (dangKyDeTai)
     if (this.deTaiCuaToi!.trangThai === 'BI_TU_CHOI') {
       this.svService.dangKyLaiDeTai(this.deTaiCuaToi!.id, this.formData).subscribe({
         next: (res) => {
@@ -386,7 +382,6 @@ export class DeTaiSvComponent implements OnInit {
         }
       });
     } else {
-      // KHONG_DAT_GVHD, KHONG_DAT_PHAN_BIEN, KHONG_DAT_BAO_VE: tạo đề tài mới
       this.svService.dangKyDeTai(this.formData).subscribe({
         next: (res) => {
           if (res.success) {

@@ -18,7 +18,6 @@ import { ToastrService } from 'ngx-toastr';
         </div>
         <div>
           <h2>Thành lập hội đồng bảo vệ</h2>
-          <p class="mb-0">Thiết lập hội đồng cho sinh viên bảo vệ</p>
         </div>
       </div>
     </div>
@@ -95,7 +94,7 @@ import { ToastrService } from 'ngx-toastr';
               </div>
               <div class="col-md-6">
                 <label class="form-label">Địa điểm</label>
-                <input type="text" class="form-control" [(ngModel)]="formData.diaDiem" placeholder="VD: Phòng 301">
+                <input type="text" class="form-control" [(ngModel)]="formData.diaDiem" placeholder="VD: Phòng 704">
               </div>
             </div>
 

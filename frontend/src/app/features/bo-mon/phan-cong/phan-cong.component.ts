@@ -81,12 +81,14 @@ import { ToastrService } from 'ngx-toastr';
                           [class.border-danger]="isGvDaySlot(selectedGvMap[dt.id])">
                     <option [value]="null">Chọn GVHD</option>
                     <option *ngFor="let gv of giangVienList" [value]="gv.id"
-                            [class.text-danger]="isGvDaySlot(gv.id)">
-                      {{ gv.hoTen }} ({{ gv.hocVi }})
+                            [disabled]="isGvDaySlot(gv.id)"
+                            [class.text-danger]="isGvDaySlot(gv.id)"
+                            [class.bg-warning]="isGvDaySlot(gv.id)">
+                      {{ gv.hoTen }} 
                       <ng-container *ngIf="gv.soDeTaiConLai !== undefined && gv.soDeTaiConLai !== null">
                         - {{ gv.soDeTaiDangHuongDan || 0 }}/{{ gv.soDeTaiToiDa || 5 }}
-                        <span *ngIf="(gv.soDeTaiConLai || 0) <= 0" class="text-danger">
-                          (Đã đầy)
+                        <span *ngIf="(gv.soDeTaiConLai || 0) <= 0" class="text-danger fw-bold">
+                          [Đã đầy]
                         </span>
                         <span *ngIf="(gv.soDeTaiConLai || 0) > 0" class="text-success">
                           (Còn {{ gv.soDeTaiConLai }})
@@ -96,9 +98,8 @@ import { ToastrService } from 'ngx-toastr';
                     </select>
                 </td>
                 <td class="text-center">
-                  <button class="btn btn-sm btn-success" (click)="phanCongHD(dt.id)"
-                          [disabled]="isGvDaySlot(selectedGvMap[dt.id])">
-                    <span class="material-symbols-outlined me-1">check</span> Xác nhận
+                  <button class="btn btn-sm btn-success" (click)="phanCongHD(dt.id)">
+                    <span class="material-symbols-outlined me-1">check</span> Phân công
                   </button>
                 </td>
               </tr>
@@ -148,12 +149,14 @@ import { ToastrService } from 'ngx-toastr';
                           [class.border-danger]="isGvDaySlot(selectedGvMap[dt.id])">
                     <option [value]="null">Chọn GVHD</option>
                     <option *ngFor="let gv of giangVienList" [value]="gv.id"
-                            [class.text-danger]="isGvDaySlot(gv.id)">
-                      {{ gv.hoTen }} ({{ gv.hocVi }})
+                            [disabled]="isGvDaySlot(gv.id)"
+                            [class.text-danger]="isGvDaySlot(gv.id)"
+                            [class.bg-warning]="isGvDaySlot(gv.id)">
+                      {{ gv.hoTen }} 
                       <ng-container *ngIf="gv.soDeTaiConLai !== undefined && gv.soDeTaiConLai !== null">
                         - {{ gv.soDeTaiDangHuongDan || 0 }}/{{ gv.soDeTaiToiDa || 5 }}
-                        <span *ngIf="(gv.soDeTaiConLai || 0) <= 0" class="text-danger">
-                          (Đã đầy)
+                        <span *ngIf="(gv.soDeTaiConLai || 0) <= 0" class="text-danger fw-bold">
+                          [Đã đầy]
                         </span>
                         <span *ngIf="(gv.soDeTaiConLai || 0) > 0" class="text-success">
                           (Còn {{ gv.soDeTaiConLai }})
@@ -163,9 +166,8 @@ import { ToastrService } from 'ngx-toastr';
                     </select>
                 </td>
                 <td class="text-center">
-                  <button class="btn btn-sm btn-primary" (click)="phanCongHD(dt.id)"
-                          [disabled]="isGvDaySlot(selectedGvMap[dt.id])">
-                    <span class="material-symbols-outlined me-1">add</span> Phân công
+                  <button class="btn btn-sm btn-success" (click)="phanCongHD(dt.id)">
+                    <span class="material-symbols-outlined me-1">check</span> Phân công
                   </button>
                 </td>
               </tr>

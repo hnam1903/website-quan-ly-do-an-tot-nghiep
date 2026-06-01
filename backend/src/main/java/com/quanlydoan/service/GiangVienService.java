@@ -42,7 +42,6 @@ public class GiangVienService {
     public List<PhanCongHuongDanResponse> getDeTaiHuongDan(Long giangVienId, Long dotId) {
         List<PhanCongHuongDanResponse> responses = new ArrayList<>();
 
-        // Lấy các phân công có trạng thái DUYET của GV này
         List<PhanCongHuongDan> phanCongs = phanCongHuongDanRepository.findAll().stream()
                 .filter(pc -> pc.getGiangVien() != null &&
                              pc.getGiangVien().getId().equals(giangVienId) &&
